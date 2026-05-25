@@ -1,0 +1,2 @@
+# Radevu nightly backup at 03:15 local time
+15 3 * * * /usr/local/bin/radevu-backup.sh >> /var/log/radevu-backup.log 2>&1

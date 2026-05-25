@@ -1,0 +1,16 @@
+{
+  "name": "@radevu/email",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-email/components": "^0.0.28",
+    "react": "^18.3.1",
+    "resend": "^4.0.1"
+  }
+}

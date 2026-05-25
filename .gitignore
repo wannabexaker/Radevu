@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+.next
+dist
+build
+out
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Prisma
+packages/db/prisma/migrations/dev.db*
+
+# Testing
+coverage
+playwright-report
+test-results
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Claude Code local overrides (per-user, not shared)
+.claude/settings.local.json
+
+# Cloudflare Tunnel — real config has secrets, only the example is committed
+infra/cloudflared/config.yml
+infra/cloudflared/*.json

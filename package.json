@@ -1,0 +1,24 @@
+{
+  "name": "radevu",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Radevu — booking SaaS platform for small service businesses.",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm --filter @radevu/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @radevu/web test:e2e",
+    "db:generate": "pnpm --filter @radevu/db generate",
+    "db:migrate": "pnpm --filter @radevu/db migrate:dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

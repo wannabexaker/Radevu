@@ -1,0 +1,134 @@
+version: "3.9"
+
+# Radevu — PRODUCTION docker-compose (Raspberry Pi 4 in beta, Hetzner CAX21 in production).
+# Pulls pre-built ARM64 images from GHCR — no build happens on the Pi.
+#
+# Usage on Pi:
+#   cp infra/.env.example infra/.env   (fill in values, especially GHCR_USER + secrets)
+#   docker compose -f infra/docker-compose.prod.yml --env-file infra/.env pull
+#   docker compose -f infra/docker-compose.prod.yml --env-file infra/.env up -d
+#
+# Update flow on Pi (after GitHub Actions builds a new image):
+#   docker compose -f infra/docker-compose.prod.yml --env-file infra/.env pull web
+#   docker compose -f infra/docker-compose.prod.yml --env-file infra/.env up -d web
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: radevu-postgres
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+      - FOWNER
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - services
+    mem_limit: 1024m
+    cpus: "1.0"
+
+  redis:
+    image: redis:7-alpine
+    container_name: radevu-redis
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    networks:
+      - services
+    mem_limit: 256m
+    cpus: "0.5"
+
+  # Hardening: capability drop + no-new-privileges. Image runs as nodejs
+  # (uid 1001) per Dockerfile. Postgres/Redis ports are intentionally not
+  # host-bound: they stay on the internal bridge network only.
+  web:
+    image: ghcr.io/${GHCR_USER}/radevu-web:${RADEVU_IMAGE_TAG:-latest}
+    container_name: radevu-web
+    restart: unless-stopped
+    user: "1001:1001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      CONTACT_NOTIFICATION_EMAIL: ${CONTACT_NOTIFICATION_EMAIL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      BOOKING_BASE_DOMAIN: ${BOOKING_BASE_DOMAIN}
+      ROUTING_MODE: ${ROUTING_MODE}
+    ports:
+      - "3000:3000"
+    volumes:
+      - /srv/radevu/uploads:/srv/radevu/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - services
+    mem_limit: 768m
+    cpus: "1.0"
+
+  # Cloudflare Tunnel — uncomment in Beta Phase 1+ (after radevu.gr is registered).
+  # See infra/cloudflared/config.yml.example.
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: radevu-cloudflared
+  #   restart: unless-stopped
+  #   command: tunnel --no-autoupdate run
+  #   environment:
+  #     - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+  #   depends_on:
+  #     - web
+  #   networks:
+  #     - services
+  #   mem_limit: 128m
+  #   cpus: "0.25"
+
+networks:
+  services:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

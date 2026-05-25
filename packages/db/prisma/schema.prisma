@@ -1,0 +1,170 @@
+// Radevu - Phase 1 schema. See docs/ARCHITECTURE.md section 8.
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// better-auth models - must match the better-auth Prisma adapter schema.
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  name          String?
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+  business Business?
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verifications")
+}
+
+// Radevu domain models.
+model Business {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  contactEmail String?  @map("contact_email")
+  contactPhone String?  @map("contact_phone")
+  timezone     String   @default("Europe/Athens")
+  workingHours Json     @default("{}") @map("working_hours")
+  logoUrl      String?  @map("logo_url")
+  photoUrl     String?  @map("photo_url")
+  socialLinks  Json     @default("{}") @map("social_links")
+  mapsUrl      String?  @map("maps_url")
+  notificationSettings Json @default("{\"confirmation_enabled\":true,\"reminder_enabled\":true,\"reminder_lead_minutes\":1440}") @map("notification_settings")
+  showOnLanding Boolean @default(false) @map("show_on_landing")
+  ownerId      String   @unique @map("owner_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  services     Service[]
+  customers    Customer[]
+  appointments Appointment[]
+
+  @@map("businesses")
+}
+
+model Service {
+  id              String   @id @default(cuid())
+  businessId      String   @map("business_id")
+  name            String
+  durationMinutes Int      @map("duration_minutes")
+  priceCents      Int      @map("price_cents")
+  currency        String   @default("EUR")
+  description     String?
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  @@index([businessId, active])
+  @@map("services")
+}
+
+model Customer {
+  id                   String   @id @default(cuid())
+  businessId           String   @map("business_id")
+  name                 String
+  email                String?
+  phone                String?
+  futureRecommendation String?  @map("future_recommendation")
+  notes                String?
+  reminderDates        Json     @default("[]") @map("reminder_dates")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  @@unique([businessId, email])
+  @@unique([businessId, phone])
+  @@index([businessId])
+  @@map("customers")
+}
+
+enum AppointmentStatus {
+  scheduled
+  done
+  cancelled
+}
+
+model Appointment {
+  id             String            @id @default(cuid())
+  businessId     String            @map("business_id")
+  customerId     String            @map("customer_id")
+  serviceId      String            @map("service_id")
+  startsAt       DateTime          @map("starts_at")
+  endsAt         DateTime          @map("ends_at")
+  status         AppointmentStatus @default(scheduled)
+  paid           Boolean           @default(false)
+  amountDueCents Int               @default(0) @map("amount_due_cents")
+  notes          String?
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  service  Service  @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@index([businessId, startsAt])
+  @@index([businessId, status])
+  @@map("appointments")
+}

@@ -1,0 +1,16 @@
+# Cloudflare Tunnel config for Radevu — Beta Phase 1+
+# Copy to /etc/cloudflared/config.yml on the Pi, fill in tunnel UUID + credentials path.
+
+tunnel: REPLACE_WITH_TUNNEL_UUID
+credentials-file: /etc/cloudflared/REPLACE_WITH_TUNNEL_UUID.json
+
+ingress:
+  - hostname: radevu.gr
+    service: http://localhost:3000
+  - hostname: "*.radevu.gr"
+    service: http://localhost:3000
+  - service: http_status:404
+
+# After this file is in place:
+#   sudo cloudflared service install
+#   sudo systemctl enable --now cloudflared
