@@ -70,6 +70,7 @@ yarn-error.log*
 RADEVU-*.md
 RADEVU-*-HANDOFF.md
 RADEVU-*-AGENT-PROMPT.md
+/docs
 
 # ─── Codex agent workspace artefacts ───────────────────────────
 .codex/
