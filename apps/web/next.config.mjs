@@ -8,6 +8,7 @@ const monorepoRoot = path.resolve(__dirname, "../..");
 const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: monorepoRoot,
+  serverExternalPackages: ["ioredis"],
   outputFileTracingIncludes: {
     "/*": [
       "../../node_modules/.pnpm/@prisma+client@*/node_modules/.prisma/client/**/*",
@@ -23,12 +24,26 @@ const nextConfig = {
       process.env.BOOKING_BASE_DOMAIN ?? "localhost",
     NEXT_PUBLIC_ROUTING_MODE: process.env.ROUTING_MODE ?? "subpath"
   },
-  webpack(config) {
+  webpack(config, { isServer }) {
     config.resolve.extensionAlias = {
       ".js": [".ts", ".tsx", ".js"],
       ".mjs": [".mts", ".mjs"],
       ".cjs": [".cts", ".cjs"]
     };
+
+    if (isServer) {
+      config.externals = [
+        ...(Array.isArray(config.externals) ? config.externals : []),
+        ({ request }, callback) => {
+          if (request === "ioredis") {
+            callback(null, "commonjs ioredis");
+            return;
+          }
+
+          callback();
+        }
+      ];
+    }
 
     return config;
   }

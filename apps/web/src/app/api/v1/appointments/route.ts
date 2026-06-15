@@ -14,6 +14,11 @@ import {
 } from "@radevu/shared";
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  appointmentGuestTokenExpiresAt,
+  createAppointmentGuestToken,
+  hashAppointmentGuestToken
+} from "@/lib/appointment-access";
+import {
   listAppointments,
   serializeAppointmentWithRelations
 } from "@/lib/appointments";
@@ -44,6 +49,7 @@ type ErrorResponse = {
 
 type AppointmentResponse = {
   appointment: AppointmentDTO;
+  customer_manage_url: string | null;
 };
 
 type BookingResult =
@@ -62,9 +68,10 @@ type BookingResult =
 
 type BookingEmailContext = {
   appointment: {
+    customerAccessUrl: string | null;
+    customerNote: string | null;
     endsAt: Date;
     id: string;
-    notes: string | null;
     startsAt: Date;
   };
   business: {
@@ -184,6 +191,12 @@ function dashboardAppointmentsUrl(): string {
   return new URL("/dashboard/appointments", env.BETTER_AUTH_URL).toString();
 }
 
+function customerAppointmentUrl(appointmentId: string, token: string): string {
+  const url = new URL(`/appointments/${appointmentId}`, env.BETTER_AUTH_URL);
+  url.searchParams.set("token", token);
+  return url.toString();
+}
+
 function parseNotificationSettings(value: unknown): NotificationSettingsDTO {
   const parsed = notificationSettingsSchema.safeParse(value);
 
@@ -222,7 +235,13 @@ function dispatchBookingEmails(context: BookingEmailContext): void {
         try {
           await sendBookingConfirmation({
             ...config,
-            appointment: context.appointment,
+            appointment: {
+              endsAt: context.appointment.endsAt,
+              id: context.appointment.id,
+              customerManageUrl: context.appointment.customerAccessUrl,
+              notes: context.appointment.customerNote,
+              startsAt: context.appointment.startsAt
+            },
             business: context.business,
             customer: context.customer,
             service: context.service,
@@ -244,10 +263,10 @@ function dispatchBookingEmails(context: BookingEmailContext): void {
     });
   }
 
-  // Resend sandbox only delivers to the signup inbox in Phase 0. CONTACT_NOTIFICATION_EMAIL
-  // can route owner alerts there without changing production owner-email behavior later.
   const ownerRecipient =
-    env.CONTACT_NOTIFICATION_EMAIL ?? context.business.owner.email;
+    env.BOOKING_OWNER_ALERT_EMAIL_OVERRIDE ??
+    context.business.contactEmail ??
+    context.business.owner.email;
 
   if (ownerRecipient) {
     jobs.push(
@@ -255,7 +274,10 @@ function dispatchBookingEmails(context: BookingEmailContext): void {
         try {
           await sendOwnerNewBookingAlert({
             ...config,
-            appointment: context.appointment,
+            appointment: {
+              notes: context.appointment.customerNote,
+              startsAt: context.appointment.startsAt
+            },
             business: context.business,
             customer: context.customer,
             dashboardUrl: dashboardAppointmentsUrl(),
@@ -449,6 +471,9 @@ export async function POST(
   }
 
   try {
+    const guestToken = createAppointmentGuestToken();
+    const guestTokenHash = hashAppointmentGuestToken(guestToken);
+    const guestTokenExpiresAt = appointmentGuestTokenExpiresAt();
     const slotLockKey = `${input.service_id}:${startsAt.toISOString()}`;
 
     const result = await prisma.$transaction<BookingResult>(async (tx) => {
@@ -588,7 +613,18 @@ export async function POST(
           status: "scheduled",
           paid: false,
           amountDueCents: service.priceCents,
-          notes: input.note ?? null
+          customerNote: input.note ?? null,
+          guestTokenExpiresAt,
+          guestTokenHash,
+          messages: input.note
+            ? {
+                create: {
+                  authorRole: "customer",
+                  body: input.note,
+                  businessId: input.business_id
+                }
+              }
+            : undefined
         },
         include: {
           customer: {
@@ -610,9 +646,10 @@ export async function POST(
         appointment: serializeAppointment(appointment),
         emailContext: {
           appointment: {
+            customerAccessUrl: customerAppointmentUrl(appointment.id, guestToken),
+            customerNote: appointment.customerNote,
             endsAt: appointment.endsAt,
             id: appointment.id,
-            notes: appointment.notes,
             startsAt: appointment.startsAt
           },
           business: {
@@ -657,7 +694,8 @@ export async function POST(
 
     return NextResponse.json(
       {
-        appointment: result.appointment
+        appointment: result.appointment,
+        customer_manage_url: result.emailContext.appointment.customerAccessUrl
       },
       { status: 201 }
     );

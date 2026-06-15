@@ -92,10 +92,11 @@ model Business {
   createdAt            DateTime @default(now()) @map("created_at")
   updatedAt            DateTime @updatedAt @map("updated_at")
 
-  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  services     Service[]
-  customers    Customer[]
-  appointments Appointment[]
+  owner               User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  services            Service[]
+  customers           Customer[]
+  appointments        Appointment[]
+  appointmentMessages AppointmentMessage[]
 
   @@map("businesses")
 }
@@ -162,25 +163,51 @@ enum AppointmentStatus {
   cancelled
 }
 
-model Appointment {
-  id             String            @id @default(cuid())
-  businessId     String            @map("business_id")
-  customerId     String            @map("customer_id")
-  serviceId      String            @map("service_id")
-  startsAt       DateTime          @map("starts_at")
-  endsAt         DateTime          @map("ends_at")
-  status         AppointmentStatus @default(scheduled)
-  paid           Boolean           @default(false)
-  amountDueCents Int               @default(0) @map("amount_due_cents")
-  notes          String?
-  createdAt      DateTime          @default(now()) @map("created_at")
-  updatedAt      DateTime          @updatedAt @map("updated_at")
+enum AppointmentMessageAuthorRole {
+  business
+  customer
+}
 
-  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  service  Service  @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+model Appointment {
+  id                  String            @id @default(cuid())
+  businessId          String            @map("business_id")
+  customerId          String            @map("customer_id")
+  serviceId           String            @map("service_id")
+  startsAt            DateTime          @map("starts_at")
+  endsAt              DateTime          @map("ends_at")
+  status              AppointmentStatus @default(scheduled)
+  paid                Boolean           @default(false)
+  amountDueCents      Int               @default(0) @map("amount_due_cents")
+  notes               String?
+  customerNote        String?           @map("customer_note")
+  customerPrivateNote String?           @map("customer_private_note")
+  guestTokenHash      String?           @map("guest_token_hash")
+  guestTokenExpiresAt DateTime?         @map("guest_token_expires_at")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+
+  business Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  service  Service              @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  messages AppointmentMessage[]
 
   @@index([businessId, startsAt])
   @@index([businessId, status])
+  @@index([guestTokenHash])
   @@map("appointments")
+}
+
+model AppointmentMessage {
+  id            String                       @id @default(cuid())
+  businessId    String                       @map("business_id")
+  appointmentId String                       @map("appointment_id")
+  authorRole    AppointmentMessageAuthorRole @map("author_role")
+  body          String
+  createdAt     DateTime                     @default(now()) @map("created_at")
+
+  business    Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, appointmentId, createdAt])
+  @@map("appointment_messages")
 }

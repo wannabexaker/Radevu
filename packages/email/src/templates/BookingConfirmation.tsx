@@ -21,6 +21,7 @@ export type BookingConfirmationProps = {
   formatted_date: string;
   formatted_price: string;
   formatted_time: string;
+  manage_url?: string;
   note?: string;
   service_name: string;
 };
@@ -41,6 +42,7 @@ export function BookingConfirmation({
   formatted_date,
   formatted_price,
   formatted_time,
+  manage_url,
   note,
   service_name
 }: BookingConfirmationProps): JSX.Element {
@@ -95,6 +97,14 @@ export function BookingConfirmation({
             <Text className="mt-5 text-base leading-relaxed text-slate-700">
               Θα βρεις την πρόσκληση ημερολογίου συνημμένη στο email.
             </Text>
+            {manage_url ? (
+              <Button
+                className="mt-2 rounded-xl bg-indigo-500 px-5 py-3 text-center text-base font-medium text-white"
+                href={manage_url}
+              >
+                Σημειώσεις και μηνύματα
+              </Button>
+            ) : null}
             {business_maps_url ? (
               <Button
                 className="mt-2 rounded-xl bg-indigo-500 px-5 py-3 text-center text-base font-medium text-white"

@@ -2,7 +2,11 @@ import type {
   AppointmentStatusDTO,
   AppointmentWithRelationsDTO
 } from "@radevu/shared";
-import { AppointmentStatus, type Prisma } from "@radevu/db";
+import {
+  AppointmentMessageAuthorRole,
+  AppointmentStatus,
+  type Prisma
+} from "@radevu/db";
 import { prisma } from "@/lib/db";
 
 const DEFAULT_TAKE = 50;
@@ -23,6 +27,17 @@ const appointmentInclude = {
       id: true,
       name: true,
       priceCents: true
+    }
+  },
+  messages: {
+    orderBy: {
+      createdAt: "asc"
+    },
+    select: {
+      authorRole: true,
+      body: true,
+      createdAt: true,
+      id: true
     }
   }
 } satisfies Prisma.AppointmentInclude;
@@ -122,14 +137,21 @@ function addDays(dateISO: string, days: number): string {
   return next.toISOString().slice(0, 10);
 }
 
-function todayWindow(timezone: string): { from: Date; to: Date } {
+function localDayWindow(
+  timezone: string,
+  days: number
+): { from: Date; to: Date } {
   const todayISO = isoDateFromParts(datePartsInTimeZone(new Date(), timezone));
-  const tomorrowISO = addDays(todayISO, 1);
+  const endISO = addDays(todayISO, days);
 
   return {
     from: zonedDateTimeToUtc(todayISO, "00:00", timezone),
-    to: zonedDateTimeToUtc(tomorrowISO, "00:00", timezone)
+    to: zonedDateTimeToUtc(endISO, "00:00", timezone)
   };
+}
+
+function todayWindow(timezone: string): { from: Date; to: Date } {
+  return localDayWindow(timezone, 1);
 }
 
 function toPrismaStatus(status: AppointmentStatusDTO): AppointmentStatus {
@@ -181,6 +203,13 @@ export function serializeAppointmentWithRelations(
     paid: appointment.paid,
     amount_due_cents: appointment.amountDueCents,
     notes: appointment.notes,
+    customer_note: appointment.customerNote,
+    messages: appointment.messages.map((message) => ({
+      id: message.id,
+      author_role: message.authorRole,
+      body: message.body,
+      created_at: message.createdAt.toISOString()
+    })),
     customer: {
       id: appointment.customer.id,
       name: appointment.customer.name,
@@ -214,6 +243,40 @@ export async function getTodayAppointments(
   timezone: string
 ): Promise<AppointmentWithRelations[]> {
   const { from, to } = todayWindow(timezone);
+
+  return prisma.appointment.findMany({
+    include: appointmentInclude,
+    orderBy: {
+      startsAt: "asc"
+    },
+    where: {
+      businessId,
+      startsAt: {
+        gte: from,
+        lt: to
+      }
+    }
+  });
+}
+
+/**
+ * Loads appointments from today through a business-local rolling day window.
+ *
+ * SQL equivalent: select appointments for `business_id` where `starts_at >= local
+ * midnight today` and `starts_at < local midnight after N days`, ordered by start time.
+ *
+ * @param businessId - Business id used as the tenant boundary.
+ * @param timezone - IANA timezone used to compute the business-local day window.
+ * @param days - Number of business-local days to include, counting today as day 1.
+ * @returns Appointment rows with customer and service summaries.
+ * @throws Error when Prisma query fails.
+ */
+export async function getUpcomingDashboardAppointments(
+  businessId: string,
+  timezone: string,
+  days: number
+): Promise<AppointmentWithRelations[]> {
+  const { from, to } = localDayWindow(timezone, days);
 
   return prisma.appointment.findMany({
     include: appointmentInclude,
@@ -395,6 +458,52 @@ export async function updateAppointmentPaid(
     },
     where: {
       id: appointmentId
+    }
+  });
+}
+
+/**
+ * Updates the owner-private notes field on one appointment.
+ *
+ * @param appointmentId - Appointment id to mutate.
+ * @param notes - Normalized owner-private notes or null to clear.
+ * @returns Resolves when the update is committed.
+ */
+export async function updateAppointmentNotes(
+  appointmentId: string,
+  notes: string | null
+): Promise<void> {
+  await prisma.appointment.update({
+    data: {
+      notes
+    },
+    where: {
+      id: appointmentId
+    }
+  });
+}
+
+/**
+ * Adds one shared appointment message scoped to the owning business.
+ *
+ * @param businessId - Business id used as the tenant boundary.
+ * @param appointmentId - Appointment id receiving the message.
+ * @param authorRole - Message author side.
+ * @param body - Normalized message body.
+ * @returns Resolves when the message is persisted.
+ */
+export async function createAppointmentMessage(
+  businessId: string,
+  appointmentId: string,
+  authorRole: AppointmentMessageAuthorRole,
+  body: string
+): Promise<void> {
+  await prisma.appointmentMessage.create({
+    data: {
+      appointmentId,
+      authorRole,
+      body,
+      businessId
     }
   });
 }

@@ -8,6 +8,13 @@ export async function register(): Promise<void> {
     return;
   }
 
+  if (
+    process.env.NODE_ENV !== "production" ||
+    process.env.DISABLE_REMINDER_WORKER === "1"
+  ) {
+    return;
+  }
+
   const { startReminderWorker } = await import("./lib/reminder-worker");
   startReminderWorker();
 }

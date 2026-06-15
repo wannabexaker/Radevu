@@ -62,6 +62,17 @@ const ownedAppointmentInclude = {
       name: true,
       priceCents: true
     }
+  },
+  messages: {
+    orderBy: {
+      createdAt: "asc"
+    },
+    select: {
+      authorRole: true,
+      body: true,
+      createdAt: true,
+      id: true
+    }
   }
 } satisfies Prisma.AppointmentInclude;
 

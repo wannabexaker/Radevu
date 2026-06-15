@@ -107,7 +107,22 @@ export type AppointmentDTO = {
 
 export type CreateAppointmentResponse = {
   appointment: AppointmentDTO;
+  customer_manage_url: string | null;
 };
+
+export const createAppointmentMessageSchema = z.object({
+  body: z.string().trim().min(1).max(1000)
+});
+
+export const updateCustomerAppointmentNoteSchema = z.object({
+  customer_private_note: optionalNonEmptyString.pipe(
+    z.string().trim().max(500).optional()
+  )
+});
+
+export type CreateAppointmentMessageInput = z.infer<
+  typeof createAppointmentMessageSchema
+>;
 
 export type AppointmentWithRelationsDTO = {
   id: string;
@@ -120,6 +135,8 @@ export type AppointmentWithRelationsDTO = {
   paid: boolean;
   amount_due_cents: number;
   notes: string | null;
+  customer_note: string | null;
+  messages: AppointmentMessageDTO[];
   customer: {
     id: string;
     name: string;
@@ -133,6 +150,13 @@ export type AppointmentWithRelationsDTO = {
     price_cents: number;
     currency: string;
   };
+};
+
+export type AppointmentMessageDTO = {
+  id: string;
+  author_role: "business" | "customer";
+  body: string;
+  created_at: string;
 };
 
 export type ListAppointmentsResponse = {

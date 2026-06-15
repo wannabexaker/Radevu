@@ -16,7 +16,8 @@ type StepContactFormProps = {
   businessId: string;
   onConfirmed: (
     appointment: ConfirmedAppointment,
-    customerEmail: string | null
+    customerEmail: string | null,
+    customerManageUrl: string | null
   ) => void;
   service: BookingService;
   slot: BookingSlot;
@@ -25,6 +26,15 @@ type StepContactFormProps = {
 
 type AppointmentResponse = {
   appointment: ConfirmedAppointment;
+  customer_manage_url?: string | null;
+};
+
+type ApiErrorResponse = {
+  error?: {
+    code?: string;
+    details?: unknown;
+    message?: string;
+  };
 };
 
 function optionalValue(value: string): string | undefined {
@@ -38,6 +48,60 @@ function isAppointmentResponse(value: unknown): value is AppointmentResponse {
     typeof value === "object" &&
     Boolean((value as { appointment?: unknown }).appointment)
   );
+}
+
+function firstValidationPath(details: unknown): string | null {
+  if (!Array.isArray(details)) {
+    return null;
+  }
+
+  const first = details[0] as { path?: unknown } | undefined;
+
+  return Array.isArray(first?.path) ? first.path.join(".") : null;
+}
+
+async function parseApiError(response: Response): Promise<ApiErrorResponse | null> {
+  try {
+    const payload: unknown = await response.json();
+
+    if (!payload || typeof payload !== "object") {
+      return null;
+    }
+
+    return payload as ApiErrorResponse;
+  } catch {
+    return null;
+  }
+}
+
+function bookingErrorMessage(
+  status: number,
+  payload: ApiErrorResponse | null
+): string {
+  const code = payload?.error?.code;
+  const validationPath = firstValidationPath(payload?.error?.details);
+
+  if (code === "SLOT_TAKEN" || status === 409) {
+    return "Η ώρα δεν είναι πλέον διαθέσιμη. Διάλεξε άλλη ώρα.";
+  }
+
+  if (code === "TOO_SOON") {
+    return "Η ώρα είναι πολύ κοντά. Διάλεξε ώρα τουλάχιστον σε 60 λεπτά.";
+  }
+
+  if (code === "BEYOND_HORIZON") {
+    return "Η ώρα είναι εκτός ορίου. Διάλεξε ημερομηνία μέσα στις επόμενες 90 ημέρες.";
+  }
+
+  if (validationPath === "customer.email") {
+    return "Το email δεν είναι σωστό.";
+  }
+
+  if (validationPath === "customer.phone") {
+    return "Το τηλέφωνο δεν είναι σωστό.";
+  }
+
+  return payload?.error?.message ?? "Δεν μπορέσαμε να ολοκληρώσουμε την κράτηση.";
 }
 
 export function StepContactForm({
@@ -100,17 +164,16 @@ export function StepContactForm({
       });
 
       if (!response.ok) {
+        const errorPayload = await parseApiError(response);
+
         console.error("Appointment booking returned an error", {
           businessId,
+          error: errorPayload?.error ?? null,
           serviceId: service.id,
           startsAt: slot.starts_at,
           status: response.status
         });
-        setError(
-          response.status === 409
-            ? "Η ώρα δεν είναι πλέον διαθέσιμη. Διάλεξε άλλη ώρα."
-            : "Δεν μπορέσαμε να ολοκληρώσουμε την κράτηση."
-        );
+        setError(bookingErrorMessage(response.status, errorPayload));
         return;
       }
 
@@ -127,7 +190,11 @@ export function StepContactForm({
         return;
       }
 
-      onConfirmed(payload.appointment, trimmedEmail ?? null);
+      onConfirmed(
+        payload.appointment,
+        trimmedEmail ?? null,
+        payload.customer_manage_url ?? null
+      );
     } catch (caughtError) {
       console.error("Appointment booking request failed", {
         businessId,
@@ -191,11 +258,12 @@ export function StepContactForm({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="booking-note">Σημείωση</Label>
+          <Label htmlFor="booking-note">Μήνυμα προς την επιχείρηση</Label>
           <Textarea
             id="booking-note"
             maxLength={500}
             onChange={(event) => setNote(event.target.value)}
+            placeholder="Π.χ. θα καθυστερήσω 5 λεπτά ή έχω μια ειδική ανάγκη."
             value={note}
           />
         </div>

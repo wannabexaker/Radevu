@@ -55,6 +55,7 @@ type BookingState = {
   slot: BookingSlot | null;
   appointment: ConfirmedAppointment | null;
   customerEmail: string | null;
+  customerManageUrl: string | null;
 };
 
 type BookingAction =
@@ -74,6 +75,7 @@ type BookingAction =
       type: "confirm";
       appointment: ConfirmedAppointment;
       customerEmail: string | null;
+      customerManageUrl: string | null;
     }
   | {
       type: "back";
@@ -91,7 +93,8 @@ const initialState: BookingState = {
   date: null,
   slot: null,
   appointment: null,
-  customerEmail: null
+  customerEmail: null,
+  customerManageUrl: null
 };
 
 function dateISOFromDate(date: Date): string {
@@ -109,6 +112,7 @@ function reducer(state: BookingState, action: BookingAction): BookingState {
         ...state,
         appointment: null,
         customerEmail: null,
+        customerManageUrl: null,
         date: null,
         service: action.service,
         slot: null,
@@ -119,6 +123,7 @@ function reducer(state: BookingState, action: BookingAction): BookingState {
         ...state,
         appointment: null,
         customerEmail: null,
+        customerManageUrl: null,
         date: action.date,
         slot: null,
         step: "slot"
@@ -128,6 +133,7 @@ function reducer(state: BookingState, action: BookingAction): BookingState {
         ...state,
         appointment: null,
         customerEmail: null,
+        customerManageUrl: null,
         slot: action.slot,
         step: "contact"
       };
@@ -136,6 +142,7 @@ function reducer(state: BookingState, action: BookingAction): BookingState {
         ...state,
         appointment: action.appointment,
         customerEmail: action.customerEmail,
+        customerManageUrl: action.customerManageUrl,
         step: "confirmation"
       };
     case "back":
@@ -250,8 +257,13 @@ export function BookingFlow({
       state.slot ? (
         <StepContactForm
           businessId={business.id}
-          onConfirmed={(appointment, customerEmail) =>
-            dispatch({ type: "confirm", appointment, customerEmail })
+          onConfirmed={(appointment, customerEmail, customerManageUrl) =>
+            dispatch({
+              type: "confirm",
+              appointment,
+              customerEmail,
+              customerManageUrl
+            })
           }
           service={state.service}
           slot={state.slot}
@@ -264,6 +276,7 @@ export function BookingFlow({
           appointment={state.appointment}
           businessName={business.name}
           customerEmail={state.customerEmail}
+          customerManageUrl={state.customerManageUrl}
           onClose={onClose}
           timezone={business.timezone}
         />

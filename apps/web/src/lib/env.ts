@@ -15,6 +15,7 @@ const envSchema = z.object({
   RESEND_API_KEY: optionalNonEmptyString,
   RESEND_FROM_EMAIL: optionalNonEmptyString,
   CONTACT_NOTIFICATION_EMAIL: optionalNonEmptyString,
+  BOOKING_OWNER_ALERT_EMAIL_OVERRIDE: optionalNonEmptyString,
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development")
@@ -32,6 +33,7 @@ const buildTimeEnv = {
   BOOKING_BASE_DOMAIN: "localhost",
   ROUTING_MODE: "subpath",
   CONTACT_NOTIFICATION_EMAIL: "founder@example.com",
+  BOOKING_OWNER_ALERT_EMAIL_OVERRIDE: undefined,
   NODE_ENV: process.env.NODE_ENV ?? "production"
 };
 

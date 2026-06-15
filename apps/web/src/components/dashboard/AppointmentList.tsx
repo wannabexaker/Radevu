@@ -3,12 +3,18 @@ import { AppointmentCard } from "@/components/dashboard/AppointmentCard";
 import type { AppointmentWithRelations } from "@/lib/appointments";
 
 type AppointmentAction = (appointmentId: string) => Promise<void>;
+type AppointmentTextAction = (
+  appointmentId: string,
+  value: string
+) => Promise<void>;
 
 type AppointmentListProps = {
   emptyMessage: string;
   items: AppointmentWithRelations[];
   onCancel: AppointmentAction;
   onMarkDone: AppointmentAction;
+  onPostMessage: AppointmentTextAction;
+  onSavePrivateNotes: AppointmentTextAction;
   onTogglePaid: AppointmentAction;
   timezone: string;
 };
@@ -24,6 +30,8 @@ export function AppointmentList({
   items,
   onCancel,
   onMarkDone,
+  onPostMessage,
+  onSavePrivateNotes,
   onTogglePaid,
   timezone
 }: AppointmentListProps): JSX.Element {
@@ -48,6 +56,8 @@ export function AppointmentList({
           key={appointment.id}
           onCancel={onCancel}
           onMarkDone={onMarkDone}
+          onPostMessage={onPostMessage}
+          onSavePrivateNotes={onSavePrivateNotes}
           onTogglePaid={onTogglePaid}
           timezone={timezone}
         />

@@ -9,6 +9,7 @@ type StepConfirmationProps = {
   appointment: ConfirmedAppointment;
   businessName: string;
   customerEmail: string | null;
+  customerManageUrl: string | null;
   onClose: () => void;
   timezone: string;
 };
@@ -17,6 +18,7 @@ export function StepConfirmation({
   appointment,
   businessName,
   customerEmail,
+  customerManageUrl,
   onClose,
   timezone
 }: StepConfirmationProps): JSX.Element {
@@ -69,6 +71,11 @@ export function StepConfirmation({
           </dd>
         </div>
       </dl>
+      {customerManageUrl ? (
+        <Button asChild className="w-full" variant="outline">
+          <a href={customerManageUrl}>Σημειώσεις και μηνύματα</a>
+        </Button>
+      ) : null}
       <Button className="w-full" onClick={onClose} type="button">
         Κλείσε
       </Button>

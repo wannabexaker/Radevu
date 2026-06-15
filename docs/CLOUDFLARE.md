@@ -33,7 +33,12 @@ BOOKING_BASE_DOMAIN=radevu.gr
 ROUTING_MODE=subdomain
 BETTER_AUTH_URL=https://dashboard.radevu.gr
 RESEND_FROM_EMAIL=noreply@radevu.gr
+BOOKING_OWNER_ALERT_EMAIL_OVERRIDE=
 ```
+
+Email sending domain verification is separate from the Tunnel. Follow
+`docs/EMAIL_SETUP.md` before switching `RESEND_FROM_EMAIL` to the production
+domain.
 
 ## 3. DNS records
 

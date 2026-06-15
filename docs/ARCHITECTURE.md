@@ -69,11 +69,13 @@ Templates in `packages/email`:
 Booking confirmation sends are fire-and-forget after the appointment transaction
 commits. The booking API returns `201` even if Resend fails; every email failure
 is logged with appointment id and recipient context. The owner alert links to
-`${BETTER_AUTH_URL}/dashboard/appointments`. During Resend sandbox testing,
-`CONTACT_NOTIFICATION_EMAIL` can route owner alerts to the verified signup inbox.
-Landing contact requests are stored in `contact_requests` before the notification
-is sent. Contact notification sends are best-effort; failures are recorded on the
-row and never fail the public submit.
+`${BETTER_AUTH_URL}/dashboard/appointments` and is sent to the business
+`contact_email`, falling back to the owner login email. `BOOKING_OWNER_ALERT_EMAIL_OVERRIDE`
+exists only for sandbox/debug routing. `CONTACT_NOTIFICATION_EMAIL` is reserved
+for founder-facing landing-page contact requests. Landing contact requests are
+stored in `contact_requests` before the notification is sent. Contact notification
+sends are best-effort; failures are recorded on the row and never fail the public
+submit.
 
 Reminder scheduling: Redis-backed delayed queue using sorted set `radevu:reminders`. Appointment ids are scored by due timestamp in milliseconds. The worker process in the same Next.js container polls every 60 seconds, atomically claims due jobs with a Lua `ZRANGEBYSCORE` + `ZREM`, sends best-effort reminders, and does not retry Resend failures in Phase 1. The single-process worker is acceptable for one host; Phase 2 may extract to a dedicated worker if load demands.
 
@@ -86,7 +88,8 @@ Models (Phase 1):
 - **Business** — id, slug (unique), name, contact_email, contact_phone, timezone, working_hours (jsonb), logo_url, photo_url, social_links (jsonb), maps_url, notification_settings (jsonb), owner_id, created_at.
 - **Service** — id, business_id, name, duration_minutes, price_cents, currency, description, active, created_at.
 - **Customer** — id, business_id, name, email, phone, future_recommendation (text), notes (text), reminder_dates (jsonb), created_at. UNIQUE(business_id, email) and UNIQUE(business_id, phone) — at least one must be present.
-- **Appointment** — id, business_id, customer_id, service_id, starts_at, ends_at, status (enum: scheduled, done, cancelled), paid (boolean), amount_due_cents, notes (text), created_at.
+- **Appointment** — id, business_id, customer_id, service_id, starts_at, ends_at, status (enum: scheduled, done, cancelled), paid (boolean), amount_due_cents, notes (owner-private text), customer_note (customer-visible text), customer_private_note (token-page private text), guest_token_hash, guest_token_expires_at, created_at.
+- **AppointmentMessage** — id, business_id, appointment_id, author_role (enum: business, customer), body, created_at. Used for shared replies between the owner dashboard and the secure customer appointment page.
 - **ContactRequest** — id, name, email, phone, message, notification_sent, notification_error, created_at.
 - **User** — better-auth model, one per business owner.
 

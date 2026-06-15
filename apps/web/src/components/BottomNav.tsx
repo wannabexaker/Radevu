@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
-  { href: "/dashboard/today", label: "Σήμερα" },
+  { href: "/dashboard/today", label: "Πρόγραμμα" },
   { href: "/dashboard/appointments", label: "Κρατήσεις" },
   { href: "/dashboard/customers", label: "Πελάτες" },
   { href: "/dashboard/debts", label: "Οφειλές" },

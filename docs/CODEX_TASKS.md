@@ -49,12 +49,13 @@ Phase 1 MVP is launch-ready.
 ## Module 5: Dashboard (6-tab shell)
 
 - [✓] **TASK-011:** Dashboard layout + sticky bottom nav (6 tabs). All tabs render route groups even if minimal. Done by Codex handoff #001.
-- [✓] **TASK-012:** Today tab — full. Chronological today's appointments, one-tap done/cancel. Done by Codex handoff #006.
+- [✓] **TASK-012:** Today tab — full. Rolling program view with default 7 days, owner-selectable 14 days / 1 month, grouped by day, one-tap done/cancel. Done by Codex handoff #006; range selector added after live feedback.
 - [✓] **TASK-013:** Appointments tab — full. Upcoming list, date filter, search. Done by Codex handoff #006.
 - [✓] **TASK-014:** Customers tab — minimal. Auto-created from bookings, list + customer detail (past appointments). Done by Codex handoff #007.
 - [✓] **TASK-015:** Debts tab — minimal. `paid` flag toggle, filter view. Done by Codex handoff #007.
 - [✓] **TASK-016:** Notifications tab — settings toggles (confirmation, reminder, reminder lead time). Done by Codex handoff #010.
 - [✓] **TASK-017:** Settings tab — profile editor (logo, photo, contact, social, hours). Done by Codex handoff #009.
+- [✓] **TASK-028:** Appointment notes/messages split. Booking note is customer-visible, dashboard has owner-private notes, secure customer link supports private customer note and shared replies. Done after live feedback.
 
 ## Module 6: Notifications
 

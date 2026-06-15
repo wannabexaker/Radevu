@@ -88,7 +88,7 @@ openssl rand -base64 32     # → POSTGRES_PASSWORD
 openssl rand -hex 32        # → BETTER_AUTH_SECRET
 ```
 
-For RESEND_API_KEY: sign up at https://resend.com (free, no CC), create an API key, paste it.
+For RESEND_API_KEY: sign up at https://resend.com (free, no CC), create an API key, paste it. For domain-authenticated sending, follow `docs/EMAIL_SETUP.md`.
 
 ## 6. GHCR pull permission
 
@@ -180,7 +180,7 @@ Container hardening is already in `infra/docker-compose.prod.yml`: capability dr
 2. In Cloudflare: add domain, change nameservers at papaki.
 3. Cloudflare Zero Trust → Tunnels → create tunnel `radevu-home`. Copy the tunnel token.
 4. Add DNS in Cloudflare: `radevu.gr` and `*.radevu.gr` → tunnel UUID.
-5. In `infra/.env`: set `CLOUDFLARE_TUNNEL_TOKEN`, change `BOOKING_BASE_DOMAIN=radevu.gr`, `ROUTING_MODE=subdomain`, `BETTER_AUTH_URL=https://dashboard.radevu.gr`, `RESEND_FROM_EMAIL=noreply@radevu.gr`.
+5. In `infra/.env`: set `CLOUDFLARE_TUNNEL_TOKEN`, change `BOOKING_BASE_DOMAIN=radevu.gr`, `ROUTING_MODE=subdomain`, `BETTER_AUTH_URL=https://dashboard.radevu.gr`, `RESEND_FROM_EMAIL=noreply@radevu.gr`, and keep `BOOKING_OWNER_ALERT_EMAIL_OVERRIDE=` blank unless you are testing Resend sandbox delivery.
 6. Uncomment the `cloudflared` service in `infra/docker-compose.prod.yml`.
 7. `docker compose -f infra/docker-compose.prod.yml --env-file infra/.env up -d`.
 8. Smoke test from external network (4G, WiFi off): `https://test-business.radevu.gr` resolves and renders.

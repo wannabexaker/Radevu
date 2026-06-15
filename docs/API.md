@@ -120,7 +120,7 @@ Month day `state` is one of `closed`, `full`, `tight`, `available`, or `open`.
 
 | Method | Path | Auth | Body / Query | Returns |
 |--------|------|------|--------------|---------|
-| `POST` | `/api/v1/appointments` | Public (guest booking) | `{ business_id, service_id, starts_at, customer: { name, email?, phone? }, note? }` | `201 { appointment }` |
+| `POST` | `/api/v1/appointments` | Public (guest booking) | `{ business_id, service_id, starts_at, customer: { name, email?, phone? }, note? }` | `201 { appointment, customer_manage_url }` |
 | `GET` | `/api/v1/appointments` | Owner | `?from=ISO&to=ISO&status=scheduled,done,cancelled&customer_q&cursor&take=50` | `200 { appointments, next_cursor }` |
 | `GET` | `/api/v1/appointments/:id` | Owner | - | `200 { appointment }` |
 | `PATCH` | `/api/v1/appointments/:id` | Owner | `{ status?, paid?, notes? }` | `200 { appointment }` |
@@ -143,12 +143,19 @@ Public guest booking responses use snake_case JSON keys:
     "customer_name": "Customer Name",
     "service_name": "Haircut"
   }
+  "customer_manage_url": "https://example.com/appointments/appointment_id?token=secure_token"
 }
 ```
 
 If a slot is taken between availability lookup and booking submit, the route returns `409 { error: { code: "SLOT_TAKEN", message } }`.
 
 Guest booking POST also enforces the booking window server-side. A start time less than 60 minutes from the server clock returns `400 { error: { code: "TOO_SOON", message } }`. A start time more than 90 days out returns `400 { error: { code: "BEYOND_HORIZON", message } }`.
+
+`note` on guest booking is customer-visible and is stored as `customer_note`.
+Owner-private appointment notes are stored in `notes` and are only writable by
+the owner dashboard. Shared replies are stored in `appointment_messages`.
+`customer_manage_url` points to the secure customer appointment page and uses a
+raw token in the URL; only the SHA-256 hash is stored in the database.
 
 Owner appointment list and detail responses include customer and service summaries:
 
@@ -166,6 +173,15 @@ Owner appointment list and detail responses include customer and service summari
       "paid": false,
       "amount_due_cents": 1500,
       "notes": null,
+      "customer_note": "Customer-visible booking note",
+      "messages": [
+        {
+          "id": "message_id",
+          "author_role": "customer",
+          "body": "Shared message",
+          "created_at": "2026-05-25T06:30:00.000Z"
+        }
+      ],
       "customer": {
         "id": "customer_id",
         "name": "Customer Name",

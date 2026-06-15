@@ -23,6 +23,7 @@ type BookingEmailService = {
 };
 
 type BookingEmailAppointment = {
+  customerManageUrl: string | null;
   endsAt: Date;
   id: string;
   notes: string | null;
@@ -135,6 +136,7 @@ export async function sendBookingConfirmation(
       formatted_date: formattedDate,
       formatted_price: formattedPrice,
       formatted_time: formattedTime,
+      manage_url: args.appointment.customerManageUrl ?? undefined,
       note: args.appointment.notes ?? undefined,
       service_name: args.service.name
     }),

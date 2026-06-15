@@ -1,15 +1,22 @@
 import type { AppointmentWithRelations } from "@/lib/appointments";
 import { Mail, Phone } from "lucide-react";
 import { AppointmentActions } from "@/components/dashboard/AppointmentActions";
+import { AppointmentNotesPanel } from "@/components/dashboard/AppointmentNotesPanel";
 import { PaidPill } from "@/components/dashboard/PaidPill";
 import { StatusPill } from "@/components/dashboard/StatusPill";
 
 type AppointmentAction = (appointmentId: string) => Promise<void>;
+type AppointmentTextAction = (
+  appointmentId: string,
+  value: string
+) => Promise<void>;
 
 type AppointmentCardProps = {
   appointment: AppointmentWithRelations;
   onCancel: AppointmentAction;
   onMarkDone: AppointmentAction;
+  onPostMessage: AppointmentTextAction;
+  onSavePrivateNotes: AppointmentTextAction;
   onTogglePaid: AppointmentAction;
   timezone: string;
 };
@@ -37,6 +44,8 @@ export function AppointmentCard({
   appointment,
   onCancel,
   onMarkDone,
+  onPostMessage,
+  onSavePrivateNotes,
   onTogglePaid,
   timezone
 }: AppointmentCardProps): JSX.Element {
@@ -99,6 +108,15 @@ export function AppointmentCard({
           status={appointment.status}
         />
       </div>
+      <AppointmentNotesPanel
+        appointmentId={appointment.id}
+        customerNote={appointment.customerNote}
+        messages={appointment.messages}
+        notes={appointment.notes}
+        onPostMessage={onPostMessage}
+        onSavePrivateNotes={onSavePrivateNotes}
+        timezone={timezone}
+      />
     </article>
   );
 }

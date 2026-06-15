@@ -11,6 +11,8 @@ import { DayHeader } from "@/components/dashboard/DayHeader";
 import {
   cancelAppointment,
   markAppointmentDone,
+  postAppointmentOwnerMessage,
+  saveAppointmentPrivateNotes,
   togglePaid
 } from "@/app/(protected-dashboard)/dashboard/today/actions";
 import {
@@ -246,6 +248,8 @@ export default async function AppointmentsPage({
           items={[]}
           onCancel={cancelAppointment}
           onMarkDone={markAppointmentDone}
+          onPostMessage={postAppointmentOwnerMessage}
+          onSavePrivateNotes={saveAppointmentPrivateNotes}
           onTogglePaid={togglePaid}
           timezone={business.timezone}
         />
@@ -263,6 +267,8 @@ export default async function AppointmentsPage({
                 items={group.items}
                 onCancel={cancelAppointment}
                 onMarkDone={markAppointmentDone}
+                onPostMessage={postAppointmentOwnerMessage}
+                onSavePrivateNotes={saveAppointmentPrivateNotes}
                 onTogglePaid={togglePaid}
                 timezone={business.timezone}
               />
