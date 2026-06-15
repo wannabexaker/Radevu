@@ -28,7 +28,7 @@ After this handoff:
 4. Confirmation screen copy changes from placeholder ("Θα λάβεις επιβεβαίωση στο email σου σύντομα.") to active ("Στείλαμε επιβεβαίωση στο **{customer_email}**. Έλεγξε και το spam folder.").
 5. `pnpm -r typecheck` passes. Docker build green. Existing booking-flow.spec.ts still passes (< 60s).
 6. New unit test `packages/email/tests/ics.test.ts` covers the .ics generator: RFC 5545 fields present, correct CRLF line endings, escaped commas/semicolons, multi-line DESCRIPTION folding at 75 chars.
-7. **Live verification:** book a slot using `dimos.is.dev@gmail.com` as customer email → both emails arrive in that inbox (Resend sandbox limits delivery to the signup address — that's fine for Phase 0).
+7. **Live verification:** book a slot using `<your-resend-signup-email>` as customer email → both emails arrive in that inbox (Resend sandbox limits delivery to the signup address — that's fine for Phase 0).
 
 ## What's already in repo — do NOT modify
 
@@ -89,7 +89,7 @@ Read `RESEND_FROM_EMAIL` from env. In Phase 0 this is `onboarding@resend.dev`. F
 
 ### Resend sandbox limitation (Phase 0 reality)
 
-Resend sandbox (free, no domain verified) delivers ONLY to the signup email. For Phase 0 testing this means **emails only arrive at `dimos.is.dev@gmail.com`**. When testing manually, use that email as the booking customer email. The owner-alert email also goes to that same address (via `CONTACT_NOTIFICATION_EMAIL`). Document this in code comments where relevant (e.g., next to the from-email config) so future readers don't think it's broken.
+Resend sandbox (free, no domain verified) delivers ONLY to the signup email. For Phase 0 testing this means **emails only arrive at `<your-resend-signup-email>`**. When testing manually, use that email as the booking customer email. The owner-alert email also goes to that same address (via `CONTACT_NOTIFICATION_EMAIL`). Document this in code comments where relevant (e.g., next to the from-email config) so future readers don't think it's broken.
 
 When `radevu.gr` is registered and verified in Resend, this opens up — no code change needed, just env update.
 
@@ -162,8 +162,8 @@ pnpm --filter @radevu/web test:e2e                  # booking-flow still under 6
 ```
 
 Manual verification (Resend sandbox):
-- Open `http://localhost:3000/test-shop`, complete the booking flow using `dimos.is.dev@gmail.com` as the customer email
-- Both emails (BookingConfirmation + OwnerNewBookingAlert) arrive at `dimos.is.dev@gmail.com` within ~30 seconds
+- Open `http://localhost:3000/test-shop`, complete the booking flow using `<your-resend-signup-email>` as the customer email
+- Both emails (BookingConfirmation + OwnerNewBookingAlert) arrive at `<your-resend-signup-email>` within ~30 seconds
 - The .ics attachment opens in Google Calendar / Apple Calendar with the right time, summary, location
 - The owner email's dashboard button links to `http://localhost:3000/dashboard/appointments` (Phase 0 URL)
 - A booking with no email (phone only) returns 201 cleanly, no customer email sent, no error in logs

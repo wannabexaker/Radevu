@@ -1,0 +1,41 @@
+# Raspberry Pi deployment override.
+#
+# Used in combination with infra/docker-compose.prod.yml on the existing
+# Pi that already hosts eye-in-the-sky on ports 3000/5432. This override:
+#
+#   - Pins the compose project name to `radevu` so the postgres + redis
+#     volume names stay stable across moves (matches the Eye pattern).
+#   - Binds the web container to 127.0.0.1:3300 (the Pi's eye-player-web
+#     already holds 3000). Cloudflare Tunnel routes radevu.olamov.com to
+#     this loopback address.
+#   - Optionally exposes Postgres on 127.0.0.1:5433 for psql/pgcli access
+#     from the Pi itself. Still firewalled to loopback only.
+#
+# Usage on the Pi:
+#
+#   cd ~/projects/radevu
+#   docker compose \
+#     -f infra/docker-compose.prod.yml \
+#     -f infra/docker-compose.pi.yml \
+#     --env-file infra/.env \
+#     pull
+#   docker compose \
+#     -f infra/docker-compose.prod.yml \
+#     -f infra/docker-compose.pi.yml \
+#     --env-file infra/.env \
+#     up -d
+#
+# Do NOT bind these ports to 0.0.0.0 — the cloudflared service on the Pi
+# reaches the app over loopback, so loopback-only binding keeps the app off
+# the LAN entirely while still answering the tunnel.
+
+name: radevu
+
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5433:5432"
+
+  web:
+    ports:
+      - "127.0.0.1:3300:3000"

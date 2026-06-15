@@ -1,45 +1,101 @@
-# Dependencies
+# ─── Dependencies ──────────────────────────────────────────────
 node_modules
+**/node_modules
 .pnpm-store
+.yarn/
+.npm/
 
-# Build output
+# ─── Build output ──────────────────────────────────────────────
 .next
+**/.next
 dist
+**/dist
 build
+**/build
 out
+**/out
 *.tsbuildinfo
 
-# Env
+# ─── Env / secrets ─────────────────────────────────────────────
 .env
 .env.local
 .env.*.local
-!.env.example
+*.env.local
+infra/.env
+!**/.env.example
+*.pem
+*.key
+.envrc
 
-# Prisma
+# ─── Prisma ────────────────────────────────────────────────────
 packages/db/prisma/migrations/dev.db*
+packages/db/prisma/dev.db*
+*.sqlite
+*.sqlite3
 
-# Testing
+# ─── Testing ───────────────────────────────────────────────────
 coverage
+**/coverage
 playwright-report
+**/playwright-report
 test-results
+**/test-results
+.nyc_output
 
-# IDE
+# ─── IDE / Editor ──────────────────────────────────────────────
 .vscode
 .idea
 *.swp
+*.swo
+.cursorrules.local
+*.iml
 
-# OS
+# ─── OS junk ───────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Logs
+# ─── Logs ──────────────────────────────────────────────────────
 *.log
 npm-debug.log*
 pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Claude Code local overrides (per-user, not shared)
+# ─── Personal / per-user tooling ───────────────────────────────
+.mcp.json
 .claude/settings.local.json
+.claude/.last-session
+.serena/
+RADEVU-*.md
+RADEVU-*-HANDOFF.md
+RADEVU-*-AGENT-PROMPT.md
 
-# Cloudflare Tunnel — real config has secrets, only the example is committed
+# ─── Codex agent workspace artefacts ───────────────────────────
+.codex/
+codex/sessions/
+codex/.cache/
+
+# ─── Cloudflare Tunnel secrets ─────────────────────────────────
 infra/cloudflared/config.yml
 infra/cloudflared/*.json
+infra/cloudflared/cert.pem
+
+# ─── Graphify knowledge-graph output ───────────────────────────
+graphify-out/
+**/graphify-out/
+
+# ─── Local dev artifacts (root-level junk) ─────────────────────
+header-logo-check*.png
+header-logo-check*.jpg
+*.bak
+*.bak-*
+*-backup-*
+~$*
+.local/
+tmp/
+.tmp/
+
+# ─── Windows bash typos / accidents ────────────────────────────
+C:ProjectsRadevugraphify-out/
+C\:Projects*

@@ -75,22 +75,22 @@ model Verification {
 
 // Radevu domain models.
 model Business {
-  id           String   @id @default(cuid())
-  slug         String   @unique
-  name         String
-  contactEmail String?  @map("contact_email")
-  contactPhone String?  @map("contact_phone")
-  timezone     String   @default("Europe/Athens")
-  workingHours Json     @default("{}") @map("working_hours")
-  logoUrl      String?  @map("logo_url")
-  photoUrl     String?  @map("photo_url")
-  socialLinks  Json     @default("{}") @map("social_links")
-  mapsUrl      String?  @map("maps_url")
-  notificationSettings Json @default("{\"confirmation_enabled\":true,\"reminder_enabled\":true,\"reminder_lead_minutes\":1440}") @map("notification_settings")
-  showOnLanding Boolean @default(false) @map("show_on_landing")
-  ownerId      String   @unique @map("owner_id")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                   String   @id @default(cuid())
+  slug                 String   @unique
+  name                 String
+  contactEmail         String?  @map("contact_email")
+  contactPhone         String?  @map("contact_phone")
+  timezone             String   @default("Europe/Athens")
+  workingHours         Json     @default("{}") @map("working_hours")
+  logoUrl              String?  @map("logo_url")
+  photoUrl             String?  @map("photo_url")
+  socialLinks          Json     @default("{}") @map("social_links")
+  mapsUrl              String?  @map("maps_url")
+  notificationSettings Json     @default("{\"confirmation_enabled\":true,\"reminder_enabled\":true,\"reminder_lead_minutes\":1440}") @map("notification_settings")
+  showOnLanding        Boolean  @default(false) @map("show_on_landing")
+  ownerId              String   @unique @map("owner_id")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
 
   owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   services     Service[]
@@ -98,6 +98,22 @@ model Business {
   appointments Appointment[]
 
   @@map("businesses")
+}
+
+model ContactRequest {
+  id                String   @id @default(cuid())
+  name              String
+  email             String
+  phone             String?
+  message           String
+  notificationSent  Boolean  @default(false) @map("notification_sent")
+  notificationError String?  @map("notification_error")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([createdAt])
+  @@index([email])
+  @@map("contact_requests")
 }
 
 model Service {

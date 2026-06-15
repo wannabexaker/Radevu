@@ -18,52 +18,45 @@ export {
   type SendBookingReminderArgs
 } from "./sendBookingReminder.js";
 
-export type SendContactRequestEmailInput = ContactRequestNotificationProps;
-
-type EmailEnv = {
-  contactNotificationEmail: string;
+export type SendContactRequestEmailArgs = ContactRequestNotificationProps & {
   resendApiKey: string;
   resendFromEmail: string;
+  to: string;
 };
-
-function requiredEnv(name: string): string {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(`Missing required email environment variable: ${name}`);
-  }
-
-  return value;
-}
-
-function readEmailEnv(): EmailEnv {
-  return {
-    contactNotificationEmail: requiredEnv("CONTACT_NOTIFICATION_EMAIL"),
-    resendApiKey: requiredEnv("RESEND_API_KEY"),
-    resendFromEmail: requiredEnv("RESEND_FROM_EMAIL")
-  };
-}
 
 /**
  * Sends a landing contact request notification email to the founder.
  *
- * @param input - Contact request details validated by the API layer.
- * @throws Error when required email environment variables are missing or Resend rejects the message.
+ * @param args - Email credentials, founder recipient, and validated contact request details.
+ * @returns The Resend message id.
+ * @throws Error when Resend rejects the message.
  */
 export async function sendContactRequestEmail(
-  input: SendContactRequestEmailInput
-): Promise<void> {
-  const emailEnv = readEmailEnv();
-  const resend = new Resend(emailEnv.resendApiKey);
+  args: SendContactRequestEmailArgs
+): Promise<{ id: string }> {
+  const resend = new Resend(args.resendApiKey);
 
   const result = await resend.emails.send({
-    from: emailEnv.resendFromEmail,
-    to: emailEnv.contactNotificationEmail,
-    subject: `Νέο contact request — ${input.name}`,
-    react: ContactRequestNotification(input)
+    from: `Radevu <${args.resendFromEmail}>`,
+    to: args.to,
+    subject: `Νέο contact request - ${args.name}`,
+    react: ContactRequestNotification({
+      email: args.email,
+      message: args.message,
+      name: args.name,
+      phone: args.phone
+    })
   });
 
   if (result.error) {
     throw new Error(`Resend contact request failed: ${result.error.message}`);
   }
+
+  if (!result.data?.id) {
+    throw new Error("Resend contact request failed without message id");
+  }
+
+  return {
+    id: result.data.id
+  };
 }

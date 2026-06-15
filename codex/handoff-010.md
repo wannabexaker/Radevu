@@ -181,7 +181,7 @@ Worker smoke test:
 Manual at 360×800:
 - Log in. Settings → Ειδοποιήσεις. See both toggles ON, lead at 24 ώρες πριν.
 - Toggle confirmation OFF, save, reload — persists.
-- Book a slot as guest using `dimos.is.dev@gmail.com` → no customer email this time (toggle off), owner alert still fires.
+- Book a slot as guest using `<your-resend-signup-email>` → no customer email this time (toggle off), owner alert still fires.
 - Toggle confirmation ON, toggle reminder OFF, save. Book again. Confirmation arrives. No reminder ever scheduled (verify via `redis-cli ZSCORE radevu:reminders <appt_id>` → nil).
 - Both ON, lead 48h. Create an appointment exactly 50h from now (use API directly via curl). Verify `ZSCORE radevu:reminders <appt_id>` ≈ `now + 2h * 3600 * 1000`.
 - Manually fast-forward by zadding `0` as score for that appointment ID, wait one minute, watch logs — reminder fires, customer email arrives.

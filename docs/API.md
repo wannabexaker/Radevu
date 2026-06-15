@@ -84,7 +84,7 @@ Public `GET /api/v1/businesses/:id/services` responses are always filtered to ac
 |--------|------|------|------|---------|
 | `POST` | `/api/v1/contact-requests` | Public | `{ name, email, phone?, message }` | `201 { ok: true }` |
 
-Contact request failures caused by invalid input return `400 { error: { code: "VALIDATION_ERROR", message, details } }`. Email delivery failures are logged server-side and return `500 { error: { code: "EMAIL_SEND_FAILED", message: "Δοκίμασε ξανά." } }`.
+Contact requests are stored in `contact_requests` before notification delivery. Invalid input returns `400 { error: { code: "VALIDATION_ERROR", message, details } }`. Persistence failures return `500 { error: { code: "SERVER_ERROR", message } }`. Email notification failures are logged and recorded on the contact request row; they do not fail the public submit.
 
 ### Availability
 

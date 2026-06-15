@@ -46,7 +46,7 @@ After this handoff:
    - `despoina`: `despoina@radevu.test` / `<SEED_DESPOINA_PASSWORD env>` (default `DespoinaDev2026!`)
    - `ioannis`: `ioannis@radevu.test` / `<SEED_IOANNIS_PASSWORD env>` (default `IoannisDev2026!`)
 
-5. **Booking against demo profiles succeeds end-to-end**. Book a slot on `/despoina` using `dimos.is.dev@gmail.com` as customer email → appointment created, customer record auto-created, confirmation + owner-alert emails fired (Resend sandbox limit: only the founder's signup email actually receives).
+5. **Booking against demo profiles succeeds end-to-end**. Book a slot on `/despoina` using `<your-resend-signup-email>` as customer email → appointment created, customer record auto-created, confirmation + owner-alert emails fired (Resend sandbox limit: only the founder's signup email actually receives).
 
 6. **Container hardening live** in `infra/docker-compose.prod.yml`:
    - `cap_drop: [ALL]` on the `web` service
@@ -229,7 +229,7 @@ pnpm --filter @radevu/web test:e2e                # 7+1 existing + new showcase 
 Manual at 360×800:
 - `http://localhost:3000/` → 2 showcase cards (Despoina + Ioannis), in that order or alphabetical.
 - Tap Δέσποινα card → profile renders with 4 services, hours, photo, no broken images.
-- Tap Κράτησε ραντεβού → calendar shows availability. Book a Tuesday afternoon slot using `dimos.is.dev@gmail.com`. See confirmation.
+- Tap Κράτησε ραντεβού → calendar shows availability. Book a Tuesday afternoon slot using `<your-resend-signup-email>`. See confirmation.
 - Log out, log in as `despoina@radevu.test` / `DespoinaDev2026!` → dashboard, Today tab shows the booking just made.
 - Same flow for `/ioannis`.
 - `http://localhost:3000/test-shop` still works (kept for e2e fixtures), but does NOT appear in landing.

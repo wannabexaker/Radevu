@@ -64,12 +64,16 @@ Templates in `packages/email`:
 - `BookingConfirmation` — customer, with `.ics` attached.
 - `OwnerNewBookingAlert` — owner.
 - `BookingReminder` — customer, configurable lead time (default 24h), done in chunk #10.
+- `ContactRequestNotification` — founder notification for landing-page leads.
 
 Booking confirmation sends are fire-and-forget after the appointment transaction
 commits. The booking API returns `201` even if Resend fails; every email failure
 is logged with appointment id and recipient context. The owner alert links to
 `${BETTER_AUTH_URL}/dashboard/appointments`. During Resend sandbox testing,
 `CONTACT_NOTIFICATION_EMAIL` can route owner alerts to the verified signup inbox.
+Landing contact requests are stored in `contact_requests` before the notification
+is sent. Contact notification sends are best-effort; failures are recorded on the
+row and never fail the public submit.
 
 Reminder scheduling: Redis-backed delayed queue using sorted set `radevu:reminders`. Appointment ids are scored by due timestamp in milliseconds. The worker process in the same Next.js container polls every 60 seconds, atomically claims due jobs with a Lua `ZRANGEBYSCORE` + `ZREM`, sends best-effort reminders, and does not retry Resend failures in Phase 1. The single-process worker is acceptable for one host; Phase 2 may extract to a dedicated worker if load demands.
 
@@ -83,6 +87,7 @@ Models (Phase 1):
 - **Service** — id, business_id, name, duration_minutes, price_cents, currency, description, active, created_at.
 - **Customer** — id, business_id, name, email, phone, future_recommendation (text), notes (text), reminder_dates (jsonb), created_at. UNIQUE(business_id, email) and UNIQUE(business_id, phone) — at least one must be present.
 - **Appointment** — id, business_id, customer_id, service_id, starts_at, ends_at, status (enum: scheduled, done, cancelled), paid (boolean), amount_due_cents, notes (text), created_at.
+- **ContactRequest** — id, name, email, phone, message, notification_sent, notification_error, created_at.
 - **User** — better-auth model, one per business owner.
 
 `Business.working_hours` is stored as a complete weekly JSON object. Keys are fixed to `mon`, `tue`, `wed`, `thu`, `fri`, `sat`, `sun`; each value is an ordered list of wall-clock intervals:

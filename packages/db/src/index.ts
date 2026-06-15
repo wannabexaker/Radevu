@@ -13,6 +13,7 @@ export type {
   Account,
   Appointment,
   Business,
+  ContactRequest,
   Customer,
   Prisma,
   Service,

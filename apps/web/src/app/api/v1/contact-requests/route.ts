@@ -1,8 +1,13 @@
 import { sendContactRequestEmail } from "@radevu/email";
-import { contactRequestSchema } from "@radevu/shared";
+import {
+  contactRequestSchema,
+  type ContactRequestInput
+} from "@radevu/shared";
 import { NextResponse, type NextRequest } from "next/server";
+import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
 
-type ErrorCode = "VALIDATION_ERROR" | "EMAIL_SEND_FAILED";
+type ErrorCode = "VALIDATION_ERROR" | "SERVER_ERROR";
 
 type ErrorResponse = {
   error: {
@@ -10,6 +15,12 @@ type ErrorResponse = {
     details?: unknown;
     message: string;
   };
+};
+
+type ContactNotificationConfig = {
+  resendApiKey: string;
+  resendFromEmail: string;
+  to: string;
 };
 
 function errorResponse(
@@ -30,10 +41,98 @@ function errorResponse(
   );
 }
 
+function contactNotificationConfig(): ContactNotificationConfig | null {
+  if (
+    !env.RESEND_API_KEY ||
+    !env.RESEND_FROM_EMAIL ||
+    !env.CONTACT_NOTIFICATION_EMAIL
+  ) {
+    return null;
+  }
+
+  return {
+    resendApiKey: env.RESEND_API_KEY,
+    resendFromEmail: env.RESEND_FROM_EMAIL,
+    to: env.CONTACT_NOTIFICATION_EMAIL
+  };
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message.slice(0, 500);
+  }
+
+  return "Unknown contact request notification failure";
+}
+
+async function updateNotificationStatus(
+  contactRequestId: string,
+  data: {
+    notificationError?: string | null;
+    notificationSent?: boolean;
+  }
+): Promise<void> {
+  try {
+    await prisma.contactRequest.update({
+      data,
+      where: {
+        id: contactRequestId
+      }
+    });
+  } catch (error) {
+    console.error("Failed to update contact request notification status", {
+      contact_request_id: contactRequestId,
+      error
+    });
+  }
+}
+
+async function dispatchContactRequestNotification(
+  contactRequestId: string,
+  input: ContactRequestInput
+): Promise<void> {
+  const config = contactNotificationConfig();
+
+  if (!config) {
+    console.error("Contact request notification skipped: email config missing", {
+      contact_request_id: contactRequestId,
+      has_contact_notification_email: Boolean(env.CONTACT_NOTIFICATION_EMAIL),
+      has_resend_api_key: Boolean(env.RESEND_API_KEY),
+      has_resend_from_email: Boolean(env.RESEND_FROM_EMAIL)
+    });
+    await updateNotificationStatus(contactRequestId, {
+      notificationError: "Email config missing",
+      notificationSent: false
+    });
+    return;
+  }
+
+  try {
+    await sendContactRequestEmail({
+      ...config,
+      ...input
+    });
+    await updateNotificationStatus(contactRequestId, {
+      notificationError: null,
+      notificationSent: true
+    });
+  } catch (error) {
+    console.error("Failed to send contact request notification", {
+      contact_request_id: contactRequestId,
+      email: input.email,
+      error
+    });
+    await updateNotificationStatus(contactRequestId, {
+      notificationError: errorMessage(error),
+      notificationSent: false
+    });
+  }
+}
+
 /**
- * Accepts landing contact requests and sends a founder notification email.
+ * Accepts landing contact requests, stores the lead, and sends a best-effort founder notification.
  *
- * @param request - Incoming contact request with snake_case JSON keys.
+ * @param request - Incoming contact request with JSON keys.
  * @returns A success payload or a typed error response.
  */
 export async function POST(
@@ -63,13 +162,22 @@ export async function POST(
   }
 
   try {
-    await sendContactRequestEmail(parsed.data);
+    const contactRequest = await prisma.contactRequest.create({
+      data: parsed.data
+    });
+
+    void dispatchContactRequestNotification(contactRequest.id, parsed.data);
+
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (error) {
-    console.error("Failed to send contact request notification", {
+    console.error("Failed to store contact request", {
       email: parsed.data.email,
       error
     });
-    return errorResponse(500, "EMAIL_SEND_FAILED", "Δοκίμασε ξανά.");
+    return errorResponse(
+      500,
+      "SERVER_ERROR",
+      "Δεν μπορέσαμε να αποθηκεύσουμε το μήνυμα. Δοκίμασε ξανά."
+    );
   }
 }
