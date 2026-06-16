@@ -41,7 +41,7 @@ function dashboardRedirect(req: NextRequest): NextResponse | null {
   }
 
   if (section === "login" || section === "register") {
-    return segments.length > 2 ? redirectTo(req, `/dashboard/${section}`) : null;
+    return redirectTo(req, `/${section}`);
   }
 
   if (
@@ -124,7 +124,14 @@ export function middleware(req: NextRequest): NextResponse {
     return nextWithPath(req);
   }
 
-  if (firstSegment === "dashboard" || firstSegment === "api") {
+  if (
+    firstSegment === "account" ||
+    firstSegment === "dashboard" ||
+    firstSegment === "api" ||
+    firstSegment === "login" ||
+    firstSegment === "register" ||
+    firstSegment === "verify-email"
+  ) {
     return nextWithPath(req);
   }
 

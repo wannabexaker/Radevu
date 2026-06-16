@@ -12,17 +12,21 @@ datasource db {
 
 // better-auth models - must match the better-auth Prisma adapter schema.
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  emailVerified Boolean  @default(false)
-  name          String?
-  image         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String   @id @default(cuid())
+  email          String   @unique
+  emailVerified  Boolean  @default(false)
+  name           String?
+  image          String?
+  userType       UserType @default(customer) @map("user_type")
+  phone          String?
+  marketingOptIn Boolean  @default(false) @map("marketing_opt_in")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  sessions Session[]
-  accounts Account[]
-  business Business?
+  sessions         Session[]
+  accounts         Account[]
+  business         Business?
+  customerProfiles Customer[] @relation("UserCustomers")
 
   @@map("users")
 }
@@ -139,6 +143,7 @@ model Service {
 model Customer {
   id                   String   @id @default(cuid())
   businessId           String   @map("business_id")
+  userId               String?  @map("user_id")
   name                 String
   email                String?
   phone                String?
@@ -149,12 +154,21 @@ model Customer {
   updatedAt            DateTime @updatedAt @map("updated_at")
 
   business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user         User?         @relation("UserCustomers", fields: [userId], references: [id], onDelete: SetNull)
   appointments Appointment[]
 
   @@unique([businessId, email])
   @@unique([businessId, phone])
   @@index([businessId])
+  @@index([userId])
   @@map("customers")
+}
+
+enum UserType {
+  customer
+  business_owner
+
+  @@map("user_type")
 }
 
 enum AppointmentStatus {

@@ -3,12 +3,16 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   "app",
   "api",
   "admin",
+  "account",
   "dashboard",
+  "login",
   "mail",
+  "register",
   "status",
   "radevu",
   "static",
-  "assets"
+  "assets",
+  "verify-email"
 ]);
 
 // Demo slugs are pre-claimed by the founder for live demos. Real customers

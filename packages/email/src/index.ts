@@ -17,6 +17,14 @@ export {
   sendBookingReminder,
   type SendBookingReminderArgs
 } from "./sendBookingReminder.js";
+export {
+  sendEmailVerification,
+  type SendEmailVerificationArgs
+} from "./sendEmailVerification.js";
+export {
+  sendResetPasswordEmail,
+  type SendResetPasswordEmailArgs
+} from "./sendResetPasswordEmail.js";
 
 export type SendContactRequestEmailArgs = ContactRequestNotificationProps & {
   resendApiKey: string;

@@ -1,6 +1,7 @@
 import type { Prisma } from "@radevu/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import {
@@ -30,7 +31,7 @@ export default async function ProfileSettingsPage(): Promise<JSX.Element> {
   });
 
   if (!session) {
-    redirect("/dashboard/login");
+    redirect("/login");
   }
 
   const business = await prisma.business.findUnique({
@@ -49,26 +50,29 @@ export default async function ProfileSettingsPage(): Promise<JSX.Element> {
   });
 
   if (!business) {
-    redirect("/dashboard/register");
+    redirect("/register");
   }
 
   return (
-    <ProfileEditor
-      business={{
-        contactEmail: business.contactEmail,
-        contactPhone: business.contactPhone,
-        facebookUrl: getSocialLink(business.socialLinks, "facebook"),
-        instagramUrl: getSocialLink(business.socialLinks, "instagram"),
-        logoUrl: business.logoUrl,
-        mapsUrl: business.mapsUrl,
-        name: business.name,
-        photoUrl: business.photoUrl
-      }}
-      removeLogoAction={removeLogoAction}
-      removePhotoAction={removePhotoAction}
-      saveProfileAction={saveProfileAction}
-      uploadLogoAction={uploadLogoAction}
-      uploadPhotoAction={uploadPhotoAction}
-    />
+    <div className="space-y-5 pb-20">
+      <ProfileEditor
+        business={{
+          contactEmail: business.contactEmail,
+          contactPhone: business.contactPhone,
+          facebookUrl: getSocialLink(business.socialLinks, "facebook"),
+          instagramUrl: getSocialLink(business.socialLinks, "instagram"),
+          logoUrl: business.logoUrl,
+          mapsUrl: business.mapsUrl,
+          name: business.name,
+          photoUrl: business.photoUrl
+        }}
+        removeLogoAction={removeLogoAction}
+        removePhotoAction={removePhotoAction}
+        saveProfileAction={saveProfileAction}
+        uploadLogoAction={uploadLogoAction}
+        uploadPhotoAction={uploadPhotoAction}
+      />
+      <ChangePasswordForm />
+    </div>
   );
 }

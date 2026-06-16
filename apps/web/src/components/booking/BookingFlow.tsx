@@ -31,6 +31,12 @@ export type BookingSlot = {
   ends_at: string;
 };
 
+export type BookingPrefill = {
+  email: string;
+  name: string;
+  phone: string | null;
+};
+
 export type ConfirmedAppointment = {
   id: string;
   business_id: string;
@@ -84,6 +90,7 @@ type BookingAction =
 type BookingFlowProps = {
   business: BookingBusiness;
   onClose: () => void;
+  prefill?: BookingPrefill | null;
   services: BookingService[];
 };
 
@@ -186,6 +193,7 @@ function stepIndex(step: Step): number {
 export function BookingFlow({
   business,
   onClose,
+  prefill,
   services
 }: BookingFlowProps): JSX.Element {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -267,6 +275,7 @@ export function BookingFlow({
           }
           service={state.service}
           slot={state.slot}
+          prefill={prefill}
           timezone={business.timezone}
         />
       ) : null}

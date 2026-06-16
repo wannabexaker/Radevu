@@ -12,6 +12,9 @@ FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
 
 WORKDIR /build
 
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
 # openssl is needed by Prisma's binary engines during `prisma generate`.
 # Installing it before pnpm install removes the runtime warning and ensures
 # the correct engine variant is selected on Alpine.

@@ -37,9 +37,17 @@ Reserved subdomains never routed to a business: `www`, `app`, `api`, `admin`, `d
 
 ## 5. Auth flow
 
-better-auth with email/password provider. Owner-only accounts. Session stored in Postgres via better-auth's Prisma adapter. Cookies: HttpOnly + SameSite=Lax + Secure (in production).
+better-auth with email/password provider serves both business owners and customers. Session data is stored in Postgres via better-auth's Prisma adapter. Cookies are HttpOnly + SameSite=Lax + Secure in production.
 
-Bookings: guest, identified by email or phone. No customer login.
+`User.userType` is the role switch:
+- `business_owner` can access `/dashboard/*`, own one `Business`, and manage services, appointments, customers, debts, notifications, and business settings.
+- `customer` can access `/account/*`, manage their account profile, and view appointments linked through `Customer.userId`.
+
+Customer accounts are supported, but guest booking remains the default fast path. A customer can still book without logging in; booking submit identifies or creates the business-scoped `Customer` row by email or phone.
+
+Email verification is soft. Users can log in immediately after registration, but unverified sessions see a verification banner in account/dashboard layouts. Account-to-customer linking is gated: a booking only stamps `Customer.userId` when the session is a verified customer and the booking email matches the session email. Unverified customer sessions remain guest-compatible.
+
+Password recovery uses better-auth reset tokens with the Radevu email template. Forgot-password is no-enumeration after anti-abuse checks. Authenticated change-password revokes other sessions.
 
 ## 6. Booking flow (end-to-end)
 
@@ -87,11 +95,11 @@ Models (Phase 1):
 
 - **Business** — id, slug (unique), name, contact_email, contact_phone, timezone, working_hours (jsonb), logo_url, photo_url, social_links (jsonb), maps_url, notification_settings (jsonb), owner_id, created_at.
 - **Service** — id, business_id, name, duration_minutes, price_cents, currency, description, active, created_at.
-- **Customer** — id, business_id, name, email, phone, future_recommendation (text), notes (text), reminder_dates (jsonb), created_at. UNIQUE(business_id, email) and UNIQUE(business_id, phone) — at least one must be present.
+- **Customer** — id, business_id, user_id (nullable FK to User, `SET NULL` on delete), name, email, phone, future_recommendation (text), notes (text), reminder_dates (jsonb), created_at. UNIQUE(business_id, email) and UNIQUE(business_id, phone) — at least one must be present.
 - **Appointment** — id, business_id, customer_id, service_id, starts_at, ends_at, status (enum: scheduled, done, cancelled), paid (boolean), amount_due_cents, notes (owner-private text), customer_note (customer-visible text), customer_private_note (token-page private text), guest_token_hash, guest_token_expires_at, created_at.
 - **AppointmentMessage** — id, business_id, appointment_id, author_role (enum: business, customer), body, created_at. Used for shared replies between the owner dashboard and the secure customer appointment page.
 - **ContactRequest** — id, name, email, phone, message, notification_sent, notification_error, created_at.
-- **User** — better-auth model, one per business owner.
+- **User** — better-auth model for business owners and customers, with `userType`, `phone`, `marketingOptIn`, and email verification state.
 
 `Business.working_hours` is stored as a complete weekly JSON object. Keys are fixed to `mon`, `tue`, `wed`, `thu`, `fri`, `sat`, `sun`; each value is an ordered list of wall-clock intervals:
 
@@ -143,3 +151,24 @@ Business images are stored on disk under `/srv/radevu/uploads`, backed by a host
 Public image reads go through `GET /uploads/[...path]`. The handler resolves the requested path against `UPLOAD_ROOT`, rejects traversal attempts, streams only supported image extensions, and returns immutable cache headers (`public, max-age=31536000, immutable`). Replacing or removing an image clears the database URL and deletes the old file best-effort; deletion warnings do not fail the user action.
 
 Demo businesses Despoina and Ioannis are seeded with Unsplash photo URLs (external, bypassing `/uploads/`). Real businesses use the upload flow, which stores files under `/srv/radevu/uploads/<business_id>/`. The Logo component falls back to typography when no logo is uploaded.
+
+## 13. Customer accounts
+
+Customer accounts add an optional authenticated layer on top of the guest-first booking flow.
+
+Data model:
+- `User.userType` is either `business_owner` or `customer`.
+- `User.phone` and `User.marketingOptIn` store account-level profile fields.
+- `Customer.userId` is nullable and points to `User.id`; deleting the user sets this field to `NULL`.
+- A customer account can be linked to many business-scoped `Customer` rows, one per business relationship.
+
+Linking rules:
+- Auto-backfill on email verification links matching guest `Customer` rows by email only.
+- Phone is never used for account backfill because phone ownership is not verified.
+- Booking submit links `Customer.userId` only when the current session is a customer, `emailVerified` is true, and the booking email equals the account email case-insensitively.
+- If any of those conditions fail, the booking remains guest-compatible and `Customer.userId` stays `NULL`.
+
+Anti-abuse stack:
+- Public register, public verification resend, and forgot-password use Turnstile + honeypot + form age + Redis rate limit through `validateAuthSecurity`.
+- Authenticated verification resend and change-password use session-gated Redis rate limits through `checkRateLimit`.
+- Forgot-password never reveals whether an email exists.

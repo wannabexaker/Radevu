@@ -5,6 +5,7 @@ import {
 } from "@radevu/shared";
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
+import { getResendEmailConfig } from "@/lib/email-config";
 import { env } from "@/lib/env";
 
 type ErrorCode = "VALIDATION_ERROR" | "SERVER_ERROR";
@@ -42,17 +43,22 @@ function errorResponse(
 }
 
 function contactNotificationConfig(): ContactNotificationConfig | null {
-  if (
-    !env.RESEND_API_KEY ||
-    !env.RESEND_FROM_EMAIL ||
-    !env.CONTACT_NOTIFICATION_EMAIL
-  ) {
+  const emailConfig = getResendEmailConfig("Contact request notification");
+
+  if (!emailConfig || !env.CONTACT_NOTIFICATION_EMAIL) {
+    if (!env.CONTACT_NOTIFICATION_EMAIL) {
+      console.info(
+        "Contact request notification email skipped: recipient missing",
+        {
+          has_contact_notification_email: false
+        }
+      );
+    }
     return null;
   }
 
   return {
-    resendApiKey: env.RESEND_API_KEY,
-    resendFromEmail: env.RESEND_FROM_EMAIL,
+    ...emailConfig,
     to: env.CONTACT_NOTIFICATION_EMAIL
   };
 }
@@ -94,7 +100,7 @@ async function dispatchContactRequestNotification(
   const config = contactNotificationConfig();
 
   if (!config) {
-    console.error("Contact request notification skipped: email config missing", {
+    console.info("Contact request notification skipped", {
       contact_request_id: contactRequestId,
       has_contact_notification_email: Boolean(env.CONTACT_NOTIFICATION_EMAIL),
       has_resend_api_key: Boolean(env.RESEND_API_KEY),

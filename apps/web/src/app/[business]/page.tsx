@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BookingTrigger } from "@/components/booking/BookingTrigger";
 import { BusinessProfile } from "@/components/profile/BusinessProfile";
+import { getCurrentUser } from "@/lib/current-user";
 import { prisma } from "@/lib/db";
 import { isReservedSlug } from "@/lib/routing";
 
@@ -106,11 +107,24 @@ export default async function BusinessPage({
     timezone: business.timezone,
     workingHours: business.workingHours
   };
+  const user = await getCurrentUser();
+  const prefill =
+    user?.userType === "customer"
+      ? {
+          email: user.email,
+          name: user.name ?? "",
+          phone: user.phone
+        }
+      : null;
 
   return (
     <>
       <BusinessProfile business={profileBusiness} services={business.services} />
-      <BookingTrigger business={bookingBusiness} services={business.services} />
+      <BookingTrigger
+        business={bookingBusiness}
+        prefill={prefill}
+        services={business.services}
+      />
     </>
   );
 }

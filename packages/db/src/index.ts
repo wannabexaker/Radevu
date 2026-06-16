@@ -8,7 +8,11 @@ export const prisma = globalForPrisma.radevuPrisma ?? new PrismaClient();
 
 globalForPrisma.radevuPrisma = prisma;
 
-export { AppointmentMessageAuthorRole, AppointmentStatus } from "@prisma/client";
+export {
+  AppointmentMessageAuthorRole,
+  AppointmentStatus,
+  UserType
+} from "@prisma/client";
 export type {
   Account,
   Appointment,

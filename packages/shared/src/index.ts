@@ -1,4 +1,5 @@
 export * from "./api/businesses.js";
+export * from "./api/auth.js";
 export * from "./api/availability.js";
 export * from "./api/appointments.js";
 export * from "./api/contact-requests.js";

@@ -24,7 +24,7 @@ export function LogoutButton(): JSX.Element {
         return;
       }
 
-      router.push("/dashboard/login");
+      router.push("/login");
       router.refresh();
     } catch (logoutError) {
       console.error("Failed to sign out", logoutError);

@@ -5,6 +5,7 @@ import {
 } from "@radevu/shared";
 import type { NotificationSettingsDTO } from "@radevu/shared";
 import { prisma } from "@/lib/db";
+import { getResendEmailConfig } from "@/lib/email-config";
 import { env } from "@/lib/env";
 import { fetchDue } from "@/lib/reminder-queue";
 
@@ -32,14 +33,7 @@ function parseNotificationSettings(value: unknown): NotificationSettingsDTO {
 }
 
 function emailConfig(): { resendApiKey: string; resendFromEmail: string } | null {
-  if (!env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL) {
-    return null;
-  }
-
-  return {
-    resendApiKey: env.RESEND_API_KEY,
-    resendFromEmail: env.RESEND_FROM_EMAIL
-  };
+  return getResendEmailConfig("[reminder-worker] reminder");
 }
 
 async function processReminder(appointmentId: string): Promise<void> {
@@ -115,7 +109,7 @@ async function processReminder(appointmentId: string): Promise<void> {
   const config = emailConfig();
 
   if (!config) {
-    console.error("[reminder-worker] reminder email skipped because Resend config is missing", {
+    console.info("[reminder-worker] reminder email skipped", {
       appointment_id: appointment.id,
       has_resend_api_key: Boolean(env.RESEND_API_KEY),
       has_resend_from_email: Boolean(env.RESEND_FROM_EMAIL)

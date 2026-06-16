@@ -23,8 +23,10 @@ import {
   serializeAppointmentWithRelations
 } from "@/lib/appointments";
 import { generateSlots } from "@/lib/availability";
+import { getCurrentUser } from "@/lib/current-user";
 import { getOwnerBusiness } from "@/lib/dashboard-server";
 import { prisma } from "@/lib/db";
+import { getResendEmailConfig } from "@/lib/email-config";
 import { env } from "@/lib/env";
 import { enqueueReminder } from "@/lib/reminder-queue";
 
@@ -177,14 +179,7 @@ function serializeAppointment(appointment: {
 }
 
 function emailConfig(): { resendApiKey: string; resendFromEmail: string } | null {
-  if (!env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL) {
-    return null;
-  }
-
-  return {
-    resendApiKey: env.RESEND_API_KEY,
-    resendFromEmail: env.RESEND_FROM_EMAIL
-  };
+  return getResendEmailConfig("Booking notification");
 }
 
 function dashboardAppointmentsUrl(): string {
@@ -214,7 +209,7 @@ function dispatchBookingEmails(context: BookingEmailContext): void {
   const config = emailConfig();
 
   if (!config) {
-    console.error("Booking email dispatch skipped because Resend config is missing", {
+    console.info("Booking email dispatch skipped", {
       appointment_id: context.appointment.id,
       has_resend_api_key: Boolean(env.RESEND_API_KEY),
       has_resend_from_email: Boolean(env.RESEND_FROM_EMAIL)
@@ -441,6 +436,17 @@ export async function POST(
 
   const input = parsed.data;
   const startsAt = new Date(input.starts_at);
+  const currentUser = await getCurrentUser(request.headers).catch((error) => {
+    console.error("Failed to read customer session during booking", { error });
+    return null;
+  });
+  const linkedCustomerUserId =
+    currentUser?.userType === "customer" &&
+    currentUser.emailVerified &&
+    input.customer.email &&
+    input.customer.email.toLowerCase() === currentUser.email.toLowerCase()
+      ? currentUser.id
+      : null;
 
   if (Number.isNaN(startsAt.getTime())) {
     return errorResponse(
@@ -589,6 +595,13 @@ export async function POST(
               id: existingCustomer.id
             },
             data: {
+              ...(linkedCustomerUserId &&
+              (!existingCustomer.email ||
+                existingCustomer.email.toLowerCase() ===
+                  input.customer.email?.toLowerCase()) &&
+              !existingCustomer.userId
+                ? { userId: linkedCustomerUserId }
+                : {}),
               ...(existingCustomer.name.trim().length === 0
                 ? { name: input.customer.name }
                 : {})
@@ -599,7 +612,8 @@ export async function POST(
               businessId: input.business_id,
               name: input.customer.name,
               email: input.customer.email ?? null,
-              phone: input.customer.phone ?? null
+              phone: input.customer.phone ?? null,
+              userId: linkedCustomerUserId
             }
           });
 

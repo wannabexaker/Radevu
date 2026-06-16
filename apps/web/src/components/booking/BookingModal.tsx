@@ -3,12 +3,18 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BookingFlow, type BookingBusiness, type BookingService } from "./BookingFlow";
+import {
+  BookingFlow,
+  type BookingBusiness,
+  type BookingPrefill,
+  type BookingService
+} from "./BookingFlow";
 
 type BookingModalProps = {
   business: BookingBusiness;
   onOpenChange: (open: boolean) => void;
   open: boolean;
+  prefill?: BookingPrefill | null;
   services: BookingService[];
 };
 
@@ -16,6 +22,7 @@ export function BookingModal({
   business,
   onOpenChange,
   open,
+  prefill,
   services
 }: BookingModalProps): JSX.Element {
   return (
@@ -42,6 +49,7 @@ export function BookingModal({
             <BookingFlow
               business={business}
               onClose={() => onOpenChange(false)}
+              prefill={prefill}
               services={services}
             />
           </div>

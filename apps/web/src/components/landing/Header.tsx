@@ -14,12 +14,19 @@ const navLinks = [
   { href: "#contact", label: "Επικοινωνία" }
 ] as const;
 
-/**
- * Renders the landing header with desktop nav and animated mobile drawer.
- *
- * @returns The sticky landing navigation.
- */
-export function Header(): JSX.Element {
+type HeaderProps = {
+  userType?: "business_owner" | "customer" | null;
+};
+
+function signedInHref(userType: HeaderProps["userType"]): string {
+  return userType === "business_owner" ? "/dashboard/today" : "/account";
+}
+
+function signedInLabel(userType: HeaderProps["userType"]): string {
+  return userType === "business_owner" ? "Dashboard" : "Account";
+}
+
+export function Header({ userType = null }: HeaderProps): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -57,7 +64,10 @@ export function Header(): JSX.Element {
           </span>
         </Link>
 
-        <nav aria-label="Κύρια πλοήγηση" className="hidden items-center md:flex">
+        <nav
+          aria-label="Κύρια πλοήγηση"
+          className="hidden items-center md:flex"
+        >
           {navLinks.map((link) => (
             <a
               className="inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -69,10 +79,23 @@ export function Header(): JSX.Element {
           ))}
         </nav>
 
-        <div className="hidden md:block">
-          <Button asChild size="sm" variant="ghost">
-            <Link href="/dashboard/login">Σύνδεση</Link>
-          </Button>
+        <div className="hidden items-center gap-2 md:flex">
+          {userType ? (
+            <Button asChild size="sm">
+              <Link href={signedInHref(userType)}>
+                {signedInLabel(userType)}
+              </Link>
+            </Button>
+          ) : (
+            <>
+              <Button asChild size="sm" variant="ghost">
+                <Link href="/login">Σύνδεση</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/register">Εγγραφή</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -108,11 +131,26 @@ export function Header(): JSX.Element {
                 {link.label}
               </a>
             ))}
-            <Button asChild variant="outline">
-              <Link href="/dashboard/login" onClick={closeMenu}>
-                Σύνδεση
-              </Link>
-            </Button>
+            {userType ? (
+              <Button asChild>
+                <Link href={signedInHref(userType)} onClick={closeMenu}>
+                  {signedInLabel(userType)}
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button asChild variant="outline">
+                  <Link href="/login" onClick={closeMenu}>
+                    Σύνδεση
+                  </Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/register" onClick={closeMenu}>
+                    Εγγραφή
+                  </Link>
+                </Button>
+              </>
+            )}
           </nav>
         </MotionDiv>
       ) : null}

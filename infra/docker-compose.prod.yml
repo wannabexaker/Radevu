@@ -1,7 +1,5 @@
-version: "3.9"
-
-# Radevu — PRODUCTION docker-compose (Raspberry Pi 4 in beta, Hetzner CAX21 in production).
-# Pulls pre-built ARM64 images from GHCR — no build happens on the Pi.
+# Radevu â€” PRODUCTION docker-compose (Raspberry Pi 4 in beta, Hetzner CAX21 in production).
+# Pulls pre-built ARM64 images from GHCR â€” no build happens on the Pi.
 #
 # Usage on Pi:
 #   cp infra/.env.example infra/.env   (fill in values, especially GHCR_USER + secrets)
@@ -88,7 +86,9 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
       CONTACT_NOTIFICATION_EMAIL: ${CONTACT_NOTIFICATION_EMAIL}
-      BOOKING_OWNER_ALERT_EMAIL_OVERRIDE: ${BOOKING_OWNER_ALERT_EMAIL_OVERRIDE}
+      BOOKING_OWNER_ALERT_EMAIL_OVERRIDE: ${BOOKING_OWNER_ALERT_EMAIL_OVERRIDE:-}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL}
       BOOKING_BASE_DOMAIN: ${BOOKING_BASE_DOMAIN}
@@ -108,7 +108,7 @@ services:
     mem_limit: 768m
     cpus: "1.0"
 
-  # Cloudflare Tunnel — uncomment in Beta Phase 1+ (after radevu.gr is registered).
+  # Cloudflare Tunnel â€” uncomment in Beta Phase 1+ (after radevu.gr is registered).
   # See infra/cloudflared/config.yml.example.
   # cloudflared:
   #   image: cloudflare/cloudflared:latest

@@ -12,7 +12,7 @@ export default async function HoursSettingsPage(): Promise<JSX.Element> {
   });
 
   if (!session) {
-    redirect("/dashboard/login");
+    redirect("/login");
   }
 
   const business = await prisma.business.findUnique({
@@ -25,7 +25,7 @@ export default async function HoursSettingsPage(): Promise<JSX.Element> {
   });
 
   if (!business) {
-    redirect("/dashboard/register");
+    redirect("/register");
   }
 
   return (

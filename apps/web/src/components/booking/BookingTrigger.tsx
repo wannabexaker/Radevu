@@ -4,15 +4,21 @@ import { CalendarCheck } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BookingModal } from "./BookingModal";
-import type { BookingBusiness, BookingService } from "./BookingFlow";
+import type {
+  BookingBusiness,
+  BookingPrefill,
+  BookingService
+} from "./BookingFlow";
 
 type BookingTriggerProps = {
   business: BookingBusiness;
+  prefill?: BookingPrefill | null;
   services: BookingService[];
 };
 
 export function BookingTrigger({
   business,
+  prefill,
   services
 }: BookingTriggerProps): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -39,6 +45,7 @@ export function BookingTrigger({
           business={business}
           onOpenChange={setOpen}
           open={open}
+          prefill={prefill}
           services={services}
         />
       ) : null}

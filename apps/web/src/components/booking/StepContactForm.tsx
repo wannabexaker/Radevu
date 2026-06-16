@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import type {
   BookingService,
   BookingSlot,
-  ConfirmedAppointment
+  ConfirmedAppointment,
+  BookingPrefill
 } from "./BookingFlow";
 
 type StepContactFormProps = {
@@ -19,6 +20,7 @@ type StepContactFormProps = {
     customerEmail: string | null,
     customerManageUrl: string | null
   ) => void;
+  prefill?: BookingPrefill | null;
   service: BookingService;
   slot: BookingSlot;
   timezone: string;
@@ -107,13 +109,14 @@ function bookingErrorMessage(
 export function StepContactForm({
   businessId,
   onConfirmed,
+  prefill,
   service,
   slot,
   timezone
 }: StepContactFormProps): JSX.Element {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [name, setName] = useState(prefill?.name ?? "");
+  const [email, setEmail] = useState(prefill?.email ?? "");
+  const [phone, setPhone] = useState(prefill?.phone ?? "");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);

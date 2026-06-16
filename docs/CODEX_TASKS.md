@@ -35,7 +35,7 @@ Phase 1 MVP is launch-ready.
 
 ## Module 3: Business + services
 
-- [✓] **TASK-006:** Business registration API + form. `POST /api/v1/businesses` creates business + owner User. Single-form registration. Done by Codex handoff #001.
+- [✓] **TASK-006:** Business registration API + form. Legacy business registration created business + owner User. Superseded by unified `/api/v1/auth/register` in Chunk #13. Done by Codex handoff #001.
 
 - [ ] **TASK-007:** Service catalog UI (Settings → Services tab in dashboard) — CRUD with one-tap actions.
 
@@ -73,6 +73,31 @@ Phase 1 MVP feature work is COMPLETE. Remaining items are non-coding ops: Pi dep
 ## Module 8: Beta Phase 1 transition (when radevu.gr is registered)
 
 - [ ] **TASK-022:** cloudflared install + tunnel config — DNS records for `radevu.gr` + wildcard `*.radevu.gr`. Switch env to `ROUTING_MODE=subdomain`, `BOOKING_BASE_DOMAIN=radevu.gr`. Smoke test from external network.
+
+## Module 11: Public auth + customer accounts + anti-spam (Chunk #13)
+
+Plan reference: `~/.claude/plans/ok-quiet-feather.md`. Decisions locked: Cloudflare Turnstile + Redis rate limit + honeypot. Soft email verification (banner, not hard gate). Auto-backfill of guest Customer rows on email verification.
+
+- [✓] **TASK-029:** Schema + migration + backfill. Add `User.userType` (enum customer|business_owner), `User.phone`, `User.marketingOptIn`, `Customer.userId` FK + index. SQL backfill sets existing owners to `business_owner`. Done + verified (3 demo owners flipped to `business_owner`, `customers.user_id` nullable + indexed + FK SetNull).
+- [→] **TASK-030:** Security primitives. `apps/web/src/lib/security/{turnstile,rate-limit,honeypot}.ts` + `lib/auth-security.ts` wrapper + `tests/unit/security.test.ts`. Shared zod schemas in `packages/shared/src/api/auth.ts`. **Code written (uncommitted), pending review.**
+- [→] **TASK-031:** Unified `/api/v1/auth/register` (discriminated customer|business) + `/api/v1/auth/verification/resend` + `EmailVerification` template + `lib/email-verification.ts` (token create/verify/send) + auto-backfill of `Customer.userId` on verification (email match only). **Code written (uncommitted), pending review.**
+- [→] **TASK-032:** `(auth)` route group pages: `login`, `register` (segmented toggle), `verify-email`. `components/auth/Turnstile.tsx`. Old `/dashboard/{login,register}` → redirects. **Code written (uncommitted), pending review.**
+- [→] **TASK-033:** `/api/v1/me/{route,appointments}` + `(account)` route group: `account`, `account/appointments`, `account/appointments/[id]`, `account/settings`. **Code written (uncommitted), pending review. NOTE: `me/change-password` NOT built — moved to TASK-038.**
+- [→] **TASK-034:** Header session awareness, dropdown, Σύνδεση/Εγγραφή buttons, booking prefill, `Customer.userId` stamping on `POST /api/v1/appointments`. **Code written (uncommitted), pending review.**
+- [→] **TASK-035:** Middleware protection for `/account/*`. **Code written (uncommitted). Doc refresh (API.md/ARCHITECTURE.md) NOT done — moved to TASK-041.**
+
+### Chunk #13b — Close all gaps before going live (handoff: `RADEVU-CHUNK13-FIXES-HANDOFF.md`)
+
+Security review (Claude orchestrator, multi-agent) found 2 confirmed HIGH vulns + several unfinished pieces in the uncommitted chunk-#13 work. Nothing ships to the public Pi until TASK-036 + env wiring + docs land (Deploy Gate 1).
+
+- [✓] **TASK-036 (BLOCKER):** Fixed 2 HIGH vulns — deleted unprotected legacy business-registration endpoint, added `currentUser.emailVerified &&` gate in `appointments/route.ts:445`, Turnstile env wiring (env.ts guard + .env.example + compose + Dockerfile build-arg + GHA). Reviewed + approved (Claude).
+- [✓] **TASK-037:** Email-verification banner in both layouts + authenticated `POST /api/v1/me/verification/resend` (session-gated, rate-limited `me-verify-resend|<userId>` 3/15min, no Turnstile). Reviewed + approved (Claude).
+- [✓] **TASK-038:** Change password — `POST /api/v1/me/change-password` via better-auth `changePassword` (verifies current pw, `revokeOtherSessions`), `change-password|<userId>` 3/10min, mounted in customer + owner settings. Reviewed + approved (Claude).
+- [✓] **TASK-039:** Forgot/reset password — `(auth)/forgot-password` + `(auth)/reset-password`, `POST /api/v1/auth/password/{forgot,reset}`, anti-abuse on forgot (no enumeration, always 200), IP rate-limit on reset, `ResetPassword` email, better-auth token 1h single-use. Reviewed + approved (Claude).
+- [ ] **TASK-040 (DEFERRED):** Change email with re-verification. Deferred intentionally unless explicitly requested.
+- [✓] **TASK-041:** Docs sync — `docs/API.md` (new Auth + Me sections, removed old Businesses registration row, note emailVerified-gated userId linkage on Appointments POST) + `docs/ARCHITECTURE.md` §5 rewrite + new §13. Done.
+
+Non-negotiables for the entire module: guest booking flow at `POST /api/v1/appointments` must remain fully functional without a session — regression test required. Reuse existing helpers (`validateAuthSecurity`, `getCurrentUser`, `checkRateLimit`, `sendVerificationEmail`) — do not duplicate. No new npm packages without approval. No commit/push/Pi-deploy with TASK-036 unresolved.
 
 ---
 

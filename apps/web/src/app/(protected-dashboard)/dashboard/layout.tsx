@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { LogoutButton } from "@/components/LogoutButton";
-import { auth } from "@/lib/auth";
+import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
+import { getCurrentUser } from "@/lib/current-user";
 
 export default async function DashboardLayout({
   children
@@ -12,12 +13,14 @@ export default async function DashboardLayout({
   const { headers } = await import("next/headers");
   const requestHeaders = await headers();
 
-  const session = await auth.api.getSession({
-    headers: requestHeaders
-  });
+  const user = await getCurrentUser(requestHeaders);
 
-  if (!session) {
-    redirect("/dashboard/login");
+  if (!user) {
+    redirect("/login");
+  }
+
+  if (user.userType !== "business_owner") {
+    redirect("/account");
   }
 
   return (
@@ -26,7 +29,10 @@ export default async function DashboardLayout({
         <h1 className="text-lg font-semibold text-neutral-950">Radevu</h1>
         <LogoutButton />
       </header>
-      <main className="flex-1 px-4 py-4">{children}</main>
+      <main className="flex-1 px-4 py-4">
+        {!user.emailVerified ? <VerifyEmailBanner email={user.email} /> : null}
+        {children}
+      </main>
       <BottomNav />
     </div>
   );
