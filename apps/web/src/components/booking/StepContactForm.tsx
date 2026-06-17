@@ -96,7 +96,7 @@ function bookingErrorMessage(
   }
 
   if (validationPath === "customer.email") {
-    return "Το email δεν είναι σωστό.";
+    return "Το Email δεν είναι σωστό.";
   }
 
   if (validationPath === "customer.phone") {
@@ -136,7 +136,7 @@ export function StepContactForm({
     }
 
     if (!trimmedEmail && !trimmedPhone) {
-      setError("Γράψε email ή τηλέφωνο.");
+      setError("Γράψε Email ή τηλέφωνο.");
       return;
     }
 
@@ -257,7 +257,7 @@ export function StepContactForm({
             type="tel"
             value={phone}
           />
-          <p className="text-sm text-slate-500">Χρειάζεται email ή τηλέφωνο.</p>
+          <p className="text-sm text-slate-500">Χρειάζεται Email ή τηλέφωνο.</p>
         </div>
 
         <div className="flex flex-col gap-2">

@@ -93,7 +93,7 @@ See `packages/db/prisma/schema.prisma` for the authoritative version.
 
 Models (Phase 1):
 
-- **Business** — id, slug (unique), name, contact_email, contact_phone, timezone, working_hours (jsonb), logo_url, photo_url, social_links (jsonb), maps_url, notification_settings (jsonb), owner_id, created_at.
+- **Business** — id, slug (unique), name, category (nullable), description (nullable), contact_email, contact_phone, timezone, working_hours (jsonb), logo_url, photo_url, social_links (jsonb), maps_url, notification_settings (jsonb), owner_id, created_at.
 - **Service** — id, business_id, name, duration_minutes, price_cents, currency, description, active, created_at.
 - **Customer** — id, business_id, user_id (nullable FK to User, `SET NULL` on delete), name, email, phone, future_recommendation (text), notes (text), reminder_dates (jsonb), created_at. UNIQUE(business_id, email) and UNIQUE(business_id, phone) — at least one must be present.
 - **Appointment** — id, business_id, customer_id, service_id, starts_at, ends_at, status (enum: scheduled, done, cancelled), paid (boolean), amount_due_cents, notes (owner-private text), customer_note (customer-visible text), customer_private_note (token-page private text), guest_token_hash, guest_token_expires_at, created_at.

@@ -32,7 +32,7 @@ export function ProfileHero({ business }: ProfileHeroProps): JSX.Element {
         />
       )}
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-indigo-500">Κλείσε online</p>
+        <p className="text-sm font-medium text-indigo-500">Κλείσε ραντεβού</p>
         <h1 className="text-3xl font-bold leading-tight text-slate-900">
           {business.name}
         </h1>

@@ -79,7 +79,7 @@ export function AppointmentsFilters({
             aria-label="Αναζήτηση πελάτη"
             className="pl-9"
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Όνομα, email, τηλέφωνο"
+            placeholder="Όνομα, Email, τηλέφωνο"
             value={search}
           />
         </div>

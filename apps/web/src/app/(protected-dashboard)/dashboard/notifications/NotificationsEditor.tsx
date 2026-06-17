@@ -73,12 +73,12 @@ export function NotificationsEditor({
   return (
     <form className="space-y-5 pb-20" onSubmit={submitSettings}>
       <header className="space-y-2">
-        <p className="text-sm font-medium text-indigo-700">Dashboard</p>
+        <p className="text-sm font-medium text-indigo-700">Ο πίνακάς μου</p>
         <h1 className="text-2xl font-semibold text-slate-950">
           Ειδοποιήσεις
         </h1>
         <p className="text-sm leading-relaxed text-slate-600">
-          Διάλεξε ποια email στέλνονται αυτόματα στους πελάτες σου.
+          Διάλεξε ποια Email στέλνονται αυτόματα στους πελάτες σου.
         </p>
       </header>
 
@@ -133,12 +133,12 @@ export function NotificationsEditor({
                 />
                 <p className="text-sm leading-relaxed text-slate-500">
                   Η υπενθύμιση φεύγει αυτόματα πριν την ώρα της κράτησης. Αν ο
-                  πελάτης δεν έχει email, δεν στέλνεται τίποτα.
+                  πελάτης δεν έχει Email, δεν στέλνεται τίποτα.
                 </p>
               </div>
             ) : (
               <p className="mt-3 text-sm leading-relaxed text-slate-500">
-                Δεν θα σταλεί αυτόματο email υπενθύμισης στον πελάτη.
+                Δεν θα σταλεί αυτόματο Email υπενθύμισης στον πελάτη.
               </p>
             )}
           </div>

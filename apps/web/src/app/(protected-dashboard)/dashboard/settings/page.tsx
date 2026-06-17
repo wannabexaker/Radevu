@@ -3,7 +3,7 @@ import { SettingsMenuItem } from "@/components/settings/SettingsMenuItem";
 
 const settingsLinks = [
   {
-    description: "Όνομα, εικόνες, τηλέφωνο, email, χάρτης και social.",
+    description: "Όνομα, εικόνες, τηλέφωνο, Email, χάρτης και κοινωνικά δίκτυα.",
     href: "/dashboard/settings/profile",
     icon: Settings2,
     label: "Προφίλ"
@@ -21,10 +21,10 @@ const settingsLinks = [
     label: "Υπηρεσίες"
   },
   {
-    description: "Διάλεξε αν η επιχείρησή σου φαίνεται στο landing.",
+    description: "Διάλεξε αν η επιχείρησή σου φαίνεται στη βιτρίνα.",
     href: "/dashboard/settings/visibility",
     icon: Globe,
-    label: "Εμφάνιση στο landing"
+    label: "Εμφάνιση στη βιτρίνα"
   }
 ] as const;
 

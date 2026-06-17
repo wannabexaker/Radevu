@@ -17,7 +17,7 @@ export function BottomNav(): JSX.Element {
 
   return (
     <nav
-      aria-label="Κύρια πλοήγηση dashboard"
+      aria-label="Κύρια πλοήγηση πίνακα"
       className="fixed bottom-0 left-0 right-0 z-20 border-t border-neutral-200 bg-white pb-2"
     >
       <div className="mx-auto flex max-w-screen-sm">

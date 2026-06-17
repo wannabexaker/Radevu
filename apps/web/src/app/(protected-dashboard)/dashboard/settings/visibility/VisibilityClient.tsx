@@ -101,7 +101,7 @@ export function VisibilityClient({
     <section className="mx-auto flex max-w-md flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold leading-tight text-slate-900">
-          Εμφάνιση στο landing
+          Εμφάνιση στη βιτρίνα
         </h1>
         <p className="text-base leading-relaxed text-slate-500">
           Διάλεξε αν η επιχείρησή σου θα εμφανίζεται στη βιτρίνα του Radevu.
@@ -116,11 +116,11 @@ export function VisibilityClient({
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-slate-500">
               Όταν είναι ενεργό, το όνομα και το λογότυπό σου εμφανίζονται στο
-              landing.
+              σημείο προβολής του Radevu.
             </p>
           </div>
           <Switch
-            aria-label="Εμφάνιση στο landing"
+            aria-label="Εμφάνιση στη βιτρίνα"
             checked={showOnLanding}
             disabled={isSubmitting}
             onCheckedChange={updateVisibility}

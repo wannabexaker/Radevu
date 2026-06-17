@@ -99,6 +99,25 @@ Security review (Claude orchestrator, multi-agent) found 2 confirmed HIGH vulns 
 
 Non-negotiables for the entire module: guest booking flow at `POST /api/v1/appointments` must remain fully functional without a session — regression test required. Reuse existing helpers (`validateAuthSecurity`, `getCurrentUser`, `checkRateLimit`, `sendVerificationEmail`) — do not duplicate. No new npm packages without approval. No commit/push/Pi-deploy with TASK-036 unresolved.
 
+Chunk #13 is LIVE on the Pi (radevu.olamov.com). Post-deploy fix: GH Actions variable was misnamed (`TURNSTILE` → corrected to `NEXT_PUBLIC_TURNSTILE_SITE_KEY`); rebuilt; Turnstile + registration verified working end-to-end (incl. verification email).
+
+## Module 12: Greek-first UX polish + discovery + content (Chunk #14)
+
+Handoff: `RADEVU-CHUNK14-PLAN-AND-HANDOFF.md` (full specs + Greek translations + 3 business catalogs). Locked: full directory + `category` field · realistic Greek hero sample · branded-icon avatar. Deploy in 3 waves.
+
+- [ ] **TASK-042:** Schema — `Business.category` + `description` (migration, backfill demos) + `BUSINESS_CATEGORIES` constant + `.gitattributes`/`.editorconfig` UTF-8 enforcement.
+- [ ] **TASK-043:** Fix all mojibake (Today H1 «Πρόγραμμα» etc.) — grep `Î`/`Ã`/`â€`, re-encode UTF-8.
+- [ ] **TASK-044:** Greek-first sweep (UI strings per glossary) + ioannis service names full Greek (seed + live UPDATE).
+- [ ] **TASK-045:** Branded default `Avatar` component, applied to empty profiles (business/customer/directory/dashboard).
+- [ ] **TASK-046:** Directory page `/epaggelmaties` + `GET /api/v1/businesses/directory` + nav links (header, account, dashboard).
+- [ ] **TASK-047:** Customer account «Κλείσε νέο ραντεβού» → directory.
+- [ ] **TASK-048:** Landing — Greek hero, realistic Greek sample mockup, «Δωρεάν εγγραφή» CTA, promote directory.
+- [ ] **TASK-049:** Owner dashboard cleanup — sections, avatars, Greek labels, empty states.
+- [ ] **TASK-050:** Email templates — shared branded `EmailLayout` + Greek copy across all 6.
+- [ ] **TASK-051:** 3 new demo businesses (Αντώνης/Ματίνα/Αγγελική) seed + live insert, full Greek catalogs.
+
+Waves: W1 = 042-044 · W2 = 045-047 · W3 = 048-051.
+
 ---
 
 ## Cross-cutting reminders for every task

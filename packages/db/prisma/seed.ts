@@ -20,8 +20,10 @@ type ServiceSpec = {
 
 type BusinessSeedSpec = {
   businessName: string;
+  category?: string;
   contactEmail: string;
   contactPhone: string | null;
+  description?: string;
   logoUrl: string | null;
   mapsUrl: string | null;
   ownerEmail: string;
@@ -174,6 +176,7 @@ function seedSpecs(): BusinessSeedSpec[] {
     },
     {
       businessName: "Δέσποινα - Φιλόλογος",
+      category: "Εκπαίδευση",
       contactEmail: "despoina@radevu.test",
       contactPhone: "6900001001",
       logoUrl: null,
@@ -216,6 +219,7 @@ function seedSpecs(): BusinessSeedSpec[] {
     },
     {
       businessName: "Ιωάννης - Τεχνικός δικτύων",
+      category: "Τεχνολογία",
       contactEmail: "ioannis@radevu.test",
       contactPhone: "6900001002",
       logoUrl: null,
@@ -233,22 +237,22 @@ function seedSpecs(): BusinessSeedSpec[] {
         },
         {
           durationMinutes: 90,
-          name: "Εγκατάσταση router / switch",
+          name: "Εγκατάσταση δρομολογητή / μεταγωγέα",
           priceCents: 5000
         },
         {
           durationMinutes: 60,
-          name: "Επισκευή WiFi (signal / dead zones)",
+          name: "Επισκευή WiFi (σήμα / νεκρές ζώνες)",
           priceCents: 4000
         },
         {
           durationMinutes: 120,
-          name: "Setup VPN / firewall",
+          name: "Ρύθμιση VPN (Εικονικό Ιδιωτικό Δίκτυο) / τείχους προστασίας",
           priceCents: 8000
         },
         {
           durationMinutes: 90,
-          name: "Εγκατάσταση Pi-hole / DNS",
+          name: "Εγκατάσταση Pi-hole / DNS (φραγή διαφημίσεων)",
           priceCents: 6000
         }
       ],
@@ -452,8 +456,12 @@ async function upsertBusinessWithOwner(
       slug: spec.slug
     },
     create: {
+      ...(spec.category !== undefined ? { category: spec.category } : {}),
       contactEmail: spec.contactEmail,
       contactPhone: spec.contactPhone,
+      ...(spec.description !== undefined
+        ? { description: spec.description }
+        : {}),
       logoUrl: spec.logoUrl,
       mapsUrl: spec.mapsUrl,
       name: spec.businessName,
@@ -467,8 +475,12 @@ async function upsertBusinessWithOwner(
       workingHours: spec.workingHours
     },
     update: {
+      ...(spec.category !== undefined ? { category: spec.category } : {}),
       contactEmail: spec.contactEmail,
       contactPhone: spec.contactPhone,
+      ...(spec.description !== undefined
+        ? { description: spec.description }
+        : {}),
       logoUrl: spec.logoUrl,
       mapsUrl: spec.mapsUrl,
       name: spec.businessName,

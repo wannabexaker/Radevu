@@ -82,6 +82,8 @@ model Business {
   id                   String   @id @default(cuid())
   slug                 String   @unique
   name                 String
+  category             String?  @map("category")
+  description          String?  @map("description")
   contactEmail         String?  @map("contact_email")
   contactPhone         String?  @map("contact_phone")
   timezone             String   @default("Europe/Athens")

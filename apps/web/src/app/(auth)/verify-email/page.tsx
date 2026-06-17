@@ -19,17 +19,17 @@ export default async function VerifyEmailPage({
 
   const title =
     result?.ok === true
-      ? "Το email επιβεβαιώθηκε"
+      ? "Το Email επιβεβαιώθηκε"
       : result?.reason === "expired"
         ? "Ο σύνδεσμος έληξε"
-        : "Επιβεβαίωση email";
+        : "Επιβεβαίωση Email";
 
   const body =
     result?.ok === true
       ? "Ο λογαριασμός σου είναι πλέον επιβεβαιωμένος."
       : result?.reason === "expired"
-        ? "Ζήτησε νέο email επιβεβαίωσης από τη σελίδα σύνδεσης."
-        : "Άνοιξε τον σύνδεσμο που έλαβες στο email σου.";
+        ? "Ζήτησε νέο Email επιβεβαίωσης από τη σελίδα σύνδεσης."
+        : "Άνοιξε τον σύνδεσμο που έλαβες στο Email σου.";
 
   return (
     <main className="flex min-h-screen flex-col justify-center bg-slate-50 px-4 py-8">

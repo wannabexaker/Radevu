@@ -23,7 +23,7 @@ function signedInHref(userType: HeaderProps["userType"]): string {
 }
 
 function signedInLabel(userType: HeaderProps["userType"]): string {
-  return userType === "business_owner" ? "Dashboard" : "Account";
+  return userType === "business_owner" ? "Ο πίνακάς μου" : "Ο λογαριασμός μου";
 }
 
 export function Header({ userType = null }: HeaderProps): JSX.Element {

@@ -21,7 +21,7 @@ export function Hero(): JSX.Element {
             transition={{ duration: 0.45, ease: "easeOut" }}
           >
             <h1 className="text-5xl font-bold leading-tight text-slate-900 md:text-7xl">
-              Online ραντεβού για μικρές επιχειρήσεις.
+              Διαδικτυακά ραντεβού για μικρές επιχειρήσεις.
             </h1>
           </MotionDiv>
 
@@ -31,7 +31,7 @@ export function Hero(): JSX.Element {
             transition={{ delay: 0.12, duration: 0.45, ease: "easeOut" }}
           >
             <p className="max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl">
-              Δώσε στους πελάτες σου ένα link. Κρατάνε μόνοι τους, εσύ
+              Δώσε στους πελάτες σου έναν σύνδεσμο. Κρατάνε μόνοι τους, εσύ
               βλέπεις τη μέρα σου από το κινητό. Χωρίς χαρτιά, χωρίς
               τηλέφωνα.
             </p>
@@ -62,7 +62,7 @@ export function Hero(): JSX.Element {
                     Σήμερα
                   </p>
                   <p className="text-xl font-semibold text-slate-900">
-                    Test Shop
+                    Δοκιμαστικό κατάστημα
                   </p>
                 </div>
               </div>

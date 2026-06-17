@@ -36,7 +36,7 @@ export function BookingModal({
                 {business.name}
               </Dialog.Title>
               <Dialog.Description className="text-sm text-slate-500">
-                Online κράτηση
+                Κλείσε ραντεβού
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>

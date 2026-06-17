@@ -233,7 +233,7 @@ export function RegisterForm(): JSX.Element {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="slug">Radevu link</Label>
+              <Label htmlFor="slug">Σύνδεσμος Radevu</Label>
               <Input
                 id="slug"
                 maxLength={40}

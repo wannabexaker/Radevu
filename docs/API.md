@@ -65,6 +65,8 @@ Business owner registration now happens through `POST /api/v1/auth/register`. Sl
 
 Business profile updates use snake_case JSON keys. `logo_url` and `photo_url` accept `/uploads/...` URLs or `null` to clear. `social_links` accepts `{ instagram?, facebook? }` with allowlisted hosts only. `maps_url` accepts Google Maps hosts only. `working_hours` is a complete weekly object with `mon` through `sun`, each containing `{ open, close }` intervals in `HH:mm`.
 
+The stored Business model also has nullable `category` and `description` fields. Demo backfill uses `Τεχνολογία` for `ioannis` and `Εκπαίδευση` for `despoina`; these fields are reserved for the upcoming public directory/profile discovery work and are not owner-editable through this endpoint yet.
+
 `POST /api/v1/businesses/:id/upload` accepts only `image/png`, `image/jpeg`, and `image/webp` up to 5MB. Invalid type returns `400 INVALID_TYPE`; oversized files return `413 FILE_TOO_LARGE`.
 
 `GET /uploads/[...path]` is a public static-style route for stored business images. It streams files from `/srv/radevu/uploads`, rejects unsafe paths, and returns immutable cache headers.

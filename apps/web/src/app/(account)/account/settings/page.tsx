@@ -58,7 +58,7 @@ export default async function AccountSettingsPage({
             value={user?.email ?? ""}
           />
           <p className="text-xs text-slate-500">
-            Το email σύνδεσης δεν αλλάζει από εδώ.
+            Το Email σύνδεσης δεν αλλάζει από εδώ.
           </p>
         </div>
 

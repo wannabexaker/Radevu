@@ -88,7 +88,7 @@ export function ForgotPasswordForm(): JSX.Element {
             Ξέχασες τον κωδικό;
           </h1>
           <p className="text-base leading-7 text-slate-600">
-            Γράψε το email σου και θα στείλουμε σύνδεσμο αλλαγής κωδικού.
+            Γράψε το Email σου και θα στείλουμε σύνδεσμο αλλαγής κωδικού.
           </p>
         </div>
 
@@ -118,7 +118,7 @@ export function ForgotPasswordForm(): JSX.Element {
 
         {success ? (
           <p className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800">
-            Αν υπάρχει λογαριασμός, στείλαμε email.
+            Αν υπάρχει λογαριασμός, στείλαμε Email.
           </p>
         ) : null}
 

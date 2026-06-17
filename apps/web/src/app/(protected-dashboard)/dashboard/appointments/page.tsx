@@ -223,17 +223,17 @@ export default async function AppointmentsPage({
   const groups = groupAppointments(items, business.timezone);
   const emptyMessage =
     view === "past"
-      ? "Î”ÎµÎ½ Î²ÏÎ­Î¸Î·ÎºÎ±Î½ Ï€Î±Î»Î¹Î­Ï‚ ÎºÏÎ±Ï„Î®ÏƒÎµÎ¹Ï‚ Î¼Îµ Î±Ï…Ï„Î¬ Ï„Î± Ï†Î¯Î»Ï„ÏÎ±."
-      : "Î”ÎµÎ½ Î­Ï‡ÎµÎ¹Ï‚ ÎµÏ€ÏŒÎ¼ÎµÎ½ÎµÏ‚ ÎºÏÎ±Ï„Î®ÏƒÎµÎ¹Ï‚ ÎµÎ´ÏŽ. ÎšÏÎ¬Ï„Î± Î»Î¯Î³Î¿ Ï‡ÏŽÏÎ¿ Î³Î¹Î± Î±Î½Î¬ÏƒÎ±.";
+      ? "Δεν βρέθηκαν παλιές κρατήσεις με αυτά τα φίλτρα."
+      : "Δεν έχεις επόμενες κρατήσεις εδώ. Κράτα λίγο χώρο για ανάσα.";
 
   return (
     <section className="flex flex-col gap-4 pb-20">
       <div>
         <h1 className="text-3xl font-bold leading-tight text-slate-900">
-          ÎšÏÎ±Ï„Î®ÏƒÎµÎ¹Ï‚
+          Κρατήσεις
         </h1>
         <p className="mt-2 text-base text-slate-500">
-          Î’ÏÎµÏ‚ Î³ÏÎ®Î³Î¿ÏÎ± Ï€Î¿Î¹Î¿Ï‚ Î­ÏÏ‡ÎµÏ„Î±Î¹ ÎºÎ±Î¹ Ï„Î¹ Ï‡ÏÎµÎ¹Î¬Î¶ÎµÏ„Î±Î¹.
+          Βρες γρήγορα ποιος έρχεται και τι χρειάζεται.
         </p>
       </div>
       <AppointmentsFilters
@@ -279,7 +279,7 @@ export default async function AppointmentsPage({
       {result.nextCursor ? (
         <Button asChild className="w-full" variant="outline">
           <Link href={loadMoreHref(params, result.nextCursor)}>
-            Î¦ÏŒÏÏ„Ï‰ÏƒÎµ ÎºÎ¹ Î¬Î»Î»Î±
+            Φόρτωσε κι άλλα
           </Link>
         </Button>
       ) : null}

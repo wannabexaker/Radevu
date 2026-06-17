@@ -67,7 +67,7 @@ function AccessError(): JSX.Element {
           Ο σύνδεσμος δεν ισχύει
         </h1>
         <p className="text-base leading-relaxed text-slate-600">
-          Άνοιξε τον σύνδεσμο από το email επιβεβαίωσης ή επικοινώνησε με την
+          Άνοιξε τον σύνδεσμο από το Email επιβεβαίωσης ή επικοινώνησε με την
           επιχείρηση.
         </p>
       </section>

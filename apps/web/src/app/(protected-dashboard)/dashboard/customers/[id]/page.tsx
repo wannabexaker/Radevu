@@ -20,10 +20,10 @@ type CustomerDetailPageProps = {
 
 function contactText(email: string | null, phone: string | null): string {
   if (phone && email) {
-    return `${phone} Â· ${email}`;
+    return `${phone} · ${email}`;
   }
 
-  return phone ?? email ?? "Î”ÎµÎ½ Î´ÏŒÎ¸Î·ÎºÎµ ÎµÏ€Î¹ÎºÎ¿Î¹Î½Ï‰Î½Î¯Î±";
+  return phone ?? email ?? "Δεν δόθηκε επικοινωνία";
 }
 
 export async function generateMetadata({
@@ -34,14 +34,14 @@ export async function generateMetadata({
 
   if (!business) {
     return {
-      title: "Î ÎµÎ»Î¬Ï„Î·Ï‚"
+      title: "Πελάτης"
     };
   }
 
   const customer = await getCustomer(business.id, id);
 
   return {
-    title: customer ? `${customer.name} Â· Î ÎµÎ»Î¬Ï„ÎµÏ‚` : "Î ÎµÎ»Î¬Ï„Î·Ï‚"
+    title: customer ? `${customer.name} · Πελάτες` : "Πελάτης"
   };
 }
 
@@ -68,7 +68,7 @@ export default async function CustomerDetailPage({
         href="/dashboard/customers"
       >
         <ChevronLeft aria-hidden="true" className="h-5 w-5" />
-        Î ÎµÎ»Î¬Ï„ÎµÏ‚
+        Πελάτες
       </Link>
 
       <header className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -88,7 +88,7 @@ export default async function CustomerDetailPage({
                   href={`tel:${customer.phone}`}
                 >
                   <Phone aria-hidden="true" className="h-4 w-4" />
-                  Î¤Î·Î»Î­Ï†Ï‰Î½Î¿
+                  Τηλέφωνο
                 </a>
               ) : null}
               {customer.email ? (
@@ -116,15 +116,15 @@ export default async function CustomerDetailPage({
       <section className="flex flex-col gap-3">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">
-            Î™ÏƒÏ„Î¿ÏÎ¹ÎºÏŒ ÎºÏÎ±Ï„Î®ÏƒÎµÏ‰Î½
+            Ιστορικό κρατήσεων
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Î Î¹Î¿ Ï€ÏÏŒÏƒÏ†Î±Ï„ÎµÏ‚ Ï€ÏÏŽÏ„Î±.
+            Πιο πρόσφατες πρώτα.
           </p>
         </div>
         {customer.appointments.length === 0 ? (
           <p className="rounded-xl border border-slate-200 bg-white p-4 text-base text-slate-700">
-            Î”ÎµÎ½ Ï…Ï€Î¬ÏÏ‡ÎµÎ¹ Î¹ÏƒÏ„Î¿ÏÎ¹ÎºÏŒ ÎºÏÎ±Ï„Î®ÏƒÎµÏ‰Î½ Î±ÎºÏŒÎ¼Î±.
+            Δεν υπάρχει ιστορικό κρατήσεων ακόμα.
           </p>
         ) : (
           <div className="flex flex-col gap-2">

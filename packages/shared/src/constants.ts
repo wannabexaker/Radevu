@@ -1,3 +1,17 @@
+export const BUSINESS_CATEGORIES = [
+  "Τεχνολογία",
+  "Φαγητό",
+  "Χειροτεχνία",
+  "Αυτοκίνητα",
+  "Ομορφιά",
+  "Υγεία",
+  "Εκπαίδευση",
+  "Υπηρεσίες",
+  "Άλλο"
+] as const;
+
+export type BusinessCategory = (typeof BUSINESS_CATEGORIES)[number];
+
 export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   "www",
   "app",

@@ -51,17 +51,17 @@ export default async function CustomersPage({
     <section className="flex flex-col gap-4 pb-20">
       <div>
         <h1 className="text-3xl font-bold leading-tight text-slate-900">
-          Î ÎµÎ»Î¬Ï„ÎµÏ‚
+          Πελάτες
         </h1>
         <p className="mt-2 text-base text-slate-500">
-          ÎŒÎ»Î¿Î¹ ÏŒÏƒÎ¿Î¹ Î­Ï‡Î¿Ï…Î½ ÎºÎ¬Î½ÎµÎ¹ ÎºÏÎ¬Ï„Î·ÏƒÎ· ÏƒÏ„Î·Î½ ÎµÏ€Î¹Ï‡ÎµÎ¯ÏÎ·ÏƒÎ® ÏƒÎ¿Ï….
+          Όλοι όσοι έχουν κάνει κράτηση στην επιχείρησή σου.
         </p>
       </div>
       <CustomerSearchBox query={params.search ?? ""} />
       {result.items.length === 0 ? (
         <p className="rounded-xl border border-slate-200 bg-white p-4 text-base leading-relaxed text-slate-700">
-          Î”ÎµÎ½ Î­Ï‡ÎµÎ¹Ï‚ Ï€ÎµÎ»Î¬Ï„ÎµÏ‚ Î±ÎºÏŒÎ¼Î±. Î˜Î± ÎµÎ¼Ï†Î±Î½Î¯Î¶Î¿Î½Ï„Î±Î¹ ÎµÎ´ÏŽ Î¼ÏŒÎ»Î¹Ï‚ Î³Î¯Î½ÎµÎ¹ Î· Ï€ÏÏŽÏ„Î·
-          ÎºÏÎ¬Ï„Î·ÏƒÎ·.
+          Δεν έχεις πελάτες ακόμα. Θα εμφανίζονται εδώ μόλις γίνει η πρώτη
+          κράτηση.
         </p>
       ) : (
         <div className="flex flex-col gap-3">
@@ -77,7 +77,7 @@ export default async function CustomersPage({
       {result.nextCursor ? (
         <Button asChild className="w-full" variant="outline">
           <Link href={loadMoreHref(params, result.nextCursor)}>
-            Î¦ÏŒÏÏ„Ï‰ÏƒÎµ ÎºÎ¹ Î¬Î»Î»Î¿Ï…Ï‚
+            Φόρτωσε κι άλλους
           </Link>
         </Button>
       ) : null}

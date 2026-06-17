@@ -49,7 +49,7 @@ export default async function AccountPage(): Promise<JSX.Element> {
   return (
     <div className="space-y-5">
       <header className="space-y-2">
-        <p className="text-sm font-medium text-indigo-700">Account</p>
+        <p className="text-sm font-medium text-indigo-700">Ο λογαριασμός μου</p>
         <h1 className="text-2xl font-semibold text-slate-950">
           Γεια σου {user?.name ?? ""}
         </h1>
