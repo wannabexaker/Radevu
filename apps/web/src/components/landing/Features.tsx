@@ -62,7 +62,7 @@ export function Features(): JSX.Element {
   return (
     <section className="px-4 py-12 md:px-8 md:py-20" id="features">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        <div className="max-w-2xl">
+        <div className="max-w-[900px]">
           <p className="text-sm font-semibold uppercase text-indigo-500">
             Τι κάνει
           </p>

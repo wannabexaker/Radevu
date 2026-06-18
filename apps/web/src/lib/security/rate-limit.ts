@@ -48,8 +48,8 @@ function hashedKey(key: string): string {
 }
 
 async function defaultRedis(): Promise<RateLimitRedis> {
-  const module = await import("../redis");
-  return module.redis;
+  const redisModule = await import("../redis");
+  return redisModule.redis;
 }
 
 function parseEvalResult(result: unknown, fallbackWindowMs: number): {

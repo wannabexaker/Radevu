@@ -1,6 +1,7 @@
 "use client";
 
 import { createAuthClient } from "better-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
@@ -76,14 +77,21 @@ export function LoginForm(): JSX.Element {
         className="mx-auto flex w-full max-w-md flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold uppercase text-indigo-500">
-            Radevu
-          </p>
-          <h1 className="text-3xl font-bold text-slate-900">Σύνδεση</h1>
-          <p className="text-base leading-7 text-slate-600">
-            Μπες στον λογαριασμό σου.
-          </p>
+        <div className="flex items-center gap-4">
+          <Image
+            alt="Radevu"
+            className="h-20 w-20 shrink-0 object-contain"
+            height={80}
+            priority
+            src="/radevu.png"
+            width={80}
+          />
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold text-slate-900">Σύνδεση</h1>
+            <p className="text-base leading-7 text-slate-600">
+              Μπες στον λογαριασμό σου.
+            </p>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">

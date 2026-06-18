@@ -71,13 +71,12 @@ export function NotificationsEditor({
   }
 
   return (
-    <form className="space-y-5 pb-20" onSubmit={submitSettings}>
+    <form className="flex flex-col gap-6 pb-20" onSubmit={submitSettings}>
       <header className="space-y-2">
-        <p className="text-sm font-medium text-indigo-700">Ο πίνακάς μου</p>
-        <h1 className="text-2xl font-semibold text-slate-950">
+        <h1 className="text-3xl font-bold leading-tight text-slate-900">
           Ειδοποιήσεις
         </h1>
-        <p className="text-sm leading-relaxed text-slate-600">
+        <p className="text-base leading-relaxed text-slate-500">
           Διάλεξε ποια Email στέλνονται αυτόματα στους πελάτες σου.
         </p>
       </header>

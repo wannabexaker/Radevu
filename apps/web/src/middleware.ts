@@ -127,6 +127,7 @@ export function middleware(req: NextRequest): NextResponse {
   if (
     firstSegment === "account" ||
     firstSegment === "dashboard" ||
+    firstSegment === "epaggelmaties" ||
     firstSegment === "api" ||
     firstSegment === "login" ||
     firstSegment === "register" ||

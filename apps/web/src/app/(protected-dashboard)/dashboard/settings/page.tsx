@@ -30,15 +30,15 @@ const settingsLinks = [
 
 export default function SettingsPage(): JSX.Element {
   return (
-    <section className="mx-auto flex max-w-md flex-col gap-6 pb-20">
-      <div className="flex flex-col gap-2">
+    <section className="flex flex-col gap-6 pb-20">
+      <header className="space-y-2">
         <h1 className="text-3xl font-bold leading-tight text-slate-900">
           Ρυθμίσεις
         </h1>
         <p className="text-base leading-relaxed text-slate-500">
           Διαχειρίσου τα στοιχεία που βλέπουν οι πελάτες σου.
         </p>
-      </div>
+      </header>
       <div className="flex flex-col gap-3">
         {settingsLinks.map((item) => (
           <SettingsMenuItem

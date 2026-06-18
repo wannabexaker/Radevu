@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserRound } from "lucide-react";
 import { redirect } from "next/navigation";
 import { CustomerCard } from "@/components/dashboard/CustomerCard";
 import { CustomerSearchBox } from "@/components/dashboard/CustomerSearchBox";
@@ -48,21 +49,28 @@ export default async function CustomersPage({
   });
 
   return (
-    <section className="flex flex-col gap-4 pb-20">
-      <div>
+    <section className="flex flex-col gap-6 pb-20">
+      <header className="space-y-2">
         <h1 className="text-3xl font-bold leading-tight text-slate-900">
           Πελάτες
         </h1>
-        <p className="mt-2 text-base text-slate-500">
+        <p className="text-base leading-relaxed text-slate-500">
           Όλοι όσοι έχουν κάνει κράτηση στην επιχείρησή σου.
         </p>
-      </div>
+      </header>
       <CustomerSearchBox query={params.search ?? ""} />
       {result.items.length === 0 ? (
-        <p className="rounded-xl border border-slate-200 bg-white p-4 text-base leading-relaxed text-slate-700">
-          Δεν έχεις πελάτες ακόμα. Θα εμφανίζονται εδώ μόλις γίνει η πρώτη
-          κράτηση.
-        </p>
+        <section className="flex min-h-56 flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-6 text-center">
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-indigo-500">
+            <UserRound aria-hidden="true" className="h-6 w-6" />
+          </span>
+          <h2 className="mt-4 text-lg font-semibold text-slate-900">
+            Δεν υπάρχουν πελάτες ακόμα
+          </h2>
+          <p className="mt-2 max-w-sm text-base leading-relaxed text-slate-600">
+            Οι πελάτες θα εμφανίζονται εδώ μόλις γίνει η πρώτη κράτηση.
+          </p>
+        </section>
       ) : (
         <div className="flex flex-col gap-3">
           {result.items.map((customer) => (

@@ -24,7 +24,7 @@ export function TodayHeader({
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-sm font-medium text-slate-500">Το πρόγραμμα σου</p>
+      <p className="text-sm font-medium text-slate-500">Το πρόγραμμά σου</p>
       <p
         className="mt-2 text-base leading-relaxed text-slate-800"
         data-testid="today-counter"

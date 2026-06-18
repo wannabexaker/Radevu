@@ -36,7 +36,7 @@ const buildTimeEnv = {
   REDIS_URL: "redis://localhost:6379",
   BETTER_AUTH_SECRET: "build_time_secret_not_used_at_runtime",
   BETTER_AUTH_URL: "http://localhost:3000",
-  BOOKING_BASE_DOMAIN: "localhost",
+  BOOKING_BASE_DOMAIN: "radevu.olamov.com",
   ROUTING_MODE: "subpath",
   CONTACT_NOTIFICATION_EMAIL: "founder@example.com",
   BOOKING_OWNER_ALERT_EMAIL_OVERRIDE: undefined,

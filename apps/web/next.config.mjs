@@ -21,7 +21,7 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_BOOKING_BASE_DOMAIN:
-      process.env.BOOKING_BASE_DOMAIN ?? "localhost",
+      process.env.BOOKING_BASE_DOMAIN ?? "radevu.olamov.com",
     NEXT_PUBLIC_ROUTING_MODE: process.env.ROUTING_MODE ?? "subpath"
   },
   webpack(config, { isServer }) {

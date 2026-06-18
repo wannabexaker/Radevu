@@ -1,5 +1,6 @@
 import type { CustomerDebtGroup } from "@/lib/customers";
 import Link from "next/link";
+import { CustomerAvatar } from "@/components/dashboard/CustomerAvatar";
 import { DebtRow } from "@/components/dashboard/DebtRow";
 import { formatPrice } from "@/lib/format";
 
@@ -25,14 +26,17 @@ export function DebtSection({
   const currency = group.appointments[0]?.service.currency ?? "EUR";
 
   return (
-    <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <div className="flex items-start justify-between gap-3 px-1">
-        <Link
-          className="min-h-11 min-w-0 py-1 text-base font-semibold text-slate-900 underline-offset-4 active:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          href={`/dashboard/customers/${group.customer.id}`}
-        >
-          {group.customer.name}
-        </Link>
+    <section className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <div className="flex min-w-0 items-center gap-3">
+          <CustomerAvatar name={group.customer.name} />
+          <Link
+            className="inline-flex min-h-11 min-w-0 items-center text-base font-semibold text-slate-900 underline-offset-4 active:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            href={`/dashboard/customers/${group.customer.id}`}
+          >
+            {group.customer.name}
+          </Link>
+        </div>
         <p className="shrink-0 text-sm font-semibold text-slate-800">
           {formatPrice(group.totalOwedCents, currency)}
         </p>

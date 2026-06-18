@@ -47,7 +47,7 @@ export async function sendContactRequestEmail(
   const result = await resend.emails.send({
     from: `Radevu <${args.resendFromEmail}>`,
     to: args.to,
-    subject: `Νέο contact request - ${args.name}`,
+    subject: `Νέο αίτημα επικοινωνίας - ${args.name}`,
     react: ContactRequestNotification({
       email: args.email,
       message: args.message,

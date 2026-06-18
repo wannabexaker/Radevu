@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { Turnstile } from "@/components/auth/Turnstile";
@@ -53,7 +54,12 @@ export function RegisterForm(): JSX.Element {
   const [slug, setSlug] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
   const [userType, setUserType] = useState<UserType>("business_owner");
-  const baseDomain = process.env.NEXT_PUBLIC_BOOKING_BASE_DOMAIN ?? "localhost";
+  const configuredBaseDomain =
+    process.env.NEXT_PUBLIC_BOOKING_BASE_DOMAIN?.trim();
+  const baseDomain =
+    configuredBaseDomain && !configuredBaseDomain.startsWith("localhost")
+      ? configuredBaseDomain.replace(/^https?:\/\//, "").replace(/\/+$/, "")
+      : "radevu.olamov.com";
 
   useEffect(() => {
     setFormStartedAt(Date.now());
@@ -126,14 +132,27 @@ export function RegisterForm(): JSX.Element {
         className="mx-auto flex w-full max-w-md flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold uppercase text-indigo-500">
-            Radevu
-          </p>
-          <h1 className="text-3xl font-bold text-slate-900">Εγγραφή</h1>
-          <p className="text-base leading-7 text-slate-600">
-            Δημιούργησε λογαριασμό πελάτη ή επαγγελματικό προφίλ.
-          </p>
+        <div className="flex items-center gap-4">
+          <Link
+            aria-label="Πήγαινε στην αρχική σελίδα Radevu"
+            className="inline-flex h-20 w-20 shrink-0"
+            href="https://radevu.olamov.com"
+          >
+            <Image
+              alt="Radevu"
+              className="h-20 w-20 object-contain"
+              height={80}
+              priority
+              src="/radevu.png"
+              width={80}
+            />
+          </Link>
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold text-slate-900">Εγγραφή</h1>
+            <p className="text-base leading-7 text-slate-600">
+              Δημιούργησε λογαριασμό πελάτη ή επαγγελματικό προφίλ.
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">

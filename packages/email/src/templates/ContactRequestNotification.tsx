@@ -1,13 +1,9 @@
 import {
-  Body,
-  Container,
-  Head,
   Heading,
   Hr,
-  Html,
-  Preview,
   Text
 } from "@react-email/components";
+import { EmailLayout } from "../components/EmailLayout.js";
 
 export type ContactRequestNotificationProps = {
   email: string;
@@ -29,32 +25,30 @@ export function ContactRequestNotification({
   phone
 }: ContactRequestNotificationProps): JSX.Element {
   return (
-    <Html lang="el">
-      <Head />
-      <Preview>Νέο contact request από {name}</Preview>
-      <Body>
-        <Container>
-          <Heading>Νέο contact request</Heading>
-          <Text>
-            Ο/η {name} έστειλε μήνυμα από τη landing page του Radevu.
-          </Text>
-          <Hr />
-          <Text>
-            <strong>Όνομα:</strong> {name}
-          </Text>
-          <Text>
-            <strong>Email:</strong> {email}
-          </Text>
-          <Text>
-            <strong>Τηλέφωνο:</strong> {phone ?? "Δεν δόθηκε"}
-          </Text>
-          <Hr />
-          <Text>
-            <strong>Μήνυμα:</strong>
-          </Text>
-          <Text>{message}</Text>
-        </Container>
-      </Body>
-    </Html>
+    <EmailLayout preview={`Νέο αίτημα επικοινωνίας από ${name}`}>
+      <Heading className="m-0 text-2xl font-semibold leading-tight text-slate-900">
+        Νέο αίτημα επικοινωνίας
+      </Heading>
+      <Text className="mt-4 text-base leading-relaxed text-slate-700">
+        Ο/η {name} έστειλε μήνυμα από τη σελίδα του Radevu.
+      </Text>
+      <Hr className="my-5 border-slate-200" />
+      <Text className="my-2 text-base text-slate-700">
+        <strong>Όνομα:</strong> {name}
+      </Text>
+      <Text className="my-2 text-base text-slate-700">
+        <strong>Email:</strong> {email}
+      </Text>
+      <Text className="my-2 text-base text-slate-700">
+        <strong>Τηλέφωνο:</strong> {phone ?? "Δεν δόθηκε"}
+      </Text>
+      <Hr className="my-5 border-slate-200" />
+      <Text className="my-2 text-sm font-semibold text-slate-500">
+        Μήνυμα
+      </Text>
+      <Text className="mb-0 mt-2 text-base leading-relaxed text-slate-800">
+        {message}
+      </Text>
+    </EmailLayout>
   );
 }

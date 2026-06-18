@@ -57,11 +57,14 @@ Business owner registration now happens through `POST /api/v1/auth/register`. Sl
 
 | Method | Path | Auth | Body / Query | Returns |
 |--------|------|------|--------------|---------|
+| `GET` | `/api/v1/businesses/directory` | Public | `?search&category&cursor&take=24` | `200 { businesses, next_cursor }` |
 | `GET` | `/api/v1/businesses/:id` | Public for booking page, Owner for full | - | `200 { business }` |
 | `PATCH` | `/api/v1/businesses/:id` | Owner of `:id` | `{ name?, contact_email?, contact_phone?, logo_url?, photo_url?, social_links?, maps_url?, working_hours? }` | `200 { business }` |
 | `POST` | `/api/v1/businesses/:id/upload` | Owner of `:id` | Multipart `{ kind: "logo"\|"photo", file }` | `201 { url }` |
 | `PATCH` | `/api/v1/businesses/:id/notifications` | Owner of `:id` | `{ confirmation_enabled?, reminder_enabled?, reminder_lead_minutes? }` | `200 { business: { id, notification_settings } }` |
 | `PATCH` | `/api/v1/businesses/:id/visibility` | Owner of `:id` | `{ show_on_landing }` | `200 { business: { id, show_on_landing } }` |
+
+`GET /api/v1/businesses/directory` returns public-safe discovery fields only: `id`, `slug`, `name`, `category`, `description`, `logo_url`, and `photo_url`. Results include businesses marked `show_on_landing=true` or businesses with at least one active service. `category` must be one of `BUSINESS_CATEGORIES`; `take` is clamped to 50.
 
 Business profile updates use snake_case JSON keys. `logo_url` and `photo_url` accept `/uploads/...` URLs or `null` to clear. `social_links` accepts `{ instagram?, facebook? }` with allowlisted hosts only. `maps_url` accepts Google Maps hosts only. `working_hours` is a complete weekly object with `mon` through `sun`, each containing `{ open, close }` intervals in `HH:mm`.
 

@@ -73,7 +73,7 @@ export default async function CustomerDetailPage({
 
       <header className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex items-start gap-3">
-          <CustomerAvatar name={customer.name} size="lg" />
+          <CustomerAvatar name={customer.name} size="md" />
           <div className="min-w-0 flex-1">
             <h1 className="text-3xl font-bold leading-tight text-slate-900">
               {customer.name}

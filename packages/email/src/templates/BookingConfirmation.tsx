@@ -1,15 +1,10 @@
 import {
-  Body,
   Button,
-  Container,
-  Head,
   Heading,
-  Html,
-  Preview,
   Section,
-  Tailwind,
   Text
 } from "@react-email/components";
+import { EmailLayout } from "../components/EmailLayout.js";
 
 export type BookingConfirmationProps = {
   business_email?: string;
@@ -47,14 +42,9 @@ export function BookingConfirmation({
   service_name
 }: BookingConfirmationProps): JSX.Element {
   return (
-    <Html lang="el">
-      <Head />
-      <Preview>
-        Επιβεβαίωση κράτησης για {service_name} στο {business_name}.
-      </Preview>
-      <Tailwind>
-        <Body className="m-0 bg-slate-50 px-4 py-6 font-sans text-base text-slate-800">
-          <Container className="mx-auto max-w-[480px] rounded-xl border border-slate-200 bg-white p-6">
+    <EmailLayout
+      preview={`Επιβεβαίωση κράτησης για ${service_name} στο ${business_name}.`}
+    >
             <Heading className="m-0 text-2xl font-semibold leading-tight text-slate-900">
               Έγινε η κράτηση!
             </Heading>
@@ -95,7 +85,7 @@ export function BookingConfirmation({
               </Section>
             ) : null}
             <Text className="mt-5 text-base leading-relaxed text-slate-700">
-              Θα βρεις την πρόσκληση ημερολογίου συνημμένη στο email.
+              Θα βρεις την πρόσκληση ημερολογίου συνημμένη στο Email.
             </Text>
             {manage_url ? (
               <Button
@@ -119,15 +109,9 @@ export function BookingConfirmation({
               {business_phone ? ` στο ${business_phone}` : ""}
               {business_email ? ` ή στο ${business_email}` : ""}.
             </Text>
-            <Text className="mt-5 text-base text-slate-700">
-              — Η ομάδα του Radevu
+            <Text className="mb-0 mt-5 text-base text-slate-700">
+              Η ομάδα του Radevu
             </Text>
-            <Text className="mt-3 text-sm text-slate-500">
-              Radevu — online ραντεβού για επαγγελματίες.
-            </Text>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+    </EmailLayout>
   );
 }

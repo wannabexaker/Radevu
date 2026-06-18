@@ -1,4 +1,4 @@
-import { Logo } from "@/components/Logo";
+import { Avatar } from "@/components/ui/Avatar";
 import type { ProfileBusiness } from "./BusinessProfile";
 
 type ProfileHeroProps = {
@@ -9,15 +9,12 @@ export function ProfileHero({ business }: ProfileHeroProps): JSX.Element {
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-center pt-2">
-        {business.logoUrl ? (
-          <img
-            alt={`${business.name} λογότυπο`}
-            className="h-20 w-20 rounded-2xl border border-slate-200 bg-white object-cover shadow-sm"
-            src={business.logoUrl}
-          />
-        ) : (
-          <Logo priority size="lg" />
-        )}
+        <Avatar
+          alt={`${business.name} λογότυπο`}
+          name={business.name}
+          size="lg"
+          src={business.logoUrl}
+        />
       </div>
       {business.photoUrl ? (
         <img

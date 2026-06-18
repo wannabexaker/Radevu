@@ -19,6 +19,7 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   "admin",
   "account",
   "dashboard",
+  "epaggelmaties",
   "login",
   "mail",
   "register",

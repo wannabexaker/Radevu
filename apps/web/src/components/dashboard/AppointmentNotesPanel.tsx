@@ -126,7 +126,7 @@ export function AppointmentNotesPanel({
       <section className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
           <Lock aria-hidden="true" className="h-4 w-4 text-slate-500" />
-          Private σημείωση επιχείρησης
+          Ιδιωτική σημείωση επιχείρησης
         </div>
         <form className="flex flex-col gap-2" onSubmit={submitPrivateNotes}>
           <Textarea

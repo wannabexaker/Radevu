@@ -93,10 +93,15 @@ function demoPassword(envKey: string, fallback: string): string {
 }
 
 function warnAboutDefaultPasswords(): void {
-  if (
-    process.env.SEED_DESPOINA_PASSWORD?.trim() &&
-    process.env.SEED_IOANNIS_PASSWORD?.trim()
-  ) {
+  const passwordEnvKeys = [
+    "SEED_DESPOINA_PASSWORD",
+    "SEED_IOANNIS_PASSWORD",
+    "SEED_ANTONIS_PASSWORD",
+    "SEED_MATINA_PASSWORD",
+    "SEED_AGGELIKI_PASSWORD"
+  ];
+
+  if (passwordEnvKeys.every((key) => process.env[key]?.trim())) {
     return;
   }
 
@@ -135,6 +140,26 @@ const ioannisHours: WorkingHours = {
   fri: [{ open: "09:00", close: "20:00" }],
   sat: [{ open: "09:00", close: "20:00" }],
   sun: []
+};
+
+const antonisHours: WorkingHours = {
+  ...weekdayHours("09:00", "18:00"),
+  sat: [{ open: "09:00", close: "14:00" }]
+};
+
+const matinaHours: WorkingHours = {
+  mon: [],
+  tue: [{ open: "11:00", close: "15:00" }],
+  wed: [{ open: "11:00", close: "15:00" }],
+  thu: [{ open: "11:00", close: "15:00" }],
+  fri: [{ open: "11:00", close: "15:00" }],
+  sat: [{ open: "11:00", close: "15:00" }],
+  sun: []
+};
+
+const aggelikiHours: WorkingHours = {
+  ...weekdayHours("10:00", "18:00"),
+  sat: [{ open: "10:00", close: "14:00" }]
 };
 
 function seedSpecs(): BusinessSeedSpec[] {
@@ -261,6 +286,150 @@ function seedSpecs(): BusinessSeedSpec[] {
       socialLinks: {},
       timezone: "Europe/Athens",
       workingHours: ioannisHours
+    },
+    {
+      businessName: "Αντώνης - Αυτοκίνητα & Μηχανές",
+      category: "Αυτοκίνητα",
+      contactEmail: "antonis@radevu.test",
+      contactPhone: "6900001003",
+      description:
+        "Αγοραπωλησίες αυτοκινήτων & μηχανών, μεταχειρισμένες ευκαιρίες, έλεγχος και επισκευή με έμπειρους μηχανικούς, εύρεση ανταλλακτικών και βελτιώσεις.",
+      logoUrl: null,
+      mapsUrl: null,
+      ownerEmail: "antonis@radevu.test",
+      ownerPassword: demoPassword(
+        "SEED_ANTONIS_PASSWORD",
+        "AntonisDev2026!"
+      ),
+      photoUrl:
+        "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=70",
+      services: [
+        {
+          durationMinutes: 60,
+          name: "Έλεγχος πριν την αγορά",
+          priceCents: 5000
+        },
+        {
+          durationMinutes: 30,
+          name: "Εκτίμηση αξίας οχήματος",
+          priceCents: 2500
+        },
+        {
+          durationMinutes: 120,
+          name: "Service & γενικός έλεγχος",
+          priceCents: 9000
+        },
+        {
+          durationMinutes: 45,
+          name: "Εύρεση μεταχειρισμένου (συνάντηση)",
+          priceCents: 3000
+        },
+        {
+          durationMinutes: 30,
+          name: "Εύρεση ανταλλακτικών",
+          priceCents: 2000
+        }
+      ],
+      showOnLanding: true,
+      slug: "antonis",
+      socialLinks: {},
+      timezone: "Europe/Athens",
+      workingHours: antonisHours
+    },
+    {
+      businessName: "Ματίνα - Σπιτικές πίτες & φαγητά",
+      category: "Φαγητό",
+      contactEmail: "matina@radevu.test",
+      contactPhone: "6900001004",
+      description:
+        "Γιαγιά 90 ετών από τη Ζίτσα, με γιαννιώτικες σπιτικές συνταγές. Σπανακόπιτες, τυρόπιτες, γεμιστά, μπριζόλες και υπέροχα σπιτικά φαγητά κατά παραγγελία.",
+      logoUrl: null,
+      mapsUrl: "https://maps.google.com/?q=Zitsa+Ioannina",
+      ownerEmail: "matina@radevu.test",
+      ownerPassword: demoPassword("SEED_MATINA_PASSWORD", "MatinaDev2026!"),
+      photoUrl:
+        "https://images.unsplash.com/photo-1547592180-85f173990554?w=1200&q=70",
+      services: [
+        {
+          durationMinutes: 15,
+          name: "Σπανακόπιτα ταψιού",
+          priceCents: 1800
+        },
+        {
+          durationMinutes: 15,
+          name: "Τυρόπιτα ταψιού",
+          priceCents: 1800
+        },
+        {
+          durationMinutes: 15,
+          name: "Γεμιστά (μερίδα 4 ατόμων)",
+          priceCents: 1600
+        },
+        {
+          durationMinutes: 15,
+          name: "Μπριζόλες γιαννιώτικες (μερίδα)",
+          priceCents: 2000
+        },
+        {
+          durationMinutes: 15,
+          name: "Σπιτικό φαγητό ημέρας",
+          priceCents: 1200
+        }
+      ],
+      showOnLanding: true,
+      slug: "matina",
+      socialLinks: {},
+      timezone: "Europe/Athens",
+      workingHours: matinaHours
+    },
+    {
+      businessName: "Αγγελική - Χειροποίητα στολίδια & διακόσμηση",
+      category: "Χειροτεχνία",
+      contactEmail: "aggeliki@radevu.test",
+      contactPhone: "6900001005",
+      description:
+        "Χειροποίητα διακοσμητικά για το σπίτι ή το μαγαζί, εμπνευσμένα από τη φύση — ξύλινες πινακίδες, φωτιστικά, καθρέφτες και ανανέωση αντικειμένων με ξύλο, σχοινί, κανναβή, χαρτοπολτό και υλικά από το δάσος και τη θάλασσα.",
+      logoUrl: null,
+      mapsUrl: null,
+      ownerEmail: "aggeliki@radevu.test",
+      ownerPassword: demoPassword(
+        "SEED_AGGELIKI_PASSWORD",
+        "AggelikiDev2026!"
+      ),
+      photoUrl:
+        "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=1200&q=70",
+      services: [
+        {
+          durationMinutes: 45,
+          name: "Ραντεβού σχεδιασμού (custom)",
+          priceCents: 2000
+        },
+        {
+          durationMinutes: 30,
+          name: "Χειροποίητη ξύλινη πινακίδα",
+          priceCents: 3500
+        },
+        {
+          durationMinutes: 30,
+          name: "Διακοσμητικό φωτιστικό",
+          priceCents: 4500
+        },
+        {
+          durationMinutes: 30,
+          name: "Ανανέωση / styling αντικειμένου",
+          priceCents: 2500
+        },
+        {
+          durationMinutes: 60,
+          name: "Διακόσμηση χώρου (επί τόπου εκτίμηση)",
+          priceCents: 4000
+        }
+      ],
+      showOnLanding: true,
+      slug: "aggeliki",
+      socialLinks: {},
+      timezone: "Europe/Athens",
+      workingHours: aggelikiHours
     }
   ];
 }
@@ -280,10 +449,12 @@ async function upsertOwnerWithPassword(
     create: {
       email: spec.ownerEmail,
       emailVerified: false,
-      name: spec.businessName
+      name: spec.businessName,
+      userType: "business_owner"
     },
     update: {
-      name: spec.businessName
+      name: spec.businessName,
+      userType: "business_owner"
     },
     select: {
       id: true

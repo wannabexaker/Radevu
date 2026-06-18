@@ -224,18 +224,18 @@ export default async function AppointmentsPage({
   const emptyMessage =
     view === "past"
       ? "Δεν βρέθηκαν παλιές κρατήσεις με αυτά τα φίλτρα."
-      : "Δεν έχεις επόμενες κρατήσεις εδώ. Κράτα λίγο χώρο για ανάσα.";
+      : "Δεν βρέθηκαν επερχόμενες κρατήσεις με αυτά τα φίλτρα.";
 
   return (
-    <section className="flex flex-col gap-4 pb-20">
-      <div>
+    <section className="flex flex-col gap-6 pb-20">
+      <header className="space-y-2">
         <h1 className="text-3xl font-bold leading-tight text-slate-900">
           Κρατήσεις
         </h1>
-        <p className="mt-2 text-base text-slate-500">
+        <p className="text-base leading-relaxed text-slate-500">
           Βρες γρήγορα ποιος έρχεται και τι χρειάζεται.
         </p>
-      </div>
+      </header>
       <AppointmentsFilters
         dates={buildFilterDates(business.timezone)}
         query={params.q ?? ""}

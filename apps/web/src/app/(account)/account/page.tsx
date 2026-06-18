@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/current-user";
 import { prisma } from "@/lib/db";
 
@@ -15,6 +17,7 @@ function formatDate(date: Date): string {
 
 export default async function AccountPage(): Promise<JSX.Element> {
   const user = await getCurrentUser();
+  const displayName = user?.name?.trim() || "πελάτη";
   const nextAppointment = user
     ? await prisma.appointment.findFirst({
         orderBy: {
@@ -48,15 +51,24 @@ export default async function AccountPage(): Promise<JSX.Element> {
 
   return (
     <div className="space-y-5">
-      <header className="space-y-2">
-        <p className="text-sm font-medium text-indigo-700">Ο λογαριασμός μου</p>
-        <h1 className="text-2xl font-semibold text-slate-950">
-          Γεια σου {user?.name ?? ""}
-        </h1>
-        <p className="text-sm leading-relaxed text-slate-600">
-          Εδώ βλέπεις τα ραντεβού και τα στοιχεία σου.
-        </p>
+      <header className="flex items-start gap-3">
+        <Avatar alt={`${displayName} προφίλ`} name={displayName} size="md" />
+        <div className="min-w-0 space-y-2">
+          <p className="text-sm font-medium text-indigo-700">
+            Ο λογαριασμός μου
+          </p>
+          <h1 className="text-2xl font-semibold text-slate-950">
+            Γεια σου {displayName}
+          </h1>
+          <p className="text-sm leading-relaxed text-slate-600">
+            Εδώ βλέπεις τα ραντεβού και τα στοιχεία σου.
+          </p>
+        </div>
       </header>
+
+      <Button asChild className="w-full" size="lg">
+        <Link href="/epaggelmaties">Κλείσε νέο ραντεβού</Link>
+      </Button>
 
       <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900">
@@ -87,15 +99,21 @@ export default async function AccountPage(): Promise<JSX.Element> {
           className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
           href="/account/appointments"
         >
-          <h2 className="text-base font-semibold text-slate-900">Ραντεβού</h2>
-          <p className="mt-1 text-sm text-slate-600">Ιστορικό και μηνύματα.</p>
+          <h2 className="text-base font-semibold text-slate-900">
+            Ραντεβού
+          </h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Ιστορικό και μηνύματα.
+          </p>
         </Link>
         <Link
           className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
           href="/account/settings"
         >
           <h2 className="text-base font-semibold text-slate-900">Προφίλ</h2>
-          <p className="mt-1 text-sm text-slate-600">Όνομα και τηλέφωνο.</p>
+          <p className="mt-1 text-sm text-slate-600">
+            Όνομα και τηλέφωνο.
+          </p>
         </Link>
       </div>
     </div>

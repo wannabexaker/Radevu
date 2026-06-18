@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { MotionDiv } from "./MotionWrapper";
 
 const navLinks = [
+  { href: "/epaggelmaties", label: "Επαγγελματίες" },
   { href: "#about", label: "Σχετικά" },
   { href: "#features", label: "Λειτουργίες" },
   { href: "#contact", label: "Επικοινωνία" }
@@ -59,7 +60,7 @@ export function Header({ userType = null }: HeaderProps): JSX.Element {
           href="/"
         >
           <Logo priority size="md" />
-          <span className="text-lg font-semibold text-slate-900">
+          <span className="text-xl font-semibold text-slate-900">
             Radevu
           </span>
         </Link>

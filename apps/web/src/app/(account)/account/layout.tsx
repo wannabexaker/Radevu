@@ -44,6 +44,12 @@ export default async function AccountLayout({
           </Link>
           <Link
             className="inline-flex min-h-10 items-center rounded-xl px-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
+            href="/epaggelmaties"
+          >
+            Επαγγελματίες
+          </Link>
+          <Link
+            className="inline-flex min-h-10 items-center rounded-xl px-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
             href="/account/settings"
           >
             Προφίλ

@@ -28,7 +28,7 @@ export async function Showcase(): Promise<JSX.Element> {
   return (
     <section className="bg-slate-50 px-4 py-12 md:px-8 md:py-20">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        <div className="max-w-2xl">
+        <div className="max-w-[900px]">
           <p className="text-sm font-semibold uppercase text-indigo-500">
             Επιχειρήσεις στο Radevu
           </p>

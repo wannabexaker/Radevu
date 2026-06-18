@@ -187,14 +187,14 @@ export function ProfileEditor({
             <div className="space-y-2">
               <Label className="flex items-center gap-2" htmlFor="maps_url">
                 <MapPin aria-hidden="true" className="h-4 w-4" />
-                Google Maps
+                Χάρτης
               </Label>
               <Input
                 data-testid="settings-profile-maps"
                 defaultValue={business.mapsUrl ?? ""}
                 id="maps_url"
                 name="maps_url"
-                placeholder="https://maps.app.goo.gl/..."
+                placeholder="https://..."
                 type="url"
               />
             </div>
@@ -202,14 +202,14 @@ export function ProfileEditor({
             <div className="space-y-2">
               <Label className="flex items-center gap-2" htmlFor="instagram_url">
                 <Instagram aria-hidden="true" className="h-4 w-4" />
-                Instagram
+                Σύνδεσμος φωτογραφιών
               </Label>
               <Input
                 data-testid="settings-profile-instagram"
                 defaultValue={business.instagramUrl ?? ""}
                 id="instagram_url"
                 name="instagram_url"
-                placeholder="https://instagram.com/..."
+                placeholder="https://..."
                 type="url"
               />
             </div>
@@ -217,14 +217,14 @@ export function ProfileEditor({
             <div className="space-y-2">
               <Label className="flex items-center gap-2" htmlFor="facebook_url">
                 <Facebook aria-hidden="true" className="h-4 w-4" />
-                Facebook
+                Σύνδεσμος κοινωνικού δικτύου
               </Label>
               <Input
                 data-testid="settings-profile-facebook"
                 defaultValue={business.facebookUrl ?? ""}
                 id="facebook_url"
                 name="facebook_url"
-                placeholder="https://facebook.com/..."
+                placeholder="https://..."
                 type="url"
               />
             </div>

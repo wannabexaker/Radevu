@@ -116,7 +116,25 @@ Handoff: `RADEVU-CHUNK14-PLAN-AND-HANDOFF.md` (full specs + Greek translations +
 - [ ] **TASK-050:** Email templates — shared branded `EmailLayout` + Greek copy across all 6.
 - [ ] **TASK-051:** 3 new demo businesses (Αντώνης/Ματίνα/Αγγελική) seed + live insert, full Greek catalogs.
 
-Waves: W1 = 042-044 · W2 = 045-047 · W3 = 048-051.
+Waves: W1 = 042-044 ✓ · W2 = 045-047 + 052 ✓ · W3 = **051** ✓ → 048 ✓ → 049 ✓ → 050 (in progress). Live SQL (service-name UPDATE + 3-business insert) to run on the Pi at the final deploy.
+
+## Module 13: Dual accounts + self-service profile (Chunk #15)
+
+Handoff: `RADEVU-CHUNK15-16-PLAN.md`. Locked: one account two roles (customer + optional business) · `business_type` freelancer/shop (internal) · directory shows only "complete enough" businesses. Starts after Chunk #14 deploys.
+
+- [ ] **TASK-053:** Dual-account model — access by ownership not role (`/account` for all, `/dashboard` if owns a business), `Business.business_type` field, header dual-entry. `userType` becomes soft default-home only.
+- [ ] **TASK-054:** «Δημιούργησε επιχείρηση» flow from `/account` (existing user → adds a business). Registration business path stays.
+- [ ] **TASK-055:** Profile self-service — add `category` + `description` + `business_type` to profile editor + `updateBusinessProfileSchema` + PATCH route + API.md.
+- [ ] **TASK-056:** Onboarding checklist (κατηγορία/ωράριο/υπηρεσία/φωτο+περιγραφή/δημοσίευση) with progress.
+- [ ] **TASK-057:** Directory gating — show only businesses with category AND ≥1 active service.
+
+## Module 14: Discovery intelligence (Chunk #16)
+
+Handoff: `RADEVU-CHUNK15-16-PLAN.md`. Locked: per-user + anonymous-aggregate search analytics · recommendation v1 = random (guest) + history (logged-in). Customer rating system = DEFERRED (design-aware only).
+
+- [ ] **TASK-058:** `search_events` table + fire-and-forget logging on directory search (user_id when logged in, else anonymous).
+- [ ] **TASK-059:** Founder-only insights page (top searches + counts + top categories, windowed), gated to `FOUNDER_EMAIL`.
+- [ ] **TASK-060:** `GET /api/v1/businesses/recommended` (random for guests, history-based for logged-in) + landing «Προτεινόμενα».
 
 ---
 
@@ -125,6 +143,7 @@ Waves: W1 = 042-044 · W2 = 045-047 · W3 = 048-051.
 - TypeScript strict. Tailwind only. No inline styles.
 - Mobile-first at 360×800. Verify in Playwright before marking done.
 - API routes under `/api/v1/...`. Tables `snake_case` plural. Columns `snake_case` singular.
+- Ποτέ `$queryRawUnsafe` / `$executeRawUnsafe`, `Prisma.raw`, `Prisma.sql` ή SQL με string concatenation. Μόνο Prisma query builder ή tagged-template `$queryRaw` / `$executeRaw`.
 - No new npm packages without approval. No new DB tables without schema review.
 - No placeholder / TODO code presented as done.
 - Domain + routing mode always env-driven (`BOOKING_BASE_DOMAIN`, `ROUTING_MODE`). Never hardcode `radevu.gr` or `radevu.local`.
