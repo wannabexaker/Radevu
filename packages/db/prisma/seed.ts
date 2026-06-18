@@ -92,7 +92,16 @@ export async function createSeedAuth(prisma: PrismaClient) {
 
 export function demoPassword(envKey: string, fallback: string): string {
   const value = process.env[envKey]?.trim();
-  return value ? value : fallback;
+
+  if (value) {
+    return value;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(`[seed] ${envKey} must be set in production`);
+  }
+
+  return fallback;
 }
 
 function warnAboutDefaultPasswords(): void {
@@ -173,6 +182,8 @@ function seedSpecs(): BusinessSeedSpec[] {
       category: "Εκπαίδευση",
       contactEmail: "dimos.is.dev+despoina@gmail.com",
       contactPhone: "6900001001",
+      description:
+        "Ιδιαίτερα μαθήματα φιλολογικών για Γυμνάσιο, Λύκειο και Πανελλήνιες — αρχαία, έκθεση, νεοελληνική γλώσσα και λογοτεχνία — με μέθοδο, υπομονή και προσωπικό πρόγραμμα για κάθε μαθητή.",
       logoUrl: null,
       mapsUrl: null,
       ownerEmail: "dimos.is.dev+despoina@gmail.com",
@@ -216,6 +227,8 @@ function seedSpecs(): BusinessSeedSpec[] {
       category: "Τεχνολογία",
       contactEmail: "dimos.is.dev+ioannis@gmail.com",
       contactPhone: "6900001002",
+      description:
+        "Εγκατάσταση και επισκευή δικτύων για σπίτι και επιχείρηση — δρομολογητές, μεταγωγείς, WiFi χωρίς νεκρές ζώνες, ρύθμιση VPN και τείχους προστασίας, φραγή διαφημίσεων (Pi-hole). Γρήγορες, αξιόπιστες λύσεις.",
       logoUrl: null,
       mapsUrl: null,
       ownerEmail: "dimos.is.dev+ioannis@gmail.com",
