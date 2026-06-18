@@ -68,7 +68,7 @@ test("το ημερολόγιο μήνα οδηγεί την κράτηση κά
   const nextMonth = addMonths(currentMonth, 1);
   const startedAt = Date.now();
 
-  await page.goto("/test-shop");
+  await page.goto("/qa-demo");
   await page.getByTestId("booking-trigger").click();
   await page.getByTestId("service-option").first().click();
 

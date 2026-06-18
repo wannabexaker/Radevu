@@ -2,8 +2,8 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { expect, test } from "@playwright/test";
 
-const ownerEmail = "barber@radevu.local";
-const ownerPassword = "BarberDev123!";
+const ownerEmail = "dimos.is.dev+qa@gmail.com";
+const ownerPassword = "QaDemo2026!";
 const execFileAsync = promisify(execFile);
 
 type DateParts = {
@@ -113,7 +113,7 @@ async function seedTodayAppointment(): Promise<string> {
     FROM users u
     CROSS JOIN businesses b
     JOIN services s ON s.business_id = b.id
-    WHERE u.email = ${sqlString(ownerEmail)} AND b.slug = 'test-shop' AND s.active = true
+    WHERE u.email = ${sqlString(ownerEmail)} AND b.slug = 'qa-demo' AND s.active = true
     ORDER BY s.created_at ASC
     LIMIT 1;
   `);
@@ -134,7 +134,7 @@ async function seedTodayAppointment(): Promise<string> {
     !durationMinutesText ||
     !priceCentsText
   ) {
-    throw new Error("Seeded owner, test-shop business, or service was not found.");
+    throw new Error("Seeded owner, qa-demo business, or service was not found.");
   }
 
   await runPsql(`

@@ -9,6 +9,7 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "seed": "prisma db seed",
+    "seed:e2e": "node --experimental-strip-types prisma/seed-e2e.ts",
     "typecheck": "tsc --noEmit"
   },
   "prisma": {

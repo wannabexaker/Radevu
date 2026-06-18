@@ -20,7 +20,8 @@
     "db:generate:local": "node scripts/db-local.mjs generate",
     "db:migrate": "pnpm --filter @radevu/db migrate:dev",
     "db:migrate:local": "node scripts/db-local.mjs migrate:deploy",
-    "db:seed:local": "node scripts/db-local.mjs seed"
+    "db:seed:local": "node scripts/db-local.mjs seed",
+    "db:seed:e2e:local": "node scripts/db-local.mjs seed:e2e"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

@@ -10,15 +10,18 @@ const webRequire = createRequire(
 
 type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
-type WorkingHours = Record<DayKey, Array<{ close: string; open: string }>>;
+export type WorkingHours = Record<
+  DayKey,
+  Array<{ close: string; open: string }>
+>;
 
-type ServiceSpec = {
+export type ServiceSpec = {
   durationMinutes: number;
   name: string;
   priceCents: number;
 };
 
-type BusinessSeedSpec = {
+export type BusinessSeedSpec = {
   businessName: string;
   category?: string;
   contactEmail: string;
@@ -43,7 +46,7 @@ const defaultNotificationSettings = {
   reminder_lead_minutes: 1440
 } satisfies Prisma.InputJsonObject;
 
-function loadEnvFile(): void {
+export function loadEnvFile(): void {
   if (!existsSync(envFileUrl)) {
     return;
   }
@@ -66,7 +69,7 @@ function loadEnvFile(): void {
   }
 }
 
-async function createSeedAuth(prisma: PrismaClient) {
+export async function createSeedAuth(prisma: PrismaClient) {
   const { betterAuth } = await import(
     pathToFileURL(webRequire.resolve("better-auth")).href
   );
@@ -87,7 +90,7 @@ async function createSeedAuth(prisma: PrismaClient) {
   });
 }
 
-function demoPassword(envKey: string, fallback: string): string {
+export function demoPassword(envKey: string, fallback: string): string {
   const value = process.env[envKey]?.trim();
   return value ? value : fallback;
 }
@@ -98,7 +101,8 @@ function warnAboutDefaultPasswords(): void {
     "SEED_IOANNIS_PASSWORD",
     "SEED_ANTONIS_PASSWORD",
     "SEED_MATINA_PASSWORD",
-    "SEED_AGGELIKI_PASSWORD"
+    "SEED_AGGELIKI_PASSWORD",
+    "SEED_ELENI_PASSWORD"
   ];
 
   if (passwordEnvKeys.every((key) => process.env[key]?.trim())) {
@@ -110,7 +114,7 @@ function warnAboutDefaultPasswords(): void {
   );
 }
 
-function weekdayHours(open: string, close: string): WorkingHours {
+export function weekdayHours(open: string, close: string): WorkingHours {
   return {
     mon: [{ open, close }],
     tue: [{ open, close }],
@@ -121,11 +125,6 @@ function weekdayHours(open: string, close: string): WorkingHours {
     sun: []
   };
 }
-
-const testShopHours: WorkingHours = {
-  ...weekdayHours("09:00", "19:00"),
-  sat: [{ open: "09:00", close: "15:00" }]
-};
 
 const despoinaHours: WorkingHours = {
   ...weekdayHours("15:00", "21:00"),
@@ -162,51 +161,21 @@ const aggelikiHours: WorkingHours = {
   sat: [{ open: "10:00", close: "14:00" }]
 };
 
+const eleniHours: WorkingHours = {
+  ...weekdayHours("09:00", "20:00"),
+  sat: [{ open: "10:00", close: "15:00" }]
+};
+
 function seedSpecs(): BusinessSeedSpec[] {
   return [
     {
-      businessName: "Κουρείο Δοκιμής",
-      contactEmail: "barber@radevu.local",
-      contactPhone: "2101234567",
-      logoUrl: null,
-      mapsUrl: "https://maps.google.com/?q=Athens",
-      ownerEmail: "barber@radevu.local",
-      ownerPassword: "BarberDev123!",
-      photoUrl: null,
-      services: [
-        {
-          durationMinutes: 30,
-          name: "Ανδρικό κούρεμα",
-          priceCents: 1500
-        },
-        {
-          durationMinutes: 20,
-          name: "Γενειάδα",
-          priceCents: 800
-        },
-        {
-          durationMinutes: 45,
-          name: "Κούρεμα + Γενειάδα",
-          priceCents: 2000
-        }
-      ],
-      showOnLanding: false,
-      slug: "test-shop",
-      socialLinks: {
-        facebook: "https://facebook.com",
-        instagram: "https://instagram.com"
-      },
-      timezone: "Europe/Athens",
-      workingHours: testShopHours
-    },
-    {
       businessName: "Δέσποινα - Φιλόλογος",
       category: "Εκπαίδευση",
-      contactEmail: "despoina@radevu.test",
+      contactEmail: "dimos.is.dev+despoina@gmail.com",
       contactPhone: "6900001001",
       logoUrl: null,
       mapsUrl: null,
-      ownerEmail: "despoina@radevu.test",
+      ownerEmail: "dimos.is.dev+despoina@gmail.com",
       ownerPassword: demoPassword(
         "SEED_DESPOINA_PASSWORD",
         "DespoinaDev2026!"
@@ -245,11 +214,11 @@ function seedSpecs(): BusinessSeedSpec[] {
     {
       businessName: "Ιωάννης - Τεχνικός δικτύων",
       category: "Τεχνολογία",
-      contactEmail: "ioannis@radevu.test",
+      contactEmail: "dimos.is.dev+ioannis@gmail.com",
       contactPhone: "6900001002",
       logoUrl: null,
       mapsUrl: null,
-      ownerEmail: "ioannis@radevu.test",
+      ownerEmail: "dimos.is.dev+ioannis@gmail.com",
       ownerPassword: demoPassword("SEED_IOANNIS_PASSWORD", "IoannisDev2026!"),
       // Unsplash stable ID verified with HEAD on 2026-05-22.
       photoUrl:
@@ -290,13 +259,13 @@ function seedSpecs(): BusinessSeedSpec[] {
     {
       businessName: "Αντώνης - Αυτοκίνητα & Μηχανές",
       category: "Αυτοκίνητα",
-      contactEmail: "antonis@radevu.test",
+      contactEmail: "dimos.is.dev+antonis@gmail.com",
       contactPhone: "6900001003",
       description:
         "Αγοραπωλησίες αυτοκινήτων & μηχανών, μεταχειρισμένες ευκαιρίες, έλεγχος και επισκευή με έμπειρους μηχανικούς, εύρεση ανταλλακτικών και βελτιώσεις.",
       logoUrl: null,
       mapsUrl: null,
-      ownerEmail: "antonis@radevu.test",
+      ownerEmail: "dimos.is.dev+antonis@gmail.com",
       ownerPassword: demoPassword(
         "SEED_ANTONIS_PASSWORD",
         "AntonisDev2026!"
@@ -339,13 +308,13 @@ function seedSpecs(): BusinessSeedSpec[] {
     {
       businessName: "Ματίνα - Σπιτικές πίτες & φαγητά",
       category: "Φαγητό",
-      contactEmail: "matina@radevu.test",
+      contactEmail: "dimos.is.dev+matina@gmail.com",
       contactPhone: "6900001004",
       description:
         "Γιαγιά 90 ετών από τη Ζίτσα, με γιαννιώτικες σπιτικές συνταγές. Σπανακόπιτες, τυρόπιτες, γεμιστά, μπριζόλες και υπέροχα σπιτικά φαγητά κατά παραγγελία.",
       logoUrl: null,
       mapsUrl: "https://maps.google.com/?q=Zitsa+Ioannina",
-      ownerEmail: "matina@radevu.test",
+      ownerEmail: "dimos.is.dev+matina@gmail.com",
       ownerPassword: demoPassword("SEED_MATINA_PASSWORD", "MatinaDev2026!"),
       photoUrl:
         "https://images.unsplash.com/photo-1547592180-85f173990554?w=1200&q=70",
@@ -385,13 +354,13 @@ function seedSpecs(): BusinessSeedSpec[] {
     {
       businessName: "Αγγελική - Χειροποίητα στολίδια & διακόσμηση",
       category: "Χειροτεχνία",
-      contactEmail: "aggeliki@radevu.test",
+      contactEmail: "dimos.is.dev+aggeliki@gmail.com",
       contactPhone: "6900001005",
       description:
         "Χειροποίητα διακοσμητικά για το σπίτι ή το μαγαζί, εμπνευσμένα από τη φύση — ξύλινες πινακίδες, φωτιστικά, καθρέφτες και ανανέωση αντικειμένων με ξύλο, σχοινί, κανναβή, χαρτοπολτό και υλικά από το δάσος και τη θάλασσα.",
       logoUrl: null,
       mapsUrl: null,
-      ownerEmail: "aggeliki@radevu.test",
+      ownerEmail: "dimos.is.dev+aggeliki@gmail.com",
       ownerPassword: demoPassword(
         "SEED_AGGELIKI_PASSWORD",
         "AggelikiDev2026!"
@@ -430,6 +399,52 @@ function seedSpecs(): BusinessSeedSpec[] {
       socialLinks: {},
       timezone: "Europe/Athens",
       workingHours: aggelikiHours
+    },
+    {
+      businessName: "Ελένη - Εκπαιδεύτρια yoga",
+      category: "Υγεία",
+      contactEmail: "dimos.is.dev+eleni@gmail.com",
+      contactPhone: "6900001006",
+      description:
+        "Ιδιαίτερα και ομαδικά μαθήματα yoga για αρχάριους και προχωρημένους, με έμφαση σε σωστή στάση σώματος, αναπνοές και ενδυνάμωση.",
+      logoUrl: null,
+      mapsUrl: null,
+      ownerEmail: "dimos.is.dev+eleni@gmail.com",
+      ownerPassword: demoPassword("SEED_ELENI_PASSWORD", "EleniDev2026!"),
+      photoUrl:
+        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&q=70",
+      services: [
+        {
+          durationMinutes: 60,
+          name: "Ιδιαίτερο yoga",
+          priceCents: 3500
+        },
+        {
+          durationMinutes: 60,
+          name: "Ομαδικό μάθημα",
+          priceCents: 1200
+        },
+        {
+          durationMinutes: 75,
+          name: "Yoga για αρχάριους",
+          priceCents: 1500
+        },
+        {
+          durationMinutes: 45,
+          name: "Αναπνοές & διαλογισμός",
+          priceCents: 1000
+        },
+        {
+          durationMinutes: 30,
+          name: "Δοκιμαστικό μάθημα",
+          priceCents: 0
+        }
+      ],
+      showOnLanding: true,
+      slug: "eleni",
+      socialLinks: {},
+      timezone: "Europe/Athens",
+      workingHours: eleniHours
     }
   ];
 }
@@ -616,7 +631,7 @@ async function syncServices(
   }
 }
 
-async function upsertBusinessWithOwner(
+export async function upsertBusinessWithOwner(
   prisma: PrismaClient,
   auth: Awaited<ReturnType<typeof createSeedAuth>>,
   spec: BusinessSeedSpec
@@ -696,4 +711,9 @@ async function main(): Promise<void> {
   }
 }
 
-await main();
+const invokedPath = process.argv[1] ?? "";
+const isDirectRun = import.meta.url === pathToFileURL(invokedPath).href;
+
+if (isDirectRun) {
+  await main();
+}

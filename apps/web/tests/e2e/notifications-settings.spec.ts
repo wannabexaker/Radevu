@@ -2,8 +2,8 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { expect, test } from "@playwright/test";
 
-const ownerEmail = "barber@radevu.local";
-const ownerPassword = "BarberDev123!";
+const ownerEmail = "dimos.is.dev+qa@gmail.com";
+const ownerPassword = "QaDemo2026!";
 const execFileAsync = promisify(execFile);
 
 async function runPsql(sql: string): Promise<string> {
@@ -34,13 +34,13 @@ async function resetNotificationSettings(): Promise<void> {
     SELECT u.id || '|' || b.id
     FROM users u
     CROSS JOIN businesses b
-    WHERE u.email = ${sqlString(ownerEmail)} AND b.slug = 'test-shop'
+    WHERE u.email = ${sqlString(ownerEmail)} AND b.slug = 'qa-demo'
     LIMIT 1;
   `);
   const [ownerId, businessId] = seedRow.split("|");
 
   if (!ownerId || !businessId) {
-    throw new Error("Seeded owner or test-shop business was not found.");
+    throw new Error("Seeded owner or qa-demo business was not found.");
   }
 
   await runPsql(`

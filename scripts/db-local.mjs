@@ -10,7 +10,8 @@ const allowedCommands = new Set([
   "generate",
   "migrate:deploy",
   "migrate:dev",
-  "seed"
+  "seed",
+  "seed:e2e"
 ]);
 
 function loadInfraEnv() {
@@ -63,7 +64,14 @@ if (!allowedCommands.has(command)) {
 }
 
 const loadedEnv = loadInfraEnv();
-const child = spawn("pnpm", ["--filter", "@radevu/db", command], {
+const pnpmRunner =
+  process.platform === "win32"
+    ? { command: "corepack", args: ["pnpm"] }
+    : { command: "pnpm", args: [] };
+const child = spawn(
+  pnpmRunner.command,
+  [...pnpmRunner.args, "--filter", "@radevu/db", command],
+  {
   cwd: rootDir,
   env: {
     ...process.env,
@@ -72,7 +80,8 @@ const child = spawn("pnpm", ["--filter", "@radevu/db", command], {
   },
   shell: process.platform === "win32",
   stdio: "inherit"
-});
+  }
+);
 
 child.on("exit", (code, signal) => {
   if (signal) {
