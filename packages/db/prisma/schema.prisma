@@ -27,6 +27,7 @@ model User {
   accounts         Account[]
   business         Business?
   customerProfiles Customer[] @relation("UserCustomers")
+  loginAttempts    LoginAttempt[]
 
   @@map("users")
 }
@@ -75,6 +76,23 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@map("verifications")
+}
+
+model LoginAttempt {
+  id            String   @id @default(cuid())
+  email         String
+  success       Boolean
+  failureReason String?  @map("failure_reason")
+  ip            String?
+  userAgent     String?  @map("user_agent")
+  userId        String?  @map("user_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([email])
+  @@map("login_attempts")
 }
 
 // Radevu domain models.

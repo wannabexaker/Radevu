@@ -35,6 +35,8 @@ Every route change must update this document in the same handoff. If code and `A
 
 `POST /api/auth/change-email` is the built-in better-auth v1.0.18 flow. A verified account must confirm the request from its current login email; the confirmation updates the login email, sends verification to the new address, and redirects through `/change-email/complete` for sign-out. An unverified account changes immediately, receives the existing session-gated verification email at the new address, and is then signed out. The public business `contact_email` field is independent and never updates `users.email`.
 
+Every `POST /api/auth/sign-in/email` attempt is audited asynchronously in `login_attempts` after better-auth produces its response. The audit stores only the lowercased attempted email, result, failure reason, request IP/user-agent, optional matched user id, and timestamp. Passwords are never passed to or stored by the audit layer, and audit failures never alter the login response.
+
 ### Me
 
 Session-gated routes for the currently logged-in user.

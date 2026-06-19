@@ -49,6 +49,8 @@ Email verification is soft. Users can log in immediately after registration, but
 
 Password recovery uses better-auth reset tokens with the Radevu email template. Forgot-password is no-enumeration after anti-abuse checks. Authenticated change-password revokes other sessions.
 
+Email/password sign-in responses schedule a fire-and-forget security audit in PostgreSQL. `login_attempts` stores the lowercased attempted email, success/failure reason, forwarded IP, user-agent, optional user relation, and timestamp. The audit path has no password field or password input and catches its own persistence failures so authentication remains available.
+
 ## 6. Booking flow (end-to-end)
 
 1. Customer opens `<slug>.radevu.gr` (or `radevu.local:3000/<slug>` in Beta Phase 0).
@@ -100,6 +102,7 @@ Models (Phase 1):
 - **AppointmentMessage** — id, business_id, appointment_id, author_role (enum: business, customer), body, created_at. Used for shared replies between the owner dashboard and the secure customer appointment page.
 - **ContactRequest** — id, name, email, phone, message, notification_sent, notification_error, created_at.
 - **User** — better-auth model for business owners and customers, with `userType`, `phone`, `marketingOptIn`, and email verification state.
+- **LoginAttempt** — append-only sign-in audit metadata (`email`, result/reason, IP, user-agent, optional user, timestamp). It never contains credentials.
 
 `Business.working_hours` is stored as a complete weekly JSON object. Keys are fixed to `mon`, `tue`, `wed`, `thu`, `fri`, `sat`, `sun`; each value is an ordered list of wall-clock intervals:
 

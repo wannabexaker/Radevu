@@ -20,6 +20,7 @@ export type {
   Business,
   ContactRequest,
   Customer,
+  LoginAttempt,
   Prisma,
   Service,
   Session,
