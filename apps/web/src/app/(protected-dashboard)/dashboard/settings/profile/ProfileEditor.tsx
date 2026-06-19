@@ -169,6 +169,10 @@ export function ProfileEditor({
                 name="contact_email"
                 type="email"
               />
+              <p className="text-xs leading-5 text-slate-500">
+                Αυτό είναι το δημόσιο email επικοινωνίας της επιχείρησης. Δεν
+                αλλάζει το email σύνδεσης.
+              </p>
             </div>
           </div>
         </section>

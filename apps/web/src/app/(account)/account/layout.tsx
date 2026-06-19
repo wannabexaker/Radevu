@@ -57,7 +57,7 @@ export default async function AccountLayout({
         </nav>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-5">
-        {!user.emailVerified ? <VerifyEmailBanner email={user.email} /> : null}
+        {!user.emailVerified ? <VerifyEmailBanner /> : null}
         {children}
       </main>
     </div>
