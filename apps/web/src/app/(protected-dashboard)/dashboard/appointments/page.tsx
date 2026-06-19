@@ -15,6 +15,7 @@ import {
   saveAppointmentPrivateNotes,
   togglePaid
 } from "@/app/(protected-dashboard)/dashboard/today/actions";
+import { approveReschedule, rejectReschedule } from "./actions";
 import {
   type AppointmentWithRelations,
   listAppointments
@@ -251,6 +252,8 @@ export default async function AppointmentsPage({
           onPostMessage={postAppointmentOwnerMessage}
           onSavePrivateNotes={saveAppointmentPrivateNotes}
           onTogglePaid={togglePaid}
+          onApproveReschedule={approveReschedule}
+          onRejectReschedule={rejectReschedule}
           timezone={business.timezone}
         />
       ) : (
@@ -270,6 +273,8 @@ export default async function AppointmentsPage({
                 onPostMessage={postAppointmentOwnerMessage}
                 onSavePrivateNotes={saveAppointmentPrivateNotes}
                 onTogglePaid={togglePaid}
+                onApproveReschedule={approveReschedule}
+                onRejectReschedule={rejectReschedule}
                 timezone={business.timezone}
               />
             </section>

@@ -3,9 +3,8 @@ import {
   notificationSettingsSchema
 } from "@radevu/shared";
 import type { NotificationSettingsDTO } from "@radevu/shared";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getOwnerBusiness } from "@/lib/dashboard-server";
 import { prisma } from "@/lib/db";
 import { saveNotificationSettingsAction } from "./actions";
 import { NotificationsEditor } from "./NotificationsEditor";
@@ -16,22 +15,13 @@ function parseStoredSettings(value: unknown): NotificationSettingsDTO {
 }
 
 export default async function NotificationsPage(): Promise<JSX.Element> {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  const business = await prisma.business.findUnique({
-    where: {
-      ownerId: session.user.id
-    },
+  const managed = await getOwnerBusiness();
+  const business = managed ? await prisma.business.findUnique({
+    where: { id: managed.id },
     select: {
       notificationSettings: true
     }
-  });
+  }) : null;
 
   if (!business) {
     redirect("/register");

@@ -12,6 +12,7 @@ import {
   updateAppointmentStatus
 } from "@/lib/appointments";
 import { auth } from "@/lib/auth";
+import { canManageBusiness } from "@/lib/business-access";
 import { prisma } from "@/lib/db";
 import { cancelReminder } from "@/lib/reminder-queue";
 
@@ -145,7 +146,7 @@ async function requireOwnerForAppointment(appointmentId: string): Promise<
     };
   }
 
-  if (appointment.business.ownerId !== session.user.id) {
+  if (!(await canManageBusiness(session.user.id, appointment.business.id))) {
     return {
       ok: false,
       response: errorResponse(403, "FORBIDDEN", "Δεν έχεις πρόσβαση σε αυτή την κράτηση.")

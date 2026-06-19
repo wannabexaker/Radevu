@@ -25,6 +25,15 @@ export {
   sendResetPasswordEmail,
   type SendResetPasswordEmailArgs
 } from "./sendResetPasswordEmail.js";
+export {
+  sendCustomerRescheduleApproved,
+  sendCustomerRescheduleRejected,
+  sendOwnerCancellationAlert,
+  sendOwnerRescheduleRequest,
+  type SendCustomerRescheduleResultArgs,
+  type SendOwnerCancellationAlertArgs,
+  type SendOwnerRescheduleRequestArgs
+} from "./sendAppointmentActions.js";
 
 export type SendContactRequestEmailArgs = ContactRequestNotificationProps & {
   resendApiKey: string;

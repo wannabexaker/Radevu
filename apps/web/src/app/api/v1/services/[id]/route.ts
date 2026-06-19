@@ -2,6 +2,7 @@ import { updateServiceSchema } from "@radevu/shared";
 import { headers } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
+import { canManageBusiness } from "@/lib/business-access";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -136,7 +137,7 @@ async function requireOwner(businessId: string): Promise<
     };
   }
 
-  if (business.ownerId !== session.user.id) {
+  if (!(await canManageBusiness(session.user.id, businessId))) {
     return {
       ok: false,
       response: errorResponse(

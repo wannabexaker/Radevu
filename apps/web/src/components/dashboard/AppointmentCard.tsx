@@ -18,6 +18,8 @@ type AppointmentCardProps = {
   onPostMessage: AppointmentTextAction;
   onSavePrivateNotes: AppointmentTextAction;
   onTogglePaid: AppointmentAction;
+  onApproveReschedule?: AppointmentAction;
+  onRejectReschedule?: AppointmentAction;
   timezone: string;
 };
 
@@ -47,6 +49,8 @@ export function AppointmentCard({
   onPostMessage,
   onSavePrivateNotes,
   onTogglePaid,
+  onApproveReschedule,
+  onRejectReschedule,
   timezone
 }: AppointmentCardProps): JSX.Element {
   const duration = durationMinutes(appointment.startsAt, appointment.endsAt);
@@ -98,6 +102,28 @@ export function AppointmentCard({
           paid={appointment.paid}
         />
       </div>
+      {appointment.cancellationReason ? (
+        <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900">
+          <span className="font-semibold">Λόγος ακύρωσης:</span>{" "}
+          {appointment.cancellationReason}
+        </p>
+      ) : null}
+      {appointment.rescheduleStatus === "pending" && appointment.rescheduleRequestedStart && onApproveReschedule && onRejectReschedule ? (
+        <section className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <h3 className="font-semibold text-amber-950">Αίτημα αλλαγής ώρας</h3>
+          <p className="mt-1 text-sm text-amber-900">
+            Νέα ώρα: {new Intl.DateTimeFormat("el-GR", { dateStyle: "medium", timeStyle: "short", timeZone: timezone }).format(appointment.rescheduleRequestedStart)}
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <form action={onRejectReschedule.bind(null, appointment.id)}>
+              <button className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800" type="submit">Απόρριψη</button>
+            </form>
+            <form action={onApproveReschedule.bind(null, appointment.id)}>
+              <button className="min-h-11 w-full rounded-xl bg-indigo-600 px-3 text-sm font-medium text-white" type="submit">Έγκριση</button>
+            </form>
+          </div>
+        </section>
+      ) : null}
       <div className="mt-4">
         <AppointmentActions
           appointmentId={appointment.id}

@@ -23,6 +23,7 @@ type BookingEmailService = {
 };
 
 type BookingEmailAppointment = {
+  actionUrl: string | null;
   customerManageUrl: string | null;
   endsAt: Date;
   id: string;
@@ -131,6 +132,9 @@ export async function sendBookingConfirmation(
       business_maps_url: args.business.mapsUrl ?? undefined,
       business_name: args.business.name,
       business_phone: args.business.contactPhone ?? undefined,
+      cancel_url: args.appointment.actionUrl
+        ? `${args.appointment.actionUrl}#cancel`
+        : undefined,
       customer_name: args.customer.name,
       duration_minutes: args.service.durationMinutes,
       formatted_date: formattedDate,
@@ -138,6 +142,9 @@ export async function sendBookingConfirmation(
       formatted_time: formattedTime,
       manage_url: args.appointment.customerManageUrl ?? undefined,
       note: args.appointment.notes ?? undefined,
+      reschedule_url: args.appointment.actionUrl
+        ? `${args.appointment.actionUrl}#reschedule`
+        : undefined,
       service_name: args.service.name
     }),
     subject: `Επιβεβαίωση κράτησης — ${args.service.name} στις ${args.business.name}`,

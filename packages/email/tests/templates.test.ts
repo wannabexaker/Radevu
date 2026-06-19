@@ -85,12 +85,57 @@ const samples = [
       formatted_date: "Δευτέρα 22 Ιουνίου",
       formatted_price: "€50",
       formatted_time: "10:00",
+      cancel_url: "https://example.com/action#cancel",
       manage_url: "https://example.com/manage",
       note: "Δοκιμαστική σημείωση",
+      reschedule_url: "https://example.com/action#reschedule",
       service_name: "Έλεγχος"
     }),
     expected: "Έγινε η κράτηση!",
     name: "BookingConfirmation"
+  },
+  {
+    component: template("OwnerCancellationAlert")({
+      business_name: "Επιχείρηση Δοκιμής",
+      customer_name: "Μαρία",
+      dashboard_url: "https://example.com/dashboard",
+      formatted_date_time: "Δευτέρα 22 Ιουνίου, 10:00",
+      reason: "Δεν θα μπορέσω να έρθω.",
+      service_name: "Έλεγχος"
+    }),
+    expected: "Λόγος ακύρωσης",
+    name: "OwnerCancellationAlert"
+  },
+  {
+    component: template("OwnerRescheduleRequest")({
+      customer_name: "Μαρία",
+      dashboard_url: "https://example.com/dashboard",
+      formatted_current: "Δευτέρα 22 Ιουνίου, 10:00",
+      formatted_requested: "Τρίτη 23 Ιουνίου, 11:00",
+      service_name: "Έλεγχος"
+    }),
+    expected: "Προτεινόμενη ώρα",
+    name: "OwnerRescheduleRequest"
+  },
+  {
+    component: template("CustomerRescheduleApproved")({
+      business_name: "Επιχείρηση Δοκιμής",
+      customer_name: "Μαρία",
+      formatted_date_time: "Τρίτη 23 Ιουνίου, 11:00",
+      service_name: "Έλεγχος"
+    }),
+    expected: "Η αλλαγή ώρας εγκρίθηκε",
+    name: "CustomerRescheduleApproved"
+  },
+  {
+    component: template("CustomerRescheduleRejected")({
+      business_name: "Επιχείρηση Δοκιμής",
+      customer_name: "Μαρία",
+      formatted_date_time: "Δευτέρα 22 Ιουνίου, 10:00",
+      service_name: "Έλεγχος"
+    }),
+    expected: "Το αίτημα δεν εγκρίθηκε",
+    name: "CustomerRescheduleRejected"
   },
   {
     component: template("OwnerNewBookingAlert")({

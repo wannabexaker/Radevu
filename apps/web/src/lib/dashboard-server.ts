@@ -1,20 +1,14 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import {
+  getManagedBusinessForUser,
+  type ManagedBusiness
+} from "@/lib/business-access";
 
-export type BusinessWithOwner = {
-  id: string;
-  name: string;
-  ownerId: string;
-  timezone: string;
-  owner: {
-    email: string | null;
-    id: string;
-  };
-};
+export type BusinessWithOwner = ManagedBusiness;
 
 /**
- * Reads the current better-auth session and returns the business owned by it.
+ * Reads the current better-auth session and returns its owned or managed business.
  *
  * @returns The owner's business with owner summary, or null when no owner business exists.
  * @throws Error when better-auth session lookup or Prisma lookup fails.
@@ -29,23 +23,7 @@ export async function getOwnerBusiness(): Promise<BusinessWithOwner | null> {
       return null;
     }
 
-    return await prisma.business.findUnique({
-      where: {
-        ownerId: session.user.id
-      },
-      select: {
-        id: true,
-        name: true,
-        ownerId: true,
-        timezone: true,
-        owner: {
-          select: {
-            email: true,
-            id: true
-          }
-        }
-      }
-    });
+    return await getManagedBusinessForUser(session.user.id);
   } catch (error) {
     console.error("Failed to load owner business from session", {
       error

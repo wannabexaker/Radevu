@@ -16,6 +16,8 @@ type AppointmentListProps = {
   onPostMessage: AppointmentTextAction;
   onSavePrivateNotes: AppointmentTextAction;
   onTogglePaid: AppointmentAction;
+  onApproveReschedule?: AppointmentAction;
+  onRejectReschedule?: AppointmentAction;
   timezone: string;
 };
 
@@ -33,6 +35,8 @@ export function AppointmentList({
   onPostMessage,
   onSavePrivateNotes,
   onTogglePaid,
+  onApproveReschedule,
+  onRejectReschedule,
   timezone
 }: AppointmentListProps): JSX.Element {
   if (items.length === 0) {
@@ -59,6 +63,8 @@ export function AppointmentList({
           onPostMessage={onPostMessage}
           onSavePrivateNotes={onSavePrivateNotes}
           onTogglePaid={onTogglePaid}
+          onApproveReschedule={onApproveReschedule}
+          onRejectReschedule={onRejectReschedule}
           timezone={timezone}
         />
       ))}

@@ -2,6 +2,7 @@ import {
   sendBookingConfirmation,
   sendOwnerNewBookingAlert
 } from "@radevu/email";
+import { randomBytes } from "node:crypto";
 import {
   createAppointmentSchema,
   defaultNotificationSettings,
@@ -70,6 +71,7 @@ type BookingResult =
 
 type BookingEmailContext = {
   appointment: {
+    actionUrl: string;
     customerAccessUrl: string | null;
     customerNote: string | null;
     endsAt: Date;
@@ -192,6 +194,10 @@ function customerAppointmentUrl(appointmentId: string, token: string): string {
   return url.toString();
 }
 
+function customerActionUrl(token: string): string {
+  return new URL(`/appointment/${token}`, env.BETTER_AUTH_URL).toString();
+}
+
 function parseNotificationSettings(value: unknown): NotificationSettingsDTO {
   const parsed = notificationSettingsSchema.safeParse(value);
 
@@ -234,6 +240,7 @@ function dispatchBookingEmails(context: BookingEmailContext): void {
               endsAt: context.appointment.endsAt,
               id: context.appointment.id,
               customerManageUrl: context.appointment.customerAccessUrl,
+              actionUrl: context.appointment.actionUrl,
               notes: context.appointment.customerNote,
               startsAt: context.appointment.startsAt
             },
@@ -478,6 +485,7 @@ export async function POST(
 
   try {
     const guestToken = createAppointmentGuestToken();
+    const actionToken = randomBytes(32).toString("hex");
     const guestTokenHash = hashAppointmentGuestToken(guestToken);
     const guestTokenExpiresAt = appointmentGuestTokenExpiresAt();
     const slotLockKey = `${input.service_id}:${startsAt.toISOString()}`;
@@ -630,6 +638,7 @@ export async function POST(
           customerNote: input.note ?? null,
           guestTokenExpiresAt,
           guestTokenHash,
+          actionToken,
           messages: input.note
             ? {
                 create: {
@@ -660,6 +669,7 @@ export async function POST(
         appointment: serializeAppointment(appointment),
         emailContext: {
           appointment: {
+            actionUrl: customerActionUrl(actionToken),
             customerAccessUrl: customerAppointmentUrl(appointment.id, guestToken),
             customerNote: appointment.customerNote,
             endsAt: appointment.endsAt,

@@ -1,5 +1,8 @@
-import { Briefcase, Clock, Globe, Settings2 } from "lucide-react";
+import { Briefcase, Clock, Globe, Settings2, UserCog } from "lucide-react";
+import { headers } from "next/headers";
 import { SettingsMenuItem } from "@/components/settings/SettingsMenuItem";
+import { auth } from "@/lib/auth";
+import { getOwnerBusiness } from "@/lib/dashboard-server";
 
 const settingsLinks = [
   {
@@ -28,7 +31,10 @@ const settingsLinks = [
   }
 ] as const;
 
-export default function SettingsPage(): JSX.Element {
+export default async function SettingsPage(): Promise<JSX.Element> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const business = await getOwnerBusiness();
+  const isOwner = Boolean(session && business?.ownerId === session.user.id);
   return (
     <section className="flex flex-col gap-6 pb-20">
       <header className="space-y-2">
@@ -49,6 +55,14 @@ export default function SettingsPage(): JSX.Element {
             label={item.label}
           />
         ))}
+        {isOwner ? (
+          <SettingsMenuItem
+            description="Πρόσθεσε ή αφαίρεσε τον δεύτερο διαχειριστή της επιχείρησης."
+            href="/dashboard/settings/managers"
+            icon={UserCog}
+            label="Διαχειριστές"
+          />
+        ) : null}
       </div>
     </section>
   );

@@ -23,11 +23,12 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  sessions         Session[]
-  accounts         Account[]
-  business         Business?
-  customerProfiles Customer[] @relation("UserCustomers")
-  loginAttempts    LoginAttempt[]
+  sessions          Session[]
+  accounts          Account[]
+  business          Business?
+  customerProfiles  Customer[]        @relation("UserCustomers")
+  loginAttempts     LoginAttempt[]
+  managedBusinesses BusinessManager[]
 
   @@map("users")
 }
@@ -121,6 +122,7 @@ model Business {
   customers           Customer[]
   appointments        Appointment[]
   appointmentMessages AppointmentMessage[]
+  managers            BusinessManager[]
 
   @@map("businesses")
 }
@@ -202,23 +204,34 @@ enum AppointmentMessageAuthorRole {
   customer
 }
 
+enum RescheduleStatus {
+  pending
+  approved
+  rejected
+}
+
 model Appointment {
-  id                  String            @id @default(cuid())
-  businessId          String            @map("business_id")
-  customerId          String            @map("customer_id")
-  serviceId           String            @map("service_id")
-  startsAt            DateTime          @map("starts_at")
-  endsAt              DateTime          @map("ends_at")
-  status              AppointmentStatus @default(scheduled)
-  paid                Boolean           @default(false)
-  amountDueCents      Int               @default(0) @map("amount_due_cents")
-  notes               String?
-  customerNote        String?           @map("customer_note")
-  customerPrivateNote String?           @map("customer_private_note")
-  guestTokenHash      String?           @map("guest_token_hash")
-  guestTokenExpiresAt DateTime?         @map("guest_token_expires_at")
-  createdAt           DateTime          @default(now()) @map("created_at")
-  updatedAt           DateTime          @updatedAt @map("updated_at")
+  id                       String            @id @default(cuid())
+  businessId               String            @map("business_id")
+  customerId               String            @map("customer_id")
+  serviceId                String            @map("service_id")
+  startsAt                 DateTime          @map("starts_at")
+  endsAt                   DateTime          @map("ends_at")
+  status                   AppointmentStatus @default(scheduled)
+  paid                     Boolean           @default(false)
+  amountDueCents           Int               @default(0) @map("amount_due_cents")
+  notes                    String?
+  customerNote             String?           @map("customer_note")
+  customerPrivateNote      String?           @map("customer_private_note")
+  guestTokenHash           String?           @map("guest_token_hash")
+  guestTokenExpiresAt      DateTime?         @map("guest_token_expires_at")
+  cancellationReason       String?           @map("cancellation_reason")
+  actionToken              String?           @unique @map("action_token")
+  rescheduleStatus         RescheduleStatus? @map("reschedule_status")
+  rescheduleRequestedStart DateTime?         @map("reschedule_requested_start")
+  rescheduleRequestedAt    DateTime?         @map("reschedule_requested_at")
+  createdAt                DateTime          @default(now()) @map("created_at")
+  updatedAt                DateTime          @updatedAt @map("updated_at")
 
   business Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
   customer Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)
@@ -229,6 +242,21 @@ model Appointment {
   @@index([businessId, status])
   @@index([guestTokenHash])
   @@map("appointments")
+}
+
+model BusinessManager {
+  id         String   @id @default(cuid())
+  businessId String   @map("business_id")
+  userId     String   @map("user_id")
+  role       String   @default("manager")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, userId])
+  @@index([userId])
+  @@map("business_managers")
 }
 
 model AppointmentMessage {

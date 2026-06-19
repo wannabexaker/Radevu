@@ -57,6 +57,7 @@ function dashboardRedirect(req: NextRequest): NextResponse | null {
     const settingsPage = segments[2];
     const validSettingsPages = new Set([
       "hours",
+      "managers",
       "profile",
       "services",
       "visibility"

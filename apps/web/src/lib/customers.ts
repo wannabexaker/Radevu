@@ -7,6 +7,7 @@ import type {
 import type { AppointmentStatus, Prisma } from "@radevu/db";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { getManagedBusinessForUser } from "@/lib/business-access";
 import { prisma } from "@/lib/db";
 
 const DEFAULT_TAKE = 50;
@@ -250,15 +251,10 @@ export async function requireCustomerOwnerScope(input: {
     };
   }
 
-  const business = await prisma.business.findUnique({
-    where: {
-      ownerId: session.user.id
-    },
-    select: {
-      id: true,
-      timezone: true
-    }
-  });
+  const managedBusiness = await getManagedBusinessForUser(session.user.id);
+  const business = managedBusiness
+    ? { id: managedBusiness.id, timezone: managedBusiness.timezone }
+    : null;
 
   if (!business) {
     return {

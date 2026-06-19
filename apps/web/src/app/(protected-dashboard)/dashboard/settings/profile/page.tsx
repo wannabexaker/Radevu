@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ChangeEmailForm } from "@/components/account/ChangeEmailForm";
 import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
 import { auth } from "@/lib/auth";
+import { getManagedBusinessForUser } from "@/lib/business-access";
 import { prisma } from "@/lib/db";
 import {
   removeLogoAction,
@@ -35,11 +36,10 @@ export default async function ProfileSettingsPage(): Promise<JSX.Element> {
     redirect("/login");
   }
 
+  const managed = await getManagedBusinessForUser(session.user.id);
   const [business, user] = await Promise.all([
-    prisma.business.findUnique({
-      where: {
-        ownerId: session.user.id
-      },
+    managed ? prisma.business.findUnique({
+      where: { id: managed.id },
       select: {
         contactEmail: true,
         contactPhone: true,
@@ -49,7 +49,7 @@ export default async function ProfileSettingsPage(): Promise<JSX.Element> {
         photoUrl: true,
         socialLinks: true
       }
-    }),
+    }) : null,
     prisma.user.findUnique({
       where: {
         id: session.user.id

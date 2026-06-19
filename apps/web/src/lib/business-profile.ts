@@ -1,5 +1,6 @@
 import type { Business, Prisma } from "@radevu/db";
 import type { UpdateBusinessProfileInput } from "@radevu/shared";
+import { canManageBusiness } from "@/lib/business-access";
 import { prisma } from "@/lib/db";
 import { deleteUploadByUrl } from "@/lib/uploads";
 
@@ -44,7 +45,7 @@ async function ownedBusinessOrThrow(
     throw error;
   }
 
-  if (business.ownerId !== ownerId) {
+  if (!(await canManageBusiness(ownerId, businessId))) {
     const error = new Error("Business owner mismatch");
     error.name = "FORBIDDEN";
     throw error;

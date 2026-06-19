@@ -10,7 +10,7 @@ Every route change must update this document in the same handoff. If code and `A
 - Success: `200` (read/update), `201` (create with body), `204` (delete, no body).
 - Errors: JSON `{ "error": { "code": "string", "message": "string", "details"?: object } }` with appropriate HTTP status.
 - Validation: zod schemas in `packages/shared`. `400` with `code: "VALIDATION_ERROR"` on failure.
-- Auth: better-auth session cookie. Owner-only routes return `401` without session, `403` if session does not own the resource.
+- Auth: better-auth session cookie. Business management routes accept the primary owner or a linked `BusinessManager`; owner-only manager administration returns `403` to linked managers.
 
 ## Routes
 
@@ -49,7 +49,7 @@ Session-gated routes for the currently logged-in user.
 | `POST` | `/api/v1/me/verification/resend` | Session | - | `200 { ok: true }` |
 | `POST` | `/api/v1/me/change-password` | Session | `{ current_password, new_password }` | `200 { ok: true }` |
 
-`GET /api/v1/me` returns the shared user profile fields (`id`, `email`, `email_verified`, `name`, `phone`, `marketing_opt_in`, `user_type`) and, for business owners, the owned business summary.
+`GET /api/v1/me` returns the shared user profile fields (`id`, `email`, `email_verified`, `name`, `phone`, `marketing_opt_in`, `user_type`) and, for primary owners or linked managers, the owned/managed business summary.
 
 `GET /api/v1/me/appointments` is customer-only and currently supports `?view=upcoming` or `?view=past`; it returns up to 50 appointments linked through `Customer.userId`.
 
@@ -65,10 +65,10 @@ Business owner registration now happens through `POST /api/v1/auth/register`. Sl
 |--------|------|------|--------------|---------|
 | `GET` | `/api/v1/businesses/directory` | Public | `?search&category&cursor&take=24` | `200 { businesses, next_cursor }` |
 | `GET` | `/api/v1/businesses/:id` | Public for booking page, Owner for full | - | `200 { business }` |
-| `PATCH` | `/api/v1/businesses/:id` | Owner of `:id` | `{ name?, contact_email?, contact_phone?, logo_url?, photo_url?, social_links?, maps_url?, working_hours? }` | `200 { business }` |
-| `POST` | `/api/v1/businesses/:id/upload` | Owner of `:id` | Multipart `{ kind: "logo"\|"photo", file }` | `201 { url }` |
-| `PATCH` | `/api/v1/businesses/:id/notifications` | Owner of `:id` | `{ confirmation_enabled?, reminder_enabled?, reminder_lead_minutes? }` | `200 { business: { id, notification_settings } }` |
-| `PATCH` | `/api/v1/businesses/:id/visibility` | Owner of `:id` | `{ show_on_landing }` | `200 { business: { id, show_on_landing } }` |
+| `PATCH` | `/api/v1/businesses/:id` | Owner or manager of `:id` | `{ name?, contact_email?, contact_phone?, logo_url?, photo_url?, social_links?, maps_url?, working_hours? }` | `200 { business }` |
+| `POST` | `/api/v1/businesses/:id/upload` | Owner or manager of `:id` | Multipart `{ kind: "logo"\|"photo", file }` | `201 { url }` |
+| `PATCH` | `/api/v1/businesses/:id/notifications` | Owner or manager of `:id` | `{ confirmation_enabled?, reminder_enabled?, reminder_lead_minutes? }` | `200 { business: { id, notification_settings } }` |
+| `PATCH` | `/api/v1/businesses/:id/visibility` | Owner or manager of `:id` | `{ show_on_landing }` | `200 { business: { id, show_on_landing } }` |
 
 `GET /api/v1/businesses/directory` returns public-safe discovery fields only: `id`, `slug`, `name`, `category`, `description`, `logo_url`, and `photo_url`. Results include businesses marked `show_on_landing=true` or businesses with at least one active service. `category` must be one of `BUSINESS_CATEGORIES`; `take` is clamped to 50.
 
@@ -101,10 +101,10 @@ Notification settings responses use snake_case JSON keys:
 
 | Method | Path | Auth | Body / Query | Returns |
 |--------|------|------|--------------|---------|
-| `GET` | `/api/v1/businesses/:id/services` | Public or Owner | `?active=true\|false` | `200 { services }` |
-| `POST` | `/api/v1/businesses/:id/services` | Owner | `{ name, duration_minutes, price_cents, description? }` | `201 { service }` |
-| `PATCH` | `/api/v1/services/:id` | Owner | `{ name?, duration_minutes?, price_cents?, description?, active? }` | `200 { service }` |
-| `DELETE` | `/api/v1/services/:id` | Owner | - | `204` |
+| `GET` | `/api/v1/businesses/:id/services` | Public or business manager | `?active=true\|false` | `200 { services }` |
+| `POST` | `/api/v1/businesses/:id/services` | Business manager | `{ name, duration_minutes, price_cents, description? }` | `201 { service }` |
+| `PATCH` | `/api/v1/services/:id` | Business manager | `{ name?, duration_minutes?, price_cents?, description?, active? }` | `200 { service }` |
+| `DELETE` | `/api/v1/services/:id` | Business manager | - | `204` |
 
 Service responses use snake_case JSON keys:
 
@@ -168,9 +168,11 @@ Month day `state` is one of `closed`, `full`, `tight`, `available`, or `open`.
 | Method | Path | Auth | Body / Query | Returns |
 |--------|------|------|--------------|---------|
 | `POST` | `/api/v1/appointments` | Public (guest booking) | `{ business_id, service_id, starts_at, customer: { name, email?, phone? }, note? }` | `201 { appointment, customer_manage_url }` |
-| `GET` | `/api/v1/appointments` | Owner | `?from=ISO&to=ISO&status=scheduled,done,cancelled&customer_q&cursor&take=50` | `200 { appointments, next_cursor }` |
-| `GET` | `/api/v1/appointments/:id` | Owner | - | `200 { appointment }` |
-| `PATCH` | `/api/v1/appointments/:id` | Owner | `{ status?, paid?, notes? }` | `200 { appointment }` |
+| `GET` | `/api/v1/appointments` | Business manager | `?from=ISO&to=ISO&status=scheduled,done,cancelled&customer_q&cursor&take=50` | `200 { appointments, next_cursor }` |
+| `GET` | `/api/v1/appointments/:id` | Business manager | - | `200 { appointment }` |
+| `PATCH` | `/api/v1/appointments/:id` | Business manager | `{ status?, paid?, notes? }` | `200 { appointment }` |
+| `POST` | `/api/v1/appointment-actions/:token/cancel` | Public action token | `{ reason }` | `200 { ok: true }` |
+| `POST` | `/api/v1/appointment-actions/:token/reschedule-request` | Public action token | `{ starts_at }` | `200 { ok: true }` |
 
 Public guest booking responses use snake_case JSON keys:
 
@@ -195,6 +197,8 @@ Public guest booking responses use snake_case JSON keys:
 ```
 
 If a slot is taken between availability lookup and booking submit, the route returns `409 { error: { code: "SLOT_TAKEN", message } }`.
+
+New bookings receive a cryptographically random `action_token`. The confirmation email links to `/appointment/:token`, where a guest can cancel with a required 3-500 character reason or request a currently available new slot without logging in. Cancellation stores the reason and notifies the business. A reschedule request stays pending until an authenticated owner or manager approves or rejects it in the dashboard; approval takes the same PostgreSQL advisory lock as booking creation and rechecks availability before moving the appointment. Existing appointments without an action token remain valid but do not receive these links.
 
 Guest booking POST also enforces the booking window server-side. A start time less than 60 minutes from the server clock returns `400 { error: { code: "TOO_SOON", message } }`. A start time more than 90 days out returns `400 { error: { code: "BEYOND_HORIZON", message } }`.
 
@@ -250,7 +254,9 @@ Owner appointment list and detail responses include customer and service summari
 }
 ```
 
-Owner routes are scoped to the current session owner's business. List calls only return that owner's rows. Detail or update calls for another business return `403 { error: { code: "FORBIDDEN", message } }`. Updating `done` to `cancelled` or any other invalid status transition returns `400 { error: { code: "INVALID_TRANSITION", message } }`.
+Business routes are scoped to the current session's owned or managed business. List calls only return that business's rows. Detail or update calls for another business return `403 { error: { code: "FORBIDDEN", message } }`. Updating `done` to `cancelled` or any other invalid status transition returns `400 { error: { code: "INVALID_TRANSITION", message } }`.
+
+Manager membership is administered from `/dashboard/settings/managers` by the primary owner only. Existing users are linked directly. Unknown emails receive a new random-password account and the existing password-reset email so the manager sets their own password; the generated password is never shown or persisted outside better-auth's credential record. Linked managers can use all normal dashboard actions but cannot add/remove managers or perform owner-only business deletion.
 
 ### Customers
 

@@ -12,6 +12,7 @@ import type {
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import { getManagedBusinessForUser } from "@/lib/business-access";
 import { prisma } from "@/lib/db";
 
 export type NotificationSettingsActionResult =
@@ -41,15 +42,14 @@ async function getOwnerBusinessContext(): Promise<OwnerBusinessContext> {
     throw error;
   }
 
-  const business = await prisma.business.findUnique({
-    where: {
-      ownerId: session.user.id
-    },
+  const managed = await getManagedBusinessForUser(session.user.id);
+  const business = managed ? await prisma.business.findUnique({
+    where: { id: managed.id },
     select: {
       id: true,
       notificationSettings: true
     }
-  });
+  }) : null;
 
   if (!business) {
     const error = new Error("Owner has no business.");

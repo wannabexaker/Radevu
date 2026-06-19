@@ -5,6 +5,7 @@ import type { UpdateBusinessProfileInput } from "@radevu/shared";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import { getManagedBusinessForUser } from "@/lib/business-access";
 import {
   clearLogo,
   clearPhoto,
@@ -51,15 +52,14 @@ async function getOwnerBusinessContext(): Promise<OwnerBusinessContext> {
     throw error;
   }
 
-  const business = await prisma.business.findUnique({
-    where: {
-      ownerId: session.user.id
-    },
+  const managed = await getManagedBusinessForUser(session.user.id);
+  const business = managed ? await prisma.business.findUnique({
+    where: { id: managed.id },
     select: {
       id: true,
       slug: true
     }
-  });
+  }) : null;
 
   if (!business) {
     const error = new Error("Owner has no business.");

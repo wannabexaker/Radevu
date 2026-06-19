@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/current-user";
+import { getManagedBusinessForUser } from "@/lib/business-access";
 import { prisma } from "@/lib/db";
 
 const updateMeSchema = z.object({
@@ -49,20 +50,13 @@ export async function GET(
 
   const business =
     user.userType === "business_owner"
-      ? await prisma.business.findUnique({
-          where: {
-            ownerId: user.id
-          },
-          select: {
-            id: true,
-            name: true,
-            slug: true
-          }
-        })
+      ? await getManagedBusinessForUser(user.id)
       : null;
 
   return NextResponse.json({
-    business,
+    business: business
+      ? { id: business.id, name: business.name, slug: business.slug }
+      : null,
     user: serializeUser(user)
   });
 }

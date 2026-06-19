@@ -5,6 +5,7 @@ import {
 import { headers } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
+import { canManageBusiness } from "@/lib/business-access";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -153,7 +154,7 @@ async function requireOwner(businessId: string): Promise<
     };
   }
 
-  if (business.ownerId !== sessionUserId) {
+  if (!(await canManageBusiness(sessionUserId, businessId))) {
     return {
       ok: false,
       response: errorResponse(
@@ -210,8 +211,10 @@ export async function GET(
     }
 
     const sessionUserId = await getSessionUserId();
-    const isOwner = sessionUserId === business.ownerId;
-    const activeFilter = isOwner ? parsedQuery.data.active : true;
+    const canManage = sessionUserId
+      ? await canManageBusiness(sessionUserId, businessId)
+      : false;
+    const activeFilter = canManage ? parsedQuery.data.active : true;
 
     const services = await prisma.service.findMany({
       where: {

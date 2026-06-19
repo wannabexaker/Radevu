@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import type { UpdateBusinessProfileInput } from "@radevu/shared";
 import { auth } from "@/lib/auth";
+import { canManageBusiness } from "@/lib/business-access";
 import { updateBusinessProfile } from "@/lib/business-profile";
 import { prisma } from "@/lib/db";
 import { deleteUploadByUrl, saveUpload, type UploadKind } from "@/lib/uploads";
@@ -93,7 +94,7 @@ export async function POST(
       return errorResponse(404, "NOT_FOUND", "Η επιχείρηση δεν βρέθηκε.");
     }
 
-    if (business.ownerId !== session.user.id) {
+    if (!(await canManageBusiness(session.user.id, businessId))) {
       return errorResponse(
         403,
         "FORBIDDEN",

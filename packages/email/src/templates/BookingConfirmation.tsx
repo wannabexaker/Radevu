@@ -11,6 +11,7 @@ export type BookingConfirmationProps = {
   business_maps_url?: string;
   business_name: string;
   business_phone?: string;
+  cancel_url?: string;
   customer_name: string;
   duration_minutes: number;
   formatted_date: string;
@@ -18,6 +19,7 @@ export type BookingConfirmationProps = {
   formatted_time: string;
   manage_url?: string;
   note?: string;
+  reschedule_url?: string;
   service_name: string;
 };
 
@@ -32,6 +34,7 @@ export function BookingConfirmation({
   business_maps_url,
   business_name,
   business_phone,
+  cancel_url,
   customer_name,
   duration_minutes,
   formatted_date,
@@ -39,6 +42,7 @@ export function BookingConfirmation({
   formatted_time,
   manage_url,
   note,
+  reschedule_url,
   service_name
 }: BookingConfirmationProps): JSX.Element {
   return (
@@ -95,6 +99,22 @@ export function BookingConfirmation({
                 Σημειώσεις και μηνύματα
               </Button>
             ) : null}
+            {reschedule_url ? (
+              <Button
+                className="mt-2 rounded-xl bg-indigo-500 px-5 py-3 text-center text-base font-medium text-white"
+                href={reschedule_url}
+              >
+                Αλλαγή ώρας
+              </Button>
+            ) : null}
+            {cancel_url ? (
+              <Button
+                className="mt-2 rounded-xl border border-red-300 bg-white px-5 py-3 text-center text-base font-medium text-red-700"
+                href={cancel_url}
+              >
+                Ακύρωση
+              </Button>
+            ) : null}
             {business_maps_url ? (
               <Button
                 className="mt-2 rounded-xl bg-indigo-500 px-5 py-3 text-center text-base font-medium text-white"
@@ -104,8 +124,7 @@ export function BookingConfirmation({
               </Button>
             ) : null}
             <Text className="mt-5 text-sm leading-relaxed text-slate-500">
-              Για ακύρωση κράτησης ή αλλαγή ώρας επικοινώνησε απευθείας με την
-              επιχείρηση
+              Αν χρειάζεσαι βοήθεια, επικοινώνησε απευθείας με την επιχείρηση
               {business_phone ? ` στο ${business_phone}` : ""}
               {business_email ? ` ή στο ${business_email}` : ""}.
             </Text>
