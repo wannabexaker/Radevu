@@ -1,127 +1,114 @@
-# Radevu
+# <img src="./apps/web/public/radevu-mark.png" alt="Radevu mark" width="48" align="center"> Radevu
 
-**Multi-tenant booking SaaS for small service businesses.** Every business gets a branded mini-site, a public booking page, a lightweight CRM, and a mobile-first 6-tab dashboard — set up in minutes, used in seconds.
+Mobile-first booking, customer communication, and daily management for Greek service professionals
 
-> Status: **Phase 1 MVP — live demo at [radevu.olamov.com](https://radevu.olamov.com)**.
-> Hosted self-managed on a single Raspberry Pi 4 behind Cloudflare Tunnel. Designed to migrate to Hetzner Cloud (~€10/mo) when the user count justifies it.
+## Overview
 
----
+Appointment-based professionals get a shareable public page and a private dashboard for running their day. A customer opens the page from a phone, checks services and availability, books a time, receives confirmation, and can continue the conversation around that appointment. The owner controls the public profile, schedule, customer history, unpaid balances, reminders, and appointment communication from the same application. The product is focused on booking and follow-up, not generic website building or enterprise CRM.
 
-## What it does
+## Features
 
-| Surface | URL pattern | Audience |
-|---------|-------------|----------|
-| Landing + showcase | `/` | Anyone discovering the product |
-| Public business profile | `/<business-slug>` | Customers ready to book |
-| Owner dashboard | `/dashboard/*` | The business owner |
+- **Business discovery.** Customers can search the public directory by business name or description, filter by category, and open the relevant profile and booking flow.
+- **Public business page.** Each professional can publish a business name, profile photo, logo, phone, email, service list, prices, service duration, weekly working hours, Instagram and Facebook links. The page is server-rendered and can be shared directly with customers.
+- **Location and directions.** The owner can save a Google Maps location link from profile settings. Customers see a dedicated “view on map” action together with the business contact details.
+- **Availability-based booking.** The customer selects a service, month, day, and available time generated from the business timezone, working hours, service duration, existing appointments, and current time. Closed or occupied times cannot be selected.
+- **Booking from a phone.** The booking flow is designed and tested at `360×800`: service, date, time, name, email or phone, and an optional message are completed without creating an account. Playwright enforces a booking budget below 60 seconds.
+- **Automatic confirmation for both sides.** After a booking, the customer receives an email confirmation with an `.ics` calendar invitation and a secure appointment link. The business owner receives a separate new-booking alert with the appointment and customer details.
+- **Configurable reminders.** The owner can enable or disable confirmation emails and customer reminders, then choose how long before the appointment the reminder is sent. Redis stores delayed reminder jobs and the worker dispatches due emails.
+- **Daily appointment control.** The owner dashboard shows today’s schedule and the wider appointment list with date, status, and customer filters. Appointments can be completed, cancelled, marked paid or unpaid, and opened for notes and communication.
+- **Debt tracking.** Unpaid appointments are grouped by customer, with totals per customer and a total outstanding balance for the business. A payment can be cleared with one action, and the change is reflected across appointments, customers, debts, and the daily view.
+- **Customer history and CRM notes.** A customer record is created or updated from each booking. The owner can search customers, call or email them directly, review appointment history and spending totals, keep internal notes, and record the next recommended service or follow-up.
+- **Appointment conversation.** Customers and the business share a message thread attached to the appointment. Guests enter through the secure link from their confirmation email; registered customers use their account. Each side also has a separate private note that is not shown to the other side.
+- **Customer accounts without blocking guest booking.** Registered customers can review their appointments, open appointment details, exchange messages, update account information, verify email, and recover or change their password. Guest booking remains available for the shortest path.
+- **Business settings.** The owner can update profile images and contact information, edit services, configure weekly hours, control directory visibility, and manage notification preferences without changing code.
+- **Mobile-first owner workflow.** The dashboard uses a fixed bottom navigation for schedule, appointments, customers, debts, notifications, and settings. Core actions use phone-sized controls and direct `tel:` or `mailto:` links where contact data exists.
+- **Access and abuse controls.** Customer and business-owner roles are separated, owner queries are scoped to their own business, and private appointment links store only token hashes. Registration and password flows use email verification, Turnstile, honeypots, rate limits, and non-enumerating password recovery responses.
 
-End-to-end booking takes **under 60 seconds** on a mid-range Android over 4G — verified by a Playwright e2e test that fails the build if the budget is breached. Bookings fire confirmation + calendar-invite (`.ics`) emails to the customer and an alert to the owner. A Redis-backed worker sends a reminder 24 hours before the appointment.
+## Architecture
 
-## Stack
+A single Next.js App Router application serves the landing page, directory, public profiles, customer accounts, owner dashboard, and `/api/v1` routes. Middleware selects subpath or subdomain routing from environment configuration. Route handlers enforce authentication and tenant boundaries before Prisma accesses PostgreSQL; Redis provides rate limiting and reminder queues.
 
-| Layer | Choice | Why |
-|-------|--------|-----|
-| Framework | Next.js 15 (App Router, standalone) | Single app, dual routing (subdomain or subpath via env) |
-| Language | TypeScript strict end-to-end | `noUncheckedIndexedAccess`, no `any` without justification |
-| DB | PostgreSQL 16 + Prisma | `schema.prisma` is the contract everything else derives from |
-| Cache / queues | Redis 7 | Sessions, rate limit, reminder ZSET with atomic Lua claim |
-| Auth | better-auth | Email/password, Prisma adapter, owner-only accounts |
-| Email | Resend + React Email | `.ics` attachment, fire-and-forget per booking |
-| Styling | Tailwind + shadcn-style primitives | Mobile-first at 360×800, tap targets ≥44px |
-| Container | Docker + docker-compose | Build on amd64 (GitHub Actions), run on ARM64 (Pi) — multi-stage with `--platform=$BUILDPLATFORM` |
-| Edge | Cloudflare Tunnel | No port forwarding, no public IP, free-tier DDoS shield |
+### Components
 
-No new dependency was added without explicit justification — the whole `package.json` is small on purpose.
+| Component | Role |
+|---|---|
+| `apps/web` | SSR pages, booking UI, account/dashboard routes, middleware, and API handlers |
+| `packages/db` | Prisma schema, migrations, generated client, and development/e2e seeds |
+| `packages/email` | React Email templates, Resend delivery, and ICS generation |
+| `packages/shared` | zod schemas, DTO types, constants, and date/time helpers |
+| `infra` | Docker Compose, container hardening, backups, and production configuration |
+| `scripts` | Local database helpers, Pi updates, fixture cleanup, and password rotation |
 
-## Layout
+## Tech Stack
 
-```
-apps/web              Single Next.js 15 app — public booking + owner dashboard + API
-packages/db           Prisma schema + generated client + idempotent seed
-packages/email        React Email templates (confirmation, owner alert, reminder) + ics generator
-packages/shared       zod schemas, DTO types, datetime helpers, constants
-infra/                Docker Compose (dev/prod/pi), Dockerfile reference, backup script, cloudflared template
-docs/                 Vision, architecture, API reference, design tokens, runbooks (Cloudflare, migration, portfolio)
-scripts/              Pi update script (mirrors the Eye_in_the_Sky pattern)
-codex/                Per-chunk handoff briefs used during the build (kept as a methodology audit trail)
-.claude/              Orchestrator instructions for Claude Code
-.github/workflows/    Multi-arch build + push to GHCR on every commit to main
-```
+| Technology | Role |
+|---|---|
+| Node.js 22, pnpm 9 | Runtime and workspace package management |
+| Next.js 15, React 18, TypeScript 5.6 | Web application |
+| PostgreSQL 16, Prisma 5.22 | Relational data and migrations |
+| Redis 7, ioredis | Rate limiting and reminder queues |
+| better-auth | Customer and business-owner authentication |
+| Resend, React Email | Transactional email and calendar invitations |
+| Tailwind CSS, Radix UI, Lucide | Interface styling and primitives |
+| Playwright, Node test runner | End-to-end and unit tests |
+| Docker Compose, GitHub Actions, GHCR | Local services and ARM64 image delivery |
 
-## Hosting phases
+## Installation
 
-| Phase | Where | URL | Trigger to next |
-|-------|-------|-----|-----------------|
-| Beta Phase 0 | Raspberry Pi 4 at home, LAN-only via mDNS | `http://radevu.local:3000` | Custom domain available |
-| **Beta Phase 1 (current)** | Same Pi + Cloudflare Tunnel | `https://radevu.olamov.com` | 20+ real users |
-| Production | Hetzner CAX21 + Storage Box | `https://radevu.olamov.com` (DNS swap) | Revenue / multi-region needs |
-
-The same `docker-compose.prod.yml` runs in all three. Migration between hosts is documented in [`docs/MIGRATION.md`](docs/MIGRATION.md) and is essentially `scp` of two named volumes plus a Cloudflare Tunnel route swap.
-
-## Local development
-
-Requires Docker, Node 22, pnpm 9.
-
-```bash
-pnpm install
-docker compose -f infra/docker-compose.yml --env-file infra/.env up -d postgres redis
-pnpm --filter @radevu/db migrate:dev
-pnpm --filter @radevu/db exec prisma db seed   # creates 3 demo businesses
-pnpm --filter @radevu/web dev
+```powershell
+git clone https://github.com/wannabexaker/Radevu.git
+Set-Location Radevu
+corepack pnpm install
+Copy-Item infra/.env.example infra/.env
 ```
 
-Then open:
+For local development, set `NODE_ENV=development`, `BETTER_AUTH_URL=http://localhost:3000`, and non-empty PostgreSQL/auth secrets in `infra/.env`.
 
-- `http://localhost:3000/` — landing with showcase
-- `http://localhost:3000/despoina` — sample tutor profile
-- `http://localhost:3000/ioannis` — sample network-tech profile
-- `http://localhost:3000/dashboard/login` — owner login (seeded credentials in `packages/db/prisma/seed.ts`)
+## Usage
 
-## Deployment
-
-### Build
-
-GitHub Actions builds a `linux/arm64` image on every push to `main` and publishes it to `ghcr.io/<your-github-user>/radevu-web:latest`. The Pi never builds anything — it only pulls.
-
-### Pi update (after a new image is published)
-
-```bash
-cd ~/projects/radevu
-git pull
-./scripts/pi-update.sh
+```powershell
+corepack pnpm dev:infra
+corepack pnpm db:migrate:local
+corepack pnpm db:seed:local
+corepack pnpm --filter @radevu/web dev
 ```
 
-The script shows current SHAs, pulls, recreates only changed services, waits for the healthcheck, and runs both a loopback and a public probe before exiting.
+The application runs at `http://localhost:3000`.
 
-### Adding a new hostname to the existing tunnel
+- Directory: `http://localhost:3000/epaggelmaties`
+- Public profile: `http://localhost:3000/<business-slug>`
+- Owner login: `http://localhost:3000/dashboard/login`
+- Health check: `http://localhost:3000/api/health`
 
-See [`docs/CLOUDFLARE.md`](docs/CLOUDFLARE.md). The summary: edit one YAML file (`/etc/cloudflared/config.yml`), validate, run `cloudflared tunnel route dns`, restart the systemd service. The catch-all `http_status:404` ingress rule must stay last.
+Run validation with the application and local infrastructure active:
 
-## Documentation
+```powershell
+corepack pnpm -r typecheck
+corepack pnpm -r test
+corepack pnpm --filter @radevu/web exec playwright test
+```
 
-| Doc | What |
-|-----|------|
-| [`docs/MASTER_VISION.md`](docs/MASTER_VISION.md) | Why this product exists — read first |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Boundaries, request flow, DB schema sketch, env table |
-| [`docs/API.md`](docs/API.md) | Every public route with auth, body, response, error codes |
-| [`docs/DESIGN.md`](docs/DESIGN.md) | Color tokens, type scale, primitives, voice & tone (Greek copy rules) |
-| [`docs/VERTICALS.md`](docs/VERTICALS.md) | Locked profession list for Phase 2 templates |
-| [`docs/CODEX_TASKS.md`](docs/CODEX_TASKS.md) | Task queue + Phase 1 completion status |
-| [`infra/SETUP.md`](infra/SETUP.md) | Raspberry Pi 4 bring-up runbook |
-| [`docs/CLOUDFLARE.md`](docs/CLOUDFLARE.md) | Tunnel + Access + Bot Fight runbook |
-| [`docs/MIGRATION.md`](docs/MIGRATION.md) | Pi → Hetzner playbook |
-| [`docs/PORTFOLIO.md`](docs/PORTFOLIO.md) | Portfolio integration guide |
+## Project Structure
 
-## Development methodology
+```text
+Radevu/
+├── apps/web/                  — Next.js application and Dockerfile
+├── packages/db/               — Prisma data layer and seeds
+├── packages/email/            — Transactional email and ICS output
+├── packages/shared/           — Shared validation and date helpers
+├── infra/                     — Local and production Compose configuration
+├── scripts/                   — Database, deployment, and maintenance tools
+├── docs/                      — Architecture, API, design, and operations docs
+└── .github/workflows/         — ARM64 image build and GHCR publishing
+```
 
-This codebase was built chunk-by-chunk with Claude Code as orchestrator and OpenAI Codex CLI as the primary code writer, against a locked skill ([`booking-saas-project`](https://github.com/wannabexaker/Radevu/tree/main/.claude)) and an explicit per-chunk handoff in `codex/handoff-NNN.md`. Each handoff has a "no `ραντεβού` ambiguity" audit step — the word is anchored to either a service, a business, or a count, so the brand never drifts toward dating-app territory in Greek.
+## Notes
 
-Phase 1 covers chunks #001 through #011; the queue tracking that work lives in `docs/CODEX_TASKS.md`.
-
-## License
-
-The source is not currently published under an open-source license. Treat it as **source-available**: you may read, learn from, and reference patterns; redistribution and commercial reuse are not granted. Open an issue if you want to talk licensing.
-
----
-
-Built in Athens.
+- Paid and unpaid states provide balance tracking; the application does not process card payments.
+- Local Docker exposes PostgreSQL on `localhost:5433` and Redis on `localhost:6379`; the project helper scripts adapt `infra/.env` automatically.
+- `BETTER_AUTH_URL` must be `http://localhost:3000` locally. A production URL causes authenticated e2e requests to fail with `403`.
+- Production seeds require secret `SEED_*_PASSWORD` values. Password rotation is documented in [`docs/ops/rotate-owner-passwords.md`](docs/ops/rotate-owner-passwords.md).
+- Timestamps are stored in UTC and rendered in each business timezone.
+- Pushes to `main` build a `linux/arm64` image and publish `latest` plus SHA tags to GHCR.
+- Deployment and operations references live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/API.md`](docs/API.md), [`docs/CLOUDFLARE.md`](docs/CLOUDFLARE.md), and [`infra/SETUP.md`](infra/SETUP.md).
+- No open-source license is currently granted.

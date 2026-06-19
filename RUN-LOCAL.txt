@@ -1,0 +1,52 @@
+RADEVU — RUN LOCALLY  (tested working 2026-06-19)
+=================================================
+
+Run every command from the repo root:  C:\Projects\Radevu
+
+Prerequisites
+-------------
+- Docker Desktop running        (for Postgres + Redis)
+- Node 22 with corepack         (no global pnpm needed — always use "corepack pnpm")
+- infra/.env present, with local values:
+      NODE_ENV=development
+      BETTER_AUTH_URL=http://localhost:3000
+
+
+Steps
+-----
+1) Install dependencies (first time only):
+       corepack pnpm install
+
+2) Start Postgres + Redis:
+       corepack pnpm dev:infra
+
+3) Seed the local database (creates the 6 demo businesses):
+       corepack pnpm db:seed:local
+
+4) Start the app:
+       corepack pnpm --filter @radevu/web dev
+
+   IMPORTANT: use the line above.  "corepack pnpm dev" does NOT work here
+   (the root dev script calls plain "pnpm", which isn't installed globally).
+
+
+Open in the browser
+-------------------
+   App:        http://localhost:3000
+   Directory:  http://localhost:3000/epaggelmaties     (6 businesses, no test shop)
+   A profile:  http://localhost:3000/eleni
+   Health:     http://localhost:3000/api/health        (returns 200)
+
+
+Stop
+----
+- App:  Ctrl + C in the dev terminal.
+- DB:   leave it running, or stop the containers "radevu-postgres" and "radevu-redis".
+
+
+Notes
+-----
+- Login works locally because infra/.env has BETTER_AUTH_URL=http://localhost:3000.
+  If login ever returns 403, that value is wrong (it must be localhost for local dev,
+  not the production https URL).
+- The dev server always runs on port 3000.

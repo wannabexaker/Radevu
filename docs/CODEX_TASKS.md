@@ -136,6 +136,19 @@ Handoff: `RADEVU-CHUNK15-16-PLAN.md`. Locked: per-user + anonymous-aggregate sea
 - [ ] **TASK-059:** Founder-only insights page (top searches + counts + top categories, windowed), gated to `FOUNDER_EMAIL`.
 - [ ] **TASK-060:** `GET /api/v1/businesses/recommended` (random for guests, history-based for logged-in) + landing «Προτεινόμενα».
 
+## Module 15: Local-test fixes & flows (TASK-061…066)
+
+Handoff: `more/RADEVU-LOCALTEST-FIXES.md`. Found during local testing 2026-06-19. Each on a branch, verify, stop for review. W1 (quick) = 061-064 · W2 (flows) = 065 then 066 (schema review first).
+
+- [ ] **TASK-061:** Header — hide landing anchors (#about/#features/#contact) off the homepage via `usePathname()`; keep «Επαγγελματίες».
+- [ ] **TASK-062:** Square logo preview in `ImageUploadField` (kind=logo → aspect-square + object-contain; photo stays rectangular).
+- [ ] **TASK-063:** Rename account role label «Πελάτης» → «Χρήστης» (display only; keep internal `customer`; do NOT touch the «Πελάτες» dashboard tab).
+- [ ] **TASK-064:** Fix register: Επιχείρηση→Χρήστης then can't create account (Turnstile token reset / stale business fields / schema).
+- [ ] **TASK-065:** Change ACCOUNT (login) email with verification (code to old verified email → new email). Warn + logout → `/login` on change. Investigate post-change login failure (contact-vs-login confusion). Fix `VerifyEmailBanner` stale email. Schema review if `pending_email` needed.
+- [ ] **TASK-066:** Cancel/reschedule from the confirmation email (tokenized links · cancel reason → notify business · reschedule → business approves → re-notify customer). **SCHEMA REVIEW FIRST** (Appointment fields + tokens).
+- [ ] **TASK-067:** Login-attempts audit table — email/time/ip/user-agent/result/reason. **NEVER store passwords.** Fire-and-forget on sign-in. **SCHEMA REVIEW FIRST.**
+- [ ] **TASK-068:** Multiple managers per business (add 2nd admin by email) — `business_managers` join table + dashboard access checks. **SCHEMA REVIEW FIRST.**
+
 ---
 
 ## Cross-cutting reminders for every task
