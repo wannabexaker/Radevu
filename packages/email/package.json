@@ -5,6 +5,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
+    "probe:render": "node --experimental-strip-types --test --test-name-pattern=\"renders a non-empty email verification body\" tests/templates.test.ts",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },

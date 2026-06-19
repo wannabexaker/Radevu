@@ -1,3 +1,4 @@
+import { render } from "@react-email/components";
 import { Resend } from "resend";
 import {
   ContactRequestNotification,
@@ -52,17 +53,30 @@ export async function sendContactRequestEmail(
   args: SendContactRequestEmailArgs
 ): Promise<{ id: string }> {
   const resend = new Resend(args.resendApiKey);
-
-  const result = await resend.emails.send({
-    from: `Radevu <${args.resendFromEmail}>`,
-    to: args.to,
-    subject: `Νέο αίτημα επικοινωνίας - ${args.name}`,
-    react: ContactRequestNotification({
+  const html = await render(
+    ContactRequestNotification({
       email: args.email,
       message: args.message,
       name: args.name,
       phone: args.phone
     })
+  );
+  const text = [
+    "Νέο αίτημα επικοινωνίας.",
+    `Όνομα: ${args.name}`,
+    `Email: ${args.email}`,
+    args.phone ? `Τηλέφωνο: ${args.phone}` : null,
+    `Μήνυμα:\n${args.message}`
+  ]
+    .filter((line): line is string => Boolean(line))
+    .join("\n\n");
+
+  const result = await resend.emails.send({
+    from: `Radevu <${args.resendFromEmail}>`,
+    html,
+    to: args.to,
+    subject: `Νέο αίτημα επικοινωνίας - ${args.name}`,
+    text
   });
 
   if (result.error) {

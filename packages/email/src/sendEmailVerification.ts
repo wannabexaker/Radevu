@@ -1,3 +1,4 @@
+import { render } from "@react-email/components";
 import { Resend } from "resend";
 import { EmailVerification } from "./templates/EmailVerification.js";
 
@@ -13,13 +14,17 @@ export async function sendEmailVerification(
   args: SendEmailVerificationArgs
 ): Promise<{ id: string }> {
   const resend = new Resend(args.resendApiKey);
-  const result = await resend.emails.send({
-    from: `Radevu <${args.resendFromEmail}>`,
-    react: EmailVerification({
+  const html = await render(
+    EmailVerification({
       name: args.name,
       verification_url: args.verificationUrl
-    }),
+    })
+  );
+  const result = await resend.emails.send({
+    from: `Radevu <${args.resendFromEmail}>`,
+    html,
     subject: "Επιβεβαίωση email στο Radevu",
+    text: `Γεια σου ${args.name},\n\nΕπιβεβαίωσε το email σου στο Radevu:\n${args.verificationUrl}\n\nΑν δεν δημιούργησες λογαριασμό, αγνόησε αυτό το μήνυμα.`,
     to: args.to
   });
 

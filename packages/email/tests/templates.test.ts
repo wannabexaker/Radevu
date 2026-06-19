@@ -208,4 +208,25 @@ describe("Radevu email templates", () => {
       assert.doesNotMatch(html, /online|contact request|landing page/i);
     });
   }
+
+  it("renders a non-empty email verification body", async () => {
+    const verificationUrl = "https://example.com/verify/body-probe";
+    const html = await render(
+      template("EmailVerification")({
+        name: "Μαρία",
+        verification_url: verificationUrl
+      })
+    );
+    const containsLink = html.includes(verificationUrl);
+
+    console.info(
+      `[email-render-probe] html_length=${html.length} contains_link=${containsLink}`
+    );
+    assert.ok(
+      html.length > 1_000,
+      `Expected rendered HTML body, got ${html.length} bytes`
+    );
+    assert.match(html, /Επιβεβαίωσε/);
+    assert.equal(containsLink, true);
+  });
 });

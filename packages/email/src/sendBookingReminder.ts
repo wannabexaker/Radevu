@@ -1,3 +1,4 @@
+import { render } from "@react-email/components";
 import { Resend } from "resend";
 import { BookingReminder } from "./templates/BookingReminder.js";
 
@@ -96,9 +97,8 @@ export async function sendBookingReminder(
     args.timezone
   );
   const formattedTime = formatTime(args.appointment.startsAt, args.timezone);
-  const result = await resend.emails.send({
-    from: `Radevu <${args.resendFromEmail}>`,
-    react: BookingReminder({
+  const html = await render(
+    BookingReminder({
       business_email: args.business.contactEmail ?? undefined,
       business_maps_url: args.business.mapsUrl ?? undefined,
       business_name: args.business.name,
@@ -107,8 +107,24 @@ export async function sendBookingReminder(
       formatted_date: formattedDate,
       formatted_time: formattedTime,
       service_name: args.service.name
-    }),
+    })
+  );
+  const text = [
+    `Υπενθύμιση κράτησης για ${args.service.name} στις ${args.business.name}.`,
+    `Ημερομηνία: ${formattedDate}`,
+    `Ώρα: ${formattedTime}`,
+    args.business.contactPhone
+      ? `Τηλέφωνο: ${args.business.contactPhone}`
+      : null,
+    args.business.mapsUrl ? `Χάρτης: ${args.business.mapsUrl}` : null
+  ]
+    .filter((line): line is string => Boolean(line))
+    .join("\n");
+  const result = await resend.emails.send({
+    from: `Radevu <${args.resendFromEmail}>`,
+    html,
     subject: `Υπενθύμιση: ${formattedDate} ${formattedTime} — ${args.service.name} στις ${args.business.name}`,
+    text,
     to: args.to
   });
 

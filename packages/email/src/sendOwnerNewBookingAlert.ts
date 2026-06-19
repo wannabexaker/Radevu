@@ -1,3 +1,4 @@
+import { render } from "@react-email/components";
 import { Resend } from "resend";
 import { OwnerNewBookingAlert } from "./templates/OwnerNewBookingAlert.js";
 
@@ -76,21 +77,31 @@ export async function sendOwnerNewBookingAlert(
   args: SendOwnerNewBookingAlertArgs
 ): Promise<{ id: string }> {
   const resend = new Resend(args.resendApiKey);
-  const result = await resend.emails.send({
-    from: `Radevu <${args.resendFromEmail}>`,
-    react: OwnerNewBookingAlert({
+  const formattedDate = formatDate(args.appointment.startsAt, args.timezone);
+  const formattedPrice = formatPrice(
+    args.service.priceCents,
+    args.service.currency
+  );
+  const formattedTime = formatTime(args.appointment.startsAt, args.timezone);
+  const html = await render(
+    OwnerNewBookingAlert({
       business_name: args.business.name,
       customer_email: args.customer.email ?? undefined,
       customer_name: args.customer.name,
       customer_phone: args.customer.phone ?? undefined,
       dashboard_url: args.dashboardUrl,
-      formatted_date: formatDate(args.appointment.startsAt, args.timezone),
-      formatted_price: formatPrice(args.service.priceCents, args.service.currency),
-      formatted_time: formatTime(args.appointment.startsAt, args.timezone),
+      formatted_date: formattedDate,
+      formatted_price: formattedPrice,
+      formatted_time: formattedTime,
       note: args.appointment.notes ?? undefined,
       service_name: args.service.name
-    }),
+    })
+  );
+  const result = await resend.emails.send({
+    from: `Radevu <${args.resendFromEmail}>`,
+    html,
     subject: `Νέα κράτηση — ${args.customer.name} για ${args.service.name}`,
+    text: `Νέα κράτηση στις ${args.business.name}.\n\nΠελάτης: ${args.customer.name}\nΥπηρεσία: ${args.service.name}\nΗμερομηνία: ${formattedDate}\nΏρα: ${formattedTime}\nΤιμή: ${formattedPrice}\n\nΔες την κράτηση: ${args.dashboardUrl}`,
     to: args.to
   });
 

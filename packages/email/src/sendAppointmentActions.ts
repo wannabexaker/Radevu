@@ -1,3 +1,4 @@
+import { render } from "@react-email/components";
 import { Resend } from "resend";
 import { CustomerRescheduleApproved } from "./templates/CustomerRescheduleApproved.js";
 import { CustomerRescheduleRejected } from "./templates/CustomerRescheduleRejected.js";
@@ -28,12 +29,15 @@ function formatDateTime(date: Date, timezone: string): string {
 async function send(
   args: BaseArgs,
   subject: string,
-  react: JSX.Element
+  component: JSX.Element,
+  text: string
 ): Promise<{ id: string }> {
+  const html = await render(component);
   const result = await new Resend(args.resendApiKey).emails.send({
     from: `Radevu <${args.resendFromEmail}>`,
-    react,
+    html,
     subject,
+    text,
     to: args.to
   });
 
@@ -50,15 +54,24 @@ export type SendOwnerCancellationAlertArgs = BaseArgs & AppointmentSummary & {
   startsAt: Date;
 };
 
-export function sendOwnerCancellationAlert(args: SendOwnerCancellationAlertArgs): Promise<{ id: string }> {
-  return send(args, `Ακύρωση ραντεβού — ${args.customerName}`, OwnerCancellationAlert({
-    business_name: args.businessName,
-    customer_name: args.customerName,
-    dashboard_url: args.dashboardUrl,
-    formatted_date_time: formatDateTime(args.startsAt, args.timezone),
-    reason: args.reason,
-    service_name: args.serviceName
-  }));
+export async function sendOwnerCancellationAlert(
+  args: SendOwnerCancellationAlertArgs
+): Promise<{ id: string }> {
+  const formattedDateTime = formatDateTime(args.startsAt, args.timezone);
+
+  return send(
+    args,
+    `Ακύρωση ραντεβού — ${args.customerName}`,
+    OwnerCancellationAlert({
+      business_name: args.businessName,
+      customer_name: args.customerName,
+      dashboard_url: args.dashboardUrl,
+      formatted_date_time: formattedDateTime,
+      reason: args.reason,
+      service_name: args.serviceName
+    }),
+    `Ακυρώθηκε ραντεβού από τον πελάτη.\n\nΠελάτης: ${args.customerName}\nΥπηρεσία: ${args.serviceName}\nΏρα: ${formattedDateTime}\nΛόγος: ${args.reason}\n\nΔες τα ραντεβού: ${args.dashboardUrl}`
+  );
 }
 
 export type SendOwnerRescheduleRequestArgs = BaseArgs & AppointmentSummary & {
@@ -67,34 +80,65 @@ export type SendOwnerRescheduleRequestArgs = BaseArgs & AppointmentSummary & {
   requestedStart: Date;
 };
 
-export function sendOwnerRescheduleRequest(args: SendOwnerRescheduleRequestArgs): Promise<{ id: string }> {
-  return send(args, `Αίτημα αλλαγής ώρας — ${args.customerName}`, OwnerRescheduleRequest({
-    customer_name: args.customerName,
-    dashboard_url: args.dashboardUrl,
-    formatted_current: formatDateTime(args.currentStart, args.timezone),
-    formatted_requested: formatDateTime(args.requestedStart, args.timezone),
-    service_name: args.serviceName
-  }));
+export async function sendOwnerRescheduleRequest(
+  args: SendOwnerRescheduleRequestArgs
+): Promise<{ id: string }> {
+  const formattedCurrent = formatDateTime(args.currentStart, args.timezone);
+  const formattedRequested = formatDateTime(
+    args.requestedStart,
+    args.timezone
+  );
+
+  return send(
+    args,
+    `Αίτημα αλλαγής ώρας — ${args.customerName}`,
+    OwnerRescheduleRequest({
+      customer_name: args.customerName,
+      dashboard_url: args.dashboardUrl,
+      formatted_current: formattedCurrent,
+      formatted_requested: formattedRequested,
+      service_name: args.serviceName
+    }),
+    `Νέο αίτημα αλλαγής ώρας.\n\nΠελάτης: ${args.customerName}\nΥπηρεσία: ${args.serviceName}\nΤρέχουσα ώρα: ${formattedCurrent}\nΠροτεινόμενη ώρα: ${formattedRequested}\n\nΑπάντησε από το dashboard: ${args.dashboardUrl}`
+  );
 }
 
 export type SendCustomerRescheduleResultArgs = BaseArgs & AppointmentSummary & {
   startsAt: Date;
 };
 
-export function sendCustomerRescheduleApproved(args: SendCustomerRescheduleResultArgs): Promise<{ id: string }> {
-  return send(args, `Νέα ώρα ραντεβού — ${args.serviceName}`, CustomerRescheduleApproved({
-    business_name: args.businessName,
-    customer_name: args.customerName,
-    formatted_date_time: formatDateTime(args.startsAt, args.timezone),
-    service_name: args.serviceName
-  }));
+export async function sendCustomerRescheduleApproved(
+  args: SendCustomerRescheduleResultArgs
+): Promise<{ id: string }> {
+  const formattedDateTime = formatDateTime(args.startsAt, args.timezone);
+
+  return send(
+    args,
+    `Νέα ώρα ραντεβού — ${args.serviceName}`,
+    CustomerRescheduleApproved({
+      business_name: args.businessName,
+      customer_name: args.customerName,
+      formatted_date_time: formattedDateTime,
+      service_name: args.serviceName
+    }),
+    `Η αλλαγή ώρας εγκρίθηκε.\n\nΕπιχείρηση: ${args.businessName}\nΥπηρεσία: ${args.serviceName}\nΝέα ώρα: ${formattedDateTime}`
+  );
 }
 
-export function sendCustomerRescheduleRejected(args: SendCustomerRescheduleResultArgs): Promise<{ id: string }> {
-  return send(args, `Απόρριψη αλλαγής ώρας — ${args.serviceName}`, CustomerRescheduleRejected({
-    business_name: args.businessName,
-    customer_name: args.customerName,
-    formatted_date_time: formatDateTime(args.startsAt, args.timezone),
-    service_name: args.serviceName
-  }));
+export async function sendCustomerRescheduleRejected(
+  args: SendCustomerRescheduleResultArgs
+): Promise<{ id: string }> {
+  const formattedDateTime = formatDateTime(args.startsAt, args.timezone);
+
+  return send(
+    args,
+    `Απόρριψη αλλαγής ώρας — ${args.serviceName}`,
+    CustomerRescheduleRejected({
+      business_name: args.businessName,
+      customer_name: args.customerName,
+      formatted_date_time: formattedDateTime,
+      service_name: args.serviceName
+    }),
+    `Το αίτημα αλλαγής ώρας δεν εγκρίθηκε.\n\nΕπιχείρηση: ${args.businessName}\nΥπηρεσία: ${args.serviceName}\nΤο ραντεβού παραμένει: ${formattedDateTime}`
+  );
 }

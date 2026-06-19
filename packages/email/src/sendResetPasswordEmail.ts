@@ -1,3 +1,4 @@
+import { render } from "@react-email/components";
 import { Resend } from "resend";
 import { ResetPassword } from "./templates/ResetPassword.js";
 
@@ -13,13 +14,17 @@ export async function sendResetPasswordEmail(
   args: SendResetPasswordEmailArgs
 ): Promise<{ id: string }> {
   const resend = new Resend(args.resendApiKey);
-  const result = await resend.emails.send({
-    from: `Radevu <${args.resendFromEmail}>`,
-    react: ResetPassword({
+  const html = await render(
+    ResetPassword({
       name: args.name,
       reset_url: args.resetUrl
-    }),
+    })
+  );
+  const result = await resend.emails.send({
+    from: `Radevu <${args.resendFromEmail}>`,
+    html,
     subject: "Αλλαγή κωδικού στο Radevu",
+    text: `Γεια σου ${args.name},\n\nΆλλαξε τον κωδικό σου στο Radevu:\n${args.resetUrl}\n\nΑν δεν ζήτησες αλλαγή κωδικού, αγνόησε αυτό το μήνυμα.`,
     to: args.to
   });
 

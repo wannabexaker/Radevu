@@ -1,3 +1,4 @@
+import { render } from "@react-email/components";
 import { Resend } from "resend";
 import { generateICS } from "./lib/ics.js";
 import { BookingConfirmation } from "./templates/BookingConfirmation.js";
@@ -117,17 +118,8 @@ export async function sendBookingConfirmation(
     timezone: args.timezone,
     uid: `${args.appointment.id}@radevu`
   });
-
-  const result = await resend.emails.send({
-    attachments: [
-      {
-        content: ics,
-        contentType: "text/calendar; charset=utf-8; method=REQUEST",
-        filename: "radevu-rantevou.ics"
-      }
-    ],
-    from: `Radevu <${args.resendFromEmail}>`,
-    react: BookingConfirmation({
+  const html = await render(
+    BookingConfirmation({
       business_email: args.business.contactEmail ?? undefined,
       business_maps_url: args.business.mapsUrl ?? undefined,
       business_name: args.business.name,
@@ -146,8 +138,40 @@ export async function sendBookingConfirmation(
         ? `${args.appointment.actionUrl}#reschedule`
         : undefined,
       service_name: args.service.name
-    }),
+    })
+  );
+  const text = [
+    `Έγινε η κράτησή σου για ${args.service.name} στις ${args.business.name}.`,
+    `Ημερομηνία: ${formattedDate}`,
+    `Ώρα: ${formattedTime}`,
+    `Διάρκεια: ${args.service.durationMinutes} λεπτά`,
+    `Τιμή: ${formattedPrice}`,
+    args.appointment.customerManageUrl
+      ? `Διαχείριση κράτησης: ${args.appointment.customerManageUrl}`
+      : null,
+    args.appointment.actionUrl
+      ? `Αλλαγή ώρας: ${args.appointment.actionUrl}#reschedule`
+      : null,
+    args.appointment.actionUrl
+      ? `Ακύρωση: ${args.appointment.actionUrl}#cancel`
+      : null,
+    args.business.mapsUrl ? `Χάρτης: ${args.business.mapsUrl}` : null
+  ]
+    .filter((line): line is string => Boolean(line))
+    .join("\n");
+
+  const result = await resend.emails.send({
+    attachments: [
+      {
+        content: ics,
+        contentType: "text/calendar; charset=utf-8; method=REQUEST",
+        filename: "radevu-rantevou.ics"
+      }
+    ],
+    from: `Radevu <${args.resendFromEmail}>`,
+    html,
     subject: `Επιβεβαίωση κράτησης — ${args.service.name} στις ${args.business.name}`,
+    text,
     to: args.to
   });
 
