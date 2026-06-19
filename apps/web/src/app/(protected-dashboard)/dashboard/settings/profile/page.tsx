@@ -1,6 +1,7 @@
 import type { Prisma } from "@radevu/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { ChangeEmailForm } from "@/components/account/ChangeEmailForm";
 import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -34,22 +35,33 @@ export default async function ProfileSettingsPage(): Promise<JSX.Element> {
     redirect("/login");
   }
 
-  const business = await prisma.business.findUnique({
-    where: {
-      ownerId: session.user.id
-    },
-    select: {
-      contactEmail: true,
-      contactPhone: true,
-      logoUrl: true,
-      mapsUrl: true,
-      name: true,
-      photoUrl: true,
-      socialLinks: true
-    }
-  });
+  const [business, user] = await Promise.all([
+    prisma.business.findUnique({
+      where: {
+        ownerId: session.user.id
+      },
+      select: {
+        contactEmail: true,
+        contactPhone: true,
+        logoUrl: true,
+        mapsUrl: true,
+        name: true,
+        photoUrl: true,
+        socialLinks: true
+      }
+    }),
+    prisma.user.findUnique({
+      where: {
+        id: session.user.id
+      },
+      select: {
+        email: true,
+        emailVerified: true
+      }
+    })
+  ]);
 
-  if (!business) {
+  if (!business || !user) {
     redirect("/register");
   }
 
@@ -71,6 +83,10 @@ export default async function ProfileSettingsPage(): Promise<JSX.Element> {
         saveProfileAction={saveProfileAction}
         uploadLogoAction={uploadLogoAction}
         uploadPhotoAction={uploadPhotoAction}
+      />
+      <ChangeEmailForm
+        currentEmail={user.email}
+        emailVerified={user.emailVerified}
       />
       <ChangePasswordForm />
     </div>

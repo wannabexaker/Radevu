@@ -1,8 +1,10 @@
-import { getCurrentUser } from "@/lib/current-user";
+import { redirect } from "next/navigation";
+import { ChangeEmailForm } from "@/components/account/ChangeEmailForm";
 import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getCurrentUser } from "@/lib/current-user";
 import { saveAccountSettings } from "./actions";
 
 type AccountSettingsPageProps = {
@@ -16,6 +18,10 @@ export default async function AccountSettingsPage({
 }: AccountSettingsPageProps): Promise<JSX.Element> {
   const user = await getCurrentUser();
   const { saved } = await searchParams;
+
+  if (!user) {
+    redirect("/login");
+  }
 
   return (
     <div className="space-y-5">
@@ -88,6 +94,10 @@ export default async function AccountSettingsPage({
         </Button>
       </form>
 
+      <ChangeEmailForm
+        currentEmail={user.email}
+        emailVerified={user.emailVerified}
+      />
       <ChangePasswordForm />
     </div>
   );

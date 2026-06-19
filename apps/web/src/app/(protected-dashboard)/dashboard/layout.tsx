@@ -49,7 +49,7 @@ export default async function DashboardLayout({
         </div>
       </header>
       <main className="mx-auto w-full max-w-screen-sm flex-1 px-4 py-6">
-        {!user.emailVerified ? <VerifyEmailBanner email={user.email} /> : null}
+        {!user.emailVerified ? <VerifyEmailBanner /> : null}
         {children}
       </main>
       <BottomNav />

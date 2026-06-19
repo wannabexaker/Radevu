@@ -22,6 +22,8 @@ Every route change must update this document in the same handoff. If code and `A
 | `POST` | `/api/v1/auth/verification/resend` | Public + anti-abuse | `{ email, turnstile_token, honeypot?, form_started_at }` | `200 { ok: true }` |
 | `POST` | `/api/v1/auth/password/forgot` | Public + anti-abuse | `{ email, turnstile_token, honeypot?, form_started_at }` | `200 { ok: true }` |
 | `POST` | `/api/v1/auth/password/reset` | Public + IP rate-limit | `{ token, new_password }` | `200 { ok: true }` |
+| `POST` | `/api/auth/change-email` | better-auth session | `{ newEmail, callbackURL? }` | `200 { user, status }`; verified accounts receive a confirmation link at the current email |
+| `GET` | `/api/auth/verify-email` | better-auth token; active session required for an email change | `?token&callbackURL?` | Verifies the current email before changing it, then redirects to `callbackURL` |
 
 `/api/v1/auth/register` is a discriminated union on `user_type`. `customer` creates a customer account and redirects to `/account`; `business_owner` also creates the business profile and redirects to `/dashboard/today`. The public auth forms use Turnstile, honeypot, form age, and Redis rate limiting through `validateAuthSecurity`.
 
@@ -30,6 +32,8 @@ Every route change must update this document in the same handoff. If code and `A
 `/api/v1/auth/password/forgot` is no-enumeration: after valid anti-abuse checks, it always returns `200 { ok: true }`; internal send/provider errors are logged and not leaked.
 
 `/api/v1/auth/password/reset` uses the better-auth reset token from the email link. Invalid, expired, or already used tokens return `400 { error: { code: "INVALID_TOKEN", message } }`. `new_password` must be 10-128 characters.
+
+`POST /api/auth/change-email` is the built-in better-auth v1.0.18 flow. A verified account must confirm the request from its current login email; the confirmation updates the login email, sends verification to the new address, and redirects through `/change-email/complete` for sign-out. An unverified account changes immediately, receives the existing session-gated verification email at the new address, and is then signed out. The public business `contact_email` field is independent and never updates `users.email`.
 
 ### Me
 
