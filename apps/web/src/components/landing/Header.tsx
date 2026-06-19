@@ -2,14 +2,19 @@
 
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MotionDiv } from "./MotionWrapper";
 
-const navLinks = [
-  { href: "/epaggelmaties", label: "Επαγγελματίες" },
+const directoryLink = {
+  href: "/epaggelmaties",
+  label: "Επαγγελματίες"
+} as const;
+
+const landingAnchorLinks = [
   { href: "#about", label: "Σχετικά" },
   { href: "#features", label: "Λειτουργίες" },
   { href: "#contact", label: "Επικοινωνία" }
@@ -28,8 +33,13 @@ function signedInLabel(userType: HeaderProps["userType"]): string {
 }
 
 export function Header({ userType = null }: HeaderProps): JSX.Element {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navLinks =
+    pathname === "/"
+      ? [directoryLink, ...landingAnchorLinks]
+      : [directoryLink];
 
   useEffect(() => {
     function updateScrollState(): void {

@@ -53,6 +53,7 @@ export function RegisterForm(): JSX.Element {
   const [phone, setPhone] = useState("");
   const [slug, setSlug] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileVersion, setTurnstileVersion] = useState(0);
   const [userType, setUserType] = useState<UserType>("business_owner");
   const configuredBaseDomain =
     process.env.NEXT_PUBLIC_BOOKING_BASE_DOMAIN?.trim();
@@ -70,6 +71,21 @@ export function RegisterForm(): JSX.Element {
     const cleanSlug = normalizeSlug(slug);
     return cleanSlug ? `${baseDomain}/${cleanSlug}` : `${baseDomain}/your-slug`;
   }, [baseDomain, slug]);
+
+  function resetTurnstile(): void {
+    setTurnstileToken("");
+    setTurnstileVersion((current) => current + 1);
+  }
+
+  function selectUserType(nextUserType: UserType): void {
+    if (nextUserType === userType) {
+      return;
+    }
+
+    setError(null);
+    setUserType(nextUserType);
+    resetTurnstile();
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -112,6 +128,7 @@ export function RegisterForm(): JSX.Element {
           errorPayload?.error?.message ??
             "Η εγγραφή απέτυχε. Έλεγξε τα στοιχεία και δοκίμασε ξανά."
         );
+        resetTurnstile();
         return;
       }
 
@@ -121,6 +138,7 @@ export function RegisterForm(): JSX.Element {
     } catch (caughtError) {
       console.error("Registration request failed", caughtError);
       setError("Η σύνδεση απέτυχε. Δοκίμασε ξανά.");
+      resetTurnstile();
     } finally {
       setIsSubmitting(false);
     }
@@ -150,7 +168,7 @@ export function RegisterForm(): JSX.Element {
           <div className="min-w-0">
             <h1 className="text-3xl font-bold text-slate-900">Εγγραφή</h1>
             <p className="text-base leading-7 text-slate-600">
-              Δημιούργησε λογαριασμό πελάτη ή επαγγελματικό προφίλ.
+              Δημιούργησε λογαριασμό χρήστη ή επαγγελματικό προφίλ.
             </p>
           </div>
         </div>
@@ -162,7 +180,7 @@ export function RegisterForm(): JSX.Element {
                 ? "bg-white text-slate-950 shadow-sm"
                 : "text-slate-600"
             }`}
-            onClick={() => setUserType("business_owner")}
+            onClick={() => selectUserType("business_owner")}
             type="button"
           >
             Επιχείρηση
@@ -173,10 +191,10 @@ export function RegisterForm(): JSX.Element {
                 ? "bg-white text-slate-950 shadow-sm"
                 : "text-slate-600"
             }`}
-            onClick={() => setUserType("customer")}
+            onClick={() => selectUserType("customer")}
             type="button"
           >
-            Πελάτης
+            Χρήστης
           </button>
         </div>
 
@@ -278,7 +296,10 @@ export function RegisterForm(): JSX.Element {
           Να λαμβάνω ενημερώσεις για το Radevu.
         </label>
 
-        <Turnstile onTokenChange={setTurnstileToken} />
+        <Turnstile
+          key={turnstileVersion}
+          onTokenChange={setTurnstileToken}
+        />
 
         {error ? (
           <p className="rounded-md border border-red-500 bg-red-50 px-3 py-2 text-sm text-slate-800">

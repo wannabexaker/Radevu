@@ -4,6 +4,7 @@ import { Image as ImageIcon, Trash2, Upload } from "lucide-react";
 import { useEffect, useId, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { ToastInline } from "@/components/settings/ToastInline";
+import { cn } from "@/lib/utils";
 
 type UploadResult =
   | {
@@ -151,11 +152,23 @@ export function ImageUploadField({
           </p>
         </div>
 
-        <div className="flex min-h-32 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+        <div
+          className={cn(
+            "flex items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50",
+            kind === "logo"
+              ? "mx-auto aspect-square w-32"
+              : "min-h-32 w-full"
+          )}
+        >
           {previewUrl ? (
             <img
               alt={label}
-              className="h-full max-h-48 w-full object-cover"
+              className={cn(
+                "h-full w-full",
+                kind === "logo"
+                  ? "object-contain p-2"
+                  : "max-h-48 object-cover"
+              )}
               src={previewUrl}
             />
           ) : (
