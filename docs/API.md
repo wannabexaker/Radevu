@@ -31,6 +31,8 @@ Every route change must update this document in the same handoff. If code and `A
 
 `/api/v1/auth/password/reset` uses the better-auth reset token from the email link. Invalid, expired, or already used tokens return `400 { error: { code: "INVALID_TOKEN", message } }`. `new_password` must be 10-128 characters.
 
+Every `POST /api/auth/sign-in/email` attempt is audited asynchronously in `login_attempts` after better-auth produces its response. The audit stores only the lowercased attempted email, result, failure reason, request IP/user-agent, optional matched user id, and timestamp. Passwords are never passed to or stored by the audit layer, and audit failures never alter the login response.
+
 ### Me
 
 Session-gated routes for the currently logged-in user.
