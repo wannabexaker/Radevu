@@ -112,33 +112,45 @@ export function ImageUploadField({
     formData.set("file", file);
 
     startTransition(async () => {
-      const result = await uploadAction(formData);
+      try {
+        const result = await uploadAction(formData);
 
-      if (!result.ok) {
-        setError(result.error);
-        return;
+        if (!result.ok) {
+          setError(result.error);
+          return;
+        }
+
+        setFile(null);
+        onChange(result.url);
+        setError(null);
+        setSuccess("Αποθηκεύτηκε");
+      } catch {
+        setSuccess(null);
+        setError(
+          "Δεν μπορέσαμε να ανεβάσουμε την εικόνα. Δοκίμασε μικρότερο ή άλλο αρχείο."
+        );
       }
-
-      setFile(null);
-      onChange(result.url);
-      setError(null);
-      setSuccess("Αποθηκεύτηκε");
     });
   }
 
   function removeImage(): void {
     startTransition(async () => {
-      const result = await removeAction();
+      try {
+        const result = await removeAction();
 
-      if (!result.ok) {
-        setError(result.error);
-        return;
+        if (!result.ok) {
+          setError(result.error);
+          return;
+        }
+
+        setFile(null);
+        onChange(null);
+        setError(null);
+        setSuccess("Αποθηκεύτηκε");
+      } catch {
+        setSuccess(null);
+        setError("Δεν μπορέσαμε να αφαιρέσουμε την εικόνα. Δοκίμασε ξανά.");
       }
-
-      setFile(null);
-      onChange(null);
-      setError(null);
-      setSuccess("Αποθηκεύτηκε");
     });
   }
 

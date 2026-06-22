@@ -6,6 +6,11 @@ const monorepoRoot = path.resolve(__dirname, "../..");
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "8mb"
+    }
+  },
   output: "standalone",
   outputFileTracingRoot: monorepoRoot,
   serverExternalPackages: ["ioredis"],
