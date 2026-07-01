@@ -60,7 +60,14 @@ export default async function AccountLayout({
             >
               Ο πίνακάς μου
             </Link>
-          ) : null}
+          ) : (
+            <Link
+              className="inline-flex min-h-10 items-center rounded-xl px-3 text-sm font-medium text-indigo-700 hover:bg-indigo-50"
+              href="/account/create-business"
+            >
+              Δημιούργησε επιχείρηση
+            </Link>
+          )}
         </nav>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-5">
