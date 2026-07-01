@@ -5,6 +5,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
 import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
+import { getManagedBusinessForUser } from "@/lib/business-access";
 import { getCurrentUser } from "@/lib/current-user";
 
 export default async function DashboardLayout({
@@ -21,7 +22,9 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  if (user.userType !== "business_owner") {
+  const managedBusiness = await getManagedBusinessForUser(user.id);
+
+  if (!managedBusiness) {
     redirect("/account");
   }
 
@@ -38,6 +41,12 @@ export default async function DashboardLayout({
             <span>Radevu</span>
           </Link>
           <div className="flex items-center gap-1">
+            <Link
+              className="inline-flex min-h-10 items-center rounded-xl px-2 text-sm font-medium text-neutral-700 active:bg-neutral-100"
+              href="/account"
+            >
+              Λογαριασμός
+            </Link>
             <Link
               className="inline-flex min-h-10 items-center rounded-xl px-2 text-sm font-medium text-neutral-700 active:bg-neutral-100"
               href="/epaggelmaties"

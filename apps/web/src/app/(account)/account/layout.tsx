@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { LogoutButton } from "@/components/LogoutButton";
 import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
+import { getManagedBusinessForUser } from "@/lib/business-access";
 import { getCurrentUser } from "@/lib/current-user";
 
 export default async function AccountLayout({
@@ -16,9 +17,7 @@ export default async function AccountLayout({
     redirect("/login");
   }
 
-  if (user.userType !== "customer") {
-    redirect("/dashboard/today");
-  }
+  const managedBusiness = await getManagedBusinessForUser(user.id);
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
@@ -54,6 +53,14 @@ export default async function AccountLayout({
           >
             Προφίλ
           </Link>
+          {managedBusiness ? (
+            <Link
+              className="inline-flex min-h-10 items-center rounded-xl px-3 text-sm font-medium text-indigo-700 hover:bg-indigo-50"
+              href="/dashboard/today"
+            >
+              Ο πίνακάς μου
+            </Link>
+          ) : null}
         </nav>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-5">
