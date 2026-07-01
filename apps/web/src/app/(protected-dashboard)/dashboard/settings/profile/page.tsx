@@ -41,8 +41,10 @@ export default async function ProfileSettingsPage(): Promise<JSX.Element> {
     managed ? prisma.business.findUnique({
       where: { id: managed.id },
       select: {
+        category: true,
         contactEmail: true,
         contactPhone: true,
+        description: true,
         logoUrl: true,
         mapsUrl: true,
         name: true,
@@ -69,8 +71,10 @@ export default async function ProfileSettingsPage(): Promise<JSX.Element> {
     <div className="space-y-5 pb-20">
       <ProfileEditor
         business={{
+          category: business.category,
           contactEmail: business.contactEmail,
           contactPhone: business.contactPhone,
+          description: business.description,
           facebookUrl: getSocialLink(business.socialLinks, "facebook"),
           instagramUrl: getSocialLink(business.socialLinks, "instagram"),
           logoUrl: business.logoUrl,

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BUSINESS_CATEGORIES } from "../constants.js";
 
 const timeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const phoneSchema = z
@@ -96,6 +97,16 @@ export const workingHoursSchema = z.object({
 export const updateBusinessProfileSchema = z
   .object({
     name: z.string().trim().min(2).max(100).optional(),
+    category: z
+      .string()
+      .trim()
+      .refine(
+        (value) => (BUSINESS_CATEGORIES as readonly string[]).includes(value),
+        { message: "Invalid category" }
+      )
+      .nullable()
+      .optional(),
+    description: z.string().trim().max(600).nullable().optional(),
     contact_email: z.string().trim().email().max(254).nullable().optional(),
     contact_phone: phoneSchema.nullable().optional(),
     logo_url: uploadUrlSchema.nullable().optional(),

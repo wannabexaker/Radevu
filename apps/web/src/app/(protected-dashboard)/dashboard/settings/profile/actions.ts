@@ -100,8 +100,10 @@ function buildProfilePatch(formData: FormData): UpdateBusinessProfileInput {
   }
 
   return {
+    category: fieldToString(formData.get("category")),
     contact_email: fieldToString(formData.get("contact_email")),
     contact_phone: fieldToString(formData.get("contact_phone")),
+    description: fieldToString(formData.get("description")),
     maps_url: fieldToString(formData.get("maps_url")),
     name: fieldToString(formData.get("name")) ?? "",
     social_links: socialLinks

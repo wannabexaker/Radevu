@@ -11,6 +11,10 @@ function toBusinessUpdateData(
 ): Prisma.BusinessUpdateInput {
   return {
     ...(patch.name !== undefined ? { name: patch.name } : {}),
+    ...(patch.category !== undefined ? { category: patch.category } : {}),
+    ...(patch.description !== undefined
+      ? { description: patch.description }
+      : {}),
     ...(patch.contact_email !== undefined
       ? { contactEmail: patch.contact_email }
       : {}),

@@ -1,6 +1,16 @@
 "use client";
 
-import { Building2, Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { BUSINESS_CATEGORIES } from "@radevu/shared";
+import {
+  AlignLeft,
+  Building2,
+  Facebook,
+  Instagram,
+  Mail,
+  MapPin,
+  Phone,
+  Tag
+} from "lucide-react";
 import type { FormEvent } from "react";
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,8 +24,10 @@ import type {
 } from "./actions";
 
 type BusinessProfileSettings = {
+  category: string | null;
   contactEmail: string | null;
   contactPhone: string | null;
+  description: string | null;
   facebookUrl: string | null;
   instagramUrl: string | null;
   logoUrl: string | null;
@@ -140,6 +152,46 @@ export function ProfileEditor({
                 id="name"
                 name="name"
                 required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2" htmlFor="category">
+                <Tag aria-hidden="true" className="h-4 w-4" />
+                Κατηγορία
+              </Label>
+              <select
+                className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                data-testid="settings-profile-category"
+                defaultValue={business.category ?? ""}
+                id="category"
+                name="category"
+              >
+                <option disabled value="">
+                  Διάλεξε κατηγορία
+                </option>
+                {BUSINESS_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2" htmlFor="description">
+                <AlignLeft aria-hidden="true" className="h-4 w-4" />
+                Περιγραφή
+              </Label>
+              <textarea
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-relaxed text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                data-testid="settings-profile-description"
+                defaultValue={business.description ?? ""}
+                id="description"
+                maxLength={600}
+                name="description"
+                placeholder="Πες σύντομα στους πελάτες τι κάνεις."
+                rows={4}
               />
             </div>
 
