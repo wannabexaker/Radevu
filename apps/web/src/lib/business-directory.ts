@@ -69,18 +69,16 @@ function buildDirectoryWhere(
   const search = normalizeDirectorySearch(input.search);
   const filters: Prisma.BusinessWhereInput[] = [
     {
-      OR: [
-        {
-          showOnLanding: true
-        },
-        {
-          services: {
-            some: {
-              active: true
-            }
-          }
+      category: {
+        not: null
+      }
+    },
+    {
+      services: {
+        some: {
+          active: true
         }
-      ]
+      }
     }
   ];
 

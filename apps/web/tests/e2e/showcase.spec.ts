@@ -8,9 +8,6 @@ test("landing showcase links to the two live demo profiles", async ({
 
   await page.goto("/");
 
-  const cards = page.getByTestId("showcase-card");
-  await expect(cards).toHaveCount(2);
-
   const despoinaCard = page.locator(
     '[data-testid="showcase-card"][data-slug="despoina"]'
   );

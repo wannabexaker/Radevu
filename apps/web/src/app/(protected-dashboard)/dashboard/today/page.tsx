@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AppointmentList } from "@/components/dashboard/AppointmentList";
 import { DayHeader } from "@/components/dashboard/DayHeader";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { TodayHeader } from "@/components/dashboard/TodayHeader";
 import {
   TodayRangeSelector
@@ -21,6 +22,7 @@ import {
   getUpcomingDashboardAppointments
 } from "@/lib/appointments";
 import { getOwnerBusiness } from "@/lib/dashboard-server";
+import { getOnboardingSteps } from "@/lib/onboarding";
 
 export const dynamic = "force-dynamic";
 
@@ -113,6 +115,7 @@ export default async function TodayPage({
     redirect("/register");
   }
 
+  const onboardingSteps = await getOnboardingSteps(business.id);
   const params = await searchParams;
   const selectedRange = parseRange(params.range);
   const items = await getUpcomingDashboardAppointments(
@@ -137,6 +140,7 @@ export default async function TodayPage({
           Δες τι έρχεται και κάνε τις βασικές κινήσεις γρήγορα.
         </p>
       </header>
+      <OnboardingChecklist steps={onboardingSteps} />
       <TodayRangeSelector selectedRange={selectedRange} />
       <TodayHeader counters={counters} rangeDays={selectedRange} />
       {groups.length === 0 ? (
