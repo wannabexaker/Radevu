@@ -36,6 +36,7 @@ model User {
   loginAttempts     LoginAttempt[]
   managedBusinesses BusinessManager[]
   termsAcceptances  TermsAcceptance[]
+  searchEvents      SearchEvent[]
 
   @@map("users")
 }
@@ -131,6 +132,33 @@ model TermsAcceptance {
   @@index([email])
   @@index([userId])
   @@map("terms_acceptances")
+}
+
+/// One directory search, logged to learn what people look for.
+///
+/// Written fire-and-forget: a failure here must never affect the search the
+/// visitor is doing. Only real searches are recorded (a query and/or a
+/// category), not plain directory browsing or pagination, so counts mean
+/// "someone looked for this" rather than "a page was rendered".
+model SearchEvent {
+  id           String   @id @default(cuid())
+  /// Raw search text, trimmed and length-capped. Null for category-only searches.
+  query        String?
+  /// Selected category filter, if any.
+  category     String?
+  /// How many businesses the search returned — surfaces searches that find nothing.
+  resultsCount Int      @map("results_count")
+  /// Null for visitors without a session.
+  userId       String?  @map("user_id")
+  ip           String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([query])
+  @@index([userId])
+  @@map("search_events")
 }
 
 // Radevu domain models.

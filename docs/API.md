@@ -66,6 +66,7 @@ Business owner registration now happens through `POST /api/v1/auth/register`. Sl
 | Method | Path | Auth | Body / Query | Returns |
 |--------|------|------|--------------|---------|
 | `GET` | `/api/v1/businesses/directory` | Public | `?search&category&cursor&take=24` | `200 { businesses, next_cursor }` |
+| `GET` | `/api/v1/businesses/recommended` | Public (session-aware) | `?limit=6` | `200 { businesses, reason }` |
 | `GET` | `/api/v1/businesses/:id` | Public for booking page, Owner for full | - | `200 { business }` |
 | `PATCH` | `/api/v1/businesses/:id` | Owner or manager of `:id` | `{ name?, category?, description?, contact_email?, contact_phone?, logo_url?, photo_url?, social_links?, maps_url?, working_hours? }` | `200 { business }` |
 | `POST` | `/api/v1/businesses/:id/upload` | Owner or manager of `:id` | Multipart `{ kind: "logo"\|"photo", file }` | `201 { url }` |
@@ -73,6 +74,10 @@ Business owner registration now happens through `POST /api/v1/auth/register`. Sl
 | `PATCH` | `/api/v1/businesses/:id/visibility` | Owner or manager of `:id` | `{ show_on_landing }` | `200 { business: { id, show_on_landing } }` |
 
 `GET /api/v1/businesses/directory` returns public-safe discovery fields only: `id`, `slug`, `name`, `category`, `description`, `logo_url`, and `photo_url`. Results include businesses marked `show_on_landing=true` or businesses with at least one active service. `category` must be one of `BUSINESS_CATEGORIES`; `take` is clamped to 50.
+
+A first-page request carrying a `search` and/or `category` writes a `search_events` row (fire-and-forget — analytics must never slow or fail a search). Requests with a `cursor` are skipped, since paging is the same search. The `/epaggelmaties` page is a Server Component that calls `listDirectoryBusinesses` directly rather than this route, and logs the same way; both paths are covered.
+
+`GET /api/v1/businesses/recommended` returns the same public-safe fields plus `reason`: `"random"` for visitors and for signed-in users with no booking history, `"history"` when past bookings shaped the order. Only businesses that are `show_on_landing=true`, have a category, and have an active service are eligible; a business the user booked before is included only while it still meets the category + active-service bar. `limit` defaults to 6 and is clamped to 24; a non-integer `limit` is a `400 VALIDATION_ERROR`.
 
 Business profile updates use snake_case JSON keys. `logo_url` and `photo_url` accept `/uploads/...` URLs or `null` to clear. `social_links` accepts `{ instagram?, facebook? }` with allowlisted hosts only. `maps_url` accepts Google Maps hosts only. `working_hours` is a complete weekly object with `mon` through `sun`, each containing `{ open, close }` intervals in `HH:mm`.
 

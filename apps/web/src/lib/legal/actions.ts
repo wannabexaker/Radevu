@@ -3,10 +3,8 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/current-user";
-import {
-  clientMetaFromHeaders,
-  recordTermsAcceptance
-} from "@/lib/legal/terms-acceptance";
+import { recordTermsAcceptance } from "@/lib/legal/terms-acceptance";
+import { clientMetaFromHeaders } from "@/lib/request-meta";
 
 /**
  * Records the current user's acceptance of the published legal documents.

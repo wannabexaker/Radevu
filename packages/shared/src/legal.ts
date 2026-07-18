@@ -77,5 +77,6 @@ export const LEGAL_RETENTION = {
   appointmentsMonths: 24,
   contactRequestsMonths: 12,
   loginAttemptsMonths: 12,
+  searchEventsMonths: 12,
   termsAcceptanceYears: 5
 } as const;

@@ -7,10 +7,8 @@ import {
   sendVerificationEmail
 } from "@/lib/email-verification";
 import { prisma } from "@/lib/db";
-import {
-  clientMetaFromHeaders,
-  recordTermsAcceptance
-} from "@/lib/legal/terms-acceptance";
+import { recordTermsAcceptance } from "@/lib/legal/terms-acceptance";
+import { clientMetaFromHeaders } from "@/lib/request-meta";
 
 type ErrorCode =
   | "AUTH_ERROR"

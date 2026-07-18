@@ -1,5 +1,6 @@
 import { BUSINESS_CATEGORIES } from "@radevu/shared";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { Footer } from "@/components/landing/Footer";
 import { Header } from "@/components/landing/Header";
@@ -12,6 +13,11 @@ import {
   normalizeDirectorySearch
 } from "@/lib/business-directory";
 import { getCurrentUser } from "@/lib/current-user";
+import { clientMetaFromHeaders } from "@/lib/request-meta";
+import {
+  normalizeSearchTerm,
+  recordSearchEvent
+} from "@/lib/search-analytics";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -109,6 +115,18 @@ export default async function DirectoryPage({
     search: search ?? undefined,
     take: 24
   });
+
+  // Only the first page of a real search counts: paging through results is the
+  // same search, and logging it again would inflate the numbers.
+  if (!params.cursor) {
+    recordSearchEvent({
+      category,
+      ip: clientMetaFromHeaders(await headers()).ip,
+      query: normalizeSearchTerm(search),
+      resultsCount: result.items.length,
+      userId: user?.id ?? null
+    });
+  }
 
   return (
     <>

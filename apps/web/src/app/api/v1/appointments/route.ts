@@ -29,10 +29,8 @@ import { getOwnerBusiness } from "@/lib/dashboard-server";
 import { prisma } from "@/lib/db";
 import { getResendEmailConfig } from "@/lib/email-config";
 import { env } from "@/lib/env";
-import {
-  clientMetaFromHeaders,
-  recordTermsAcceptance
-} from "@/lib/legal/terms-acceptance";
+import { recordTermsAcceptance } from "@/lib/legal/terms-acceptance";
+import { clientMetaFromHeaders } from "@/lib/request-meta";
 import { enqueueReminder } from "@/lib/reminder-queue";
 
 export const dynamic = "force-dynamic";

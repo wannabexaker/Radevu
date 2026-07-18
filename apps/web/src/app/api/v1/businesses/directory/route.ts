@@ -8,6 +8,12 @@ import {
   type DirectoryBusiness,
   listDirectoryBusinesses
 } from "@/lib/business-directory";
+import { getCurrentUser } from "@/lib/current-user";
+import { clientMetaFromHeaders } from "@/lib/request-meta";
+import {
+  normalizeSearchTerm,
+  recordSearchEvent
+} from "@/lib/search-analytics";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +88,18 @@ export async function GET(
 
   try {
     const result = await listDirectoryBusinesses(parsedQuery.data);
+
+    if (!parsedQuery.data.cursor) {
+      const user = await getCurrentUser(request.headers).catch(() => null);
+
+      recordSearchEvent({
+        category: parsedQuery.data.category ?? null,
+        ip: clientMetaFromHeaders(request.headers).ip,
+        query: normalizeSearchTerm(parsedQuery.data.search ?? null),
+        resultsCount: result.items.length,
+        userId: user?.id ?? null
+      });
+    }
 
     return NextResponse.json({
       businesses: result.items.map(serializeBusiness),

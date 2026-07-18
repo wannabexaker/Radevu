@@ -132,9 +132,11 @@ Handoff: `RADEVU-CHUNK15-16-PLAN.md`. Locked: one account two roles (customer + 
 
 Handoff: `RADEVU-CHUNK15-16-PLAN.md`. Locked: per-user + anonymous-aggregate search analytics · recommendation v1 = random (guest) + history (logged-in). Customer rating system = DEFERRED (design-aware only).
 
-- [ ] **TASK-058:** `search_events` table + fire-and-forget logging on directory search (user_id when logged in, else anonymous).
-- [ ] **TASK-059:** Founder-only insights page (top searches + counts + top categories, windowed), gated to `FOUNDER_EMAIL`.
-- [ ] **TASK-060:** `GET /api/v1/businesses/recommended` (random for guests, history-based for logged-in) + landing «Προτεινόμενα».
+- [✓] **TASK-058:** `search_events` table + fire-and-forget logging. **Plan correction:** the spec said log in `GET /api/v1/businesses/directory`, but `/epaggelmaties` is a Server Component that calls `listDirectoryBusinesses` directly and never hits that route — logging only there would have produced an empty table. Both paths now log. Only real searches (query and/or category) on the first page count; browsing and pagination do not. Terms are lower-cased and whitespace-collapsed so variants aggregate.
+- [✓] **TASK-059:** Founder-only `/insights` (totals, top searches, top categories, searches with zero results, 7/30/90-day window). Standalone route, not under `/dashboard` — the dashboard layout requires a managed business. Returns **404, not 403**, so its existence is not disclosed. Gated by `FOUNDER_EMAIL`, falling back to `CONTACT_NOTIFICATION_EMAIL` and denying everyone when neither is set.
+- [✓] **TASK-060:** `GET /api/v1/businesses/recommended` + landing «Προτεινόμενα». Fisher-Yates rotation for guests; signed-in customers get booked businesses first, then same-category, then random fill. Only businesses with a category and an active service are eligible, including those from history.
+
+**Operational note:** `FOUNDER_EMAIL` must be set in the Pi `infra/.env` to an account that actually exists. Production has no `dimos.is.dev@gmail.com` user, so the fallback alone leaves `/insights` inaccessible.
 
 ## Module 15: Local-test fixes & flows (TASK-061…066)
 

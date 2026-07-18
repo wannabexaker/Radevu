@@ -15,6 +15,9 @@ const envSchema = z.object({
   RESEND_API_KEY: optionalNonEmptyString,
   RESEND_FROM_EMAIL: optionalNonEmptyString,
   CONTACT_NOTIFICATION_EMAIL: optionalNonEmptyString,
+  // Who may open the founder-only insights page. Falls back to
+  // CONTACT_NOTIFICATION_EMAIL so a fresh deploy is never wide open.
+  FOUNDER_EMAIL: optionalNonEmptyString,
   BOOKING_OWNER_ALERT_EMAIL_OVERRIDE: optionalNonEmptyString,
   TURNSTILE_SECRET_KEY: optionalNonEmptyString,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: optionalNonEmptyString,
@@ -39,6 +42,7 @@ const buildTimeEnv = {
   BOOKING_BASE_DOMAIN: "radevu.olamov.com",
   ROUTING_MODE: "subpath",
   CONTACT_NOTIFICATION_EMAIL: "founder@example.com",
+  FOUNDER_EMAIL: undefined,
   BOOKING_OWNER_ALERT_EMAIL_OVERRIDE: undefined,
   TURNSTILE_SECRET_KEY: undefined,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: undefined,
