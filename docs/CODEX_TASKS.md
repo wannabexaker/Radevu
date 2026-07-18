@@ -149,6 +149,16 @@ Handoff: `more/RADEVU-LOCALTEST-FIXES.md`. Found during local testing 2026-06-19
 - [ ] **TASK-067:** Login-attempts audit table — email/time/ip/user-agent/result/reason. **NEVER store passwords.** Fire-and-forget on sign-in. **SCHEMA REVIEW FIRST.**
 - [ ] **TASK-068:** Multiple managers per business (add 2nd admin by email) — `business_managers` join table + dashboard access checks. **SCHEMA REVIEW FIRST.**
 
+## Module 16: Legal — terms, privacy & consent evidence (TASK-069…071)
+
+Researched against GDPR arts. 13 (information), 7 (proof of consent), 28 (processor clauses) and ν. 4624/2019. Locked: Radevu is **controller** for account data and **processor** for each business's own customer records — the blanket "no liability" framing was rejected as unenforceable and replaced with the split above plus a lawful limitation clause.
+
+- [✓] **TASK-069:** `/legal/terms` + `/legal/privacy` real content (were «Σύντομα» stubs). Shared `LegalLayout`/`LegalSection` components, versions + controller identity in `packages/shared/src/legal.ts`, legal link row on public business profiles.
+- [✓] **TASK-070:** Consent evidence — `terms_acceptances` table (who/when/how/which version/IP/user-agent) + denormalised `users.terms_accepted_at`. `recordTermsAcceptance` never fails the request it audits.
+- [✓] **TASK-071:** Acceptance gates — required unchecked-by-default checkbox on `/register`; notice above the submit button in the booking flow (keeps the 60s budget). Both send `accepted_terms: true`, enforced as a zod literal.
+
+Controller is the natural person Ιωάννης Δήμος (`dimos.is.dev@gmail.com`), set in `packages/shared/src/legal.ts`. Swap for the company name + VAT number if Radevu is ever incorporated.
+
 ---
 
 ## Cross-cutting reminders for every task

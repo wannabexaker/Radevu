@@ -1,6 +1,7 @@
 "use client";
 
 import { formatGreekDateTime } from "@radevu/shared";
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -150,6 +151,7 @@ export function StepContactForm({
     try {
       const response = await fetch("/api/v1/appointments", {
         body: JSON.stringify({
+          accepted_terms: true,
           business_id: businessId,
           service_id: service.id,
           starts_at: slot.starts_at,
@@ -280,7 +282,29 @@ export function StepContactForm({
           </p>
         ) : null}
 
-        <Button className="mt-2 w-full" disabled={submitting} type="submit">
+        <p className="mt-2 text-sm leading-5 text-slate-500">
+          Με την επιβεβαίωση αποδέχεσαι τους{" "}
+          <Link
+            className="underline"
+            href="/legal/terms"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Όρους Χρήσης
+          </Link>{" "}
+          και την{" "}
+          <Link
+            className="underline"
+            href="/legal/privacy"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Πολιτική Απορρήτου
+          </Link>
+          . Τα στοιχεία σου πάνε στην επιχείρηση για να σε εξυπηρετήσει.
+        </p>
+
+        <Button className="w-full" disabled={submitting} type="submit">
           {submitting ? "Ολοκληρώνουμε την κράτηση..." : "Επιβεβαίωση"}
         </Button>
       </form>

@@ -24,7 +24,14 @@ const baseRegisterSchema = z.object({
   phone: optionalNonEmptyString.pipe(
     z.string().trim().min(5).max(20).optional()
   ),
-  marketing_opt_in: z.boolean().optional().default(false)
+  marketing_opt_in: z.boolean().optional().default(false),
+  // Contract formation evidence: must be an explicit true, so a missing or
+  // false value is a validation error rather than a silent opt-in.
+  accepted_terms: z.literal(true, {
+    errorMap: () => ({
+      message: "Πρέπει να αποδεχτείς τους Όρους Χρήσης και την Πολιτική Απορρήτου."
+    })
+  })
 });
 
 export const registerCustomerAuthSchema = baseRegisterSchema

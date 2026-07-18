@@ -40,6 +40,7 @@ function normalizeSlug(value: string): string {
 
 export function RegisterForm(): JSX.Element {
   const router = useRouter();
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +94,7 @@ export function RegisterForm(): JSX.Element {
     setIsSubmitting(true);
 
     const commonPayload = {
+      accepted_terms: acceptedTerms,
       email: email.trim().toLowerCase(),
       form_started_at: formStartedAt,
       honeypot,
@@ -286,6 +288,37 @@ export function RegisterForm(): JSX.Element {
           </>
         ) : null}
 
+        <label className="flex items-start gap-3 text-sm leading-6 text-slate-700">
+          <input
+            checked={acceptedTerms}
+            className="mt-1 h-4 w-4"
+            onChange={(event) => setAcceptedTerms(event.target.checked)}
+            required
+            type="checkbox"
+          />
+          <span>
+            Έχω διαβάσει και αποδέχομαι τους{" "}
+            <Link
+              className="font-medium text-indigo-700 underline"
+              href="/legal/terms"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Όρους Χρήσης
+            </Link>{" "}
+            και την{" "}
+            <Link
+              className="font-medium text-indigo-700 underline"
+              href="/legal/privacy"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Πολιτική Απορρήτου
+            </Link>
+            .
+          </span>
+        </label>
+
         <label className="flex items-start gap-3 text-sm leading-6 text-slate-600">
           <input
             checked={marketingOptIn}
@@ -309,7 +342,9 @@ export function RegisterForm(): JSX.Element {
 
         <Button
           className="w-full"
-          disabled={!isHydrated || isSubmitting || !turnstileToken}
+          disabled={
+            !isHydrated || isSubmitting || !turnstileToken || !acceptedTerms
+          }
           type="submit"
         >
           {isSubmitting ? "Δημιουργία..." : "Δημιουργία λογαριασμού"}

@@ -21,7 +21,14 @@ export const createAppointmentSchema = z.object({
   service_id: z.string().cuid(),
   starts_at: z.string().datetime({ offset: true }),
   customer: customerSchema,
-  note: optionalNonEmptyString.pipe(z.string().trim().max(500).optional())
+  note: optionalNonEmptyString.pipe(z.string().trim().max(500).optional()),
+  // The booking form shows the acceptance notice directly above the submit
+  // button; pressing it sends this flag, which we persist as evidence.
+  accepted_terms: z.literal(true, {
+    errorMap: () => ({
+      message: "Πρέπει να αποδεχτείς τους Όρους Χρήσης και την Πολιτική Απορρήτου."
+    })
+  })
 });
 
 export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>;

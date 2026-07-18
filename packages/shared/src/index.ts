@@ -8,6 +8,7 @@ export * from "./api/business-profile.js";
 export * from "./api/notification-settings.js";
 export * from "./api/services.js";
 export * from "./constants.js";
+export * from "./legal.js";
 export * from "./lib/datetime.js";
 export {
   dayKeys,

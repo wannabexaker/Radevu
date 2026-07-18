@@ -20,6 +20,12 @@ model User {
   userType       UserType @default(customer) @map("user_type")
   phone          String?
   marketingOptIn Boolean  @default(false) @map("marketing_opt_in")
+  // Denormalised copy of the latest acceptance, for cheap lookups and for
+  // re-prompting when a document version changes. TermsAcceptance is the
+  // authoritative evidence trail.
+  termsAcceptedAt DateTime? @map("terms_accepted_at")
+  termsVersion    String?   @map("terms_version")
+  privacyVersion  String?   @map("privacy_version")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -29,6 +35,7 @@ model User {
   customerProfiles  Customer[]        @relation("UserCustomers")
   loginAttempts     LoginAttempt[]
   managedBusinesses BusinessManager[]
+  termsAcceptances  TermsAcceptance[]
 
   @@map("users")
 }
@@ -94,6 +101,36 @@ model LoginAttempt {
   @@index([createdAt])
   @@index([email])
   @@map("login_attempts")
+}
+
+/// Evidence that a person accepted the Terms of Use and Privacy Policy.
+///
+/// GDPR Article 7(1) puts the burden of proof on us, so each row captures who
+/// accepted, when, by what means, and — critically — which document versions
+/// they were shown. Rows are append-only: never update or delete one, or the
+/// evidence stops being evidence.
+model TermsAcceptance {
+  id             String   @id @default(cuid())
+  /// Null for guests booking without an account, and for users deleted later.
+  userId         String?  @map("user_id")
+  /// Captured independently of userId so the trail survives account deletion.
+  email          String?
+  /// Where it happened: "register" | "booking".
+  context        String
+  /// How it was expressed: "checkbox" | "submit".
+  method         String
+  termsVersion   String   @map("terms_version")
+  privacyVersion String   @map("privacy_version")
+  ip             String?
+  userAgent      String?  @map("user_agent")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([email])
+  @@index([userId])
+  @@map("terms_acceptances")
 }
 
 // Radevu domain models.

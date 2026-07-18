@@ -18,7 +18,7 @@ Every route change must update this document in the same handoff. If code and `A
 
 | Method | Path | Auth | Body | Returns |
 |--------|------|------|------|---------|
-| `POST` | `/api/v1/auth/register` | Public + anti-abuse | Customer: `{ user_type: "customer", email, password, name, phone?, marketing_opt_in?, turnstile_token, honeypot?, form_started_at }`; Business owner: `{ user_type: "business_owner", email, password, name, phone?, marketing_opt_in?, business_name, slug, turnstile_token, honeypot?, form_started_at }` | `201 { user, business, redirect_to }` |
+| `POST` | `/api/v1/auth/register` | Public + anti-abuse | Customer: `{ user_type: "customer", email, password, name, phone?, marketing_opt_in?, accepted_terms: true, turnstile_token, honeypot?, form_started_at }`; Business owner: `{ user_type: "business_owner", email, password, name, phone?, marketing_opt_in?, accepted_terms: true, business_name, slug, turnstile_token, honeypot?, form_started_at }` | `201 { user, business, redirect_to }` |
 | `POST` | `/api/v1/auth/verification/resend` | Public + anti-abuse | `{ email, turnstile_token, honeypot?, form_started_at }` | `200 { ok: true }` |
 | `POST` | `/api/v1/auth/password/forgot` | Public + anti-abuse | `{ email, turnstile_token, honeypot?, form_started_at }` | `200 { ok: true }` |
 | `POST` | `/api/v1/auth/password/reset` | Public + IP rate-limit | `{ token, new_password }` | `200 { ok: true }` |
@@ -26,6 +26,8 @@ Every route change must update this document in the same handoff. If code and `A
 | `GET` | `/api/auth/verify-email` | better-auth token; active session required for an email change | `?token&callbackURL?` | Verifies the current email before changing it, then redirects to `callbackURL` |
 
 `/api/v1/auth/register` is a discriminated union on `user_type`. `customer` creates a customer account and redirects to `/account`; `business_owner` also creates the business profile and redirects to `/dashboard/today`. The public auth forms use Turnstile, honeypot, form age, and Redis rate limiting through `validateAuthSecurity`.
+
+`accepted_terms` must be the literal `true`; anything else is a `400 VALIDATION_ERROR`. On success the route writes a `terms_acceptances` row (`context: "register"`, `method: "checkbox"`) with the document versions from `LEGAL_VERSIONS`, the client IP and the user agent, and mirrors the versions onto `users.terms_accepted_at` / `terms_version` / `privacy_version`. The evidence write never fails the registration — it is logged instead.
 
 `/api/v1/auth/verification/resend` returns the same `200 { ok: true }` for unknown emails, already verified users, and successful sends so account existence is not exposed. Validation and anti-abuse failures still return typed errors. In the current implementation, an email provider failure returns `500 SERVER_ERROR`.
 
@@ -167,12 +169,14 @@ Month day `state` is one of `closed`, `full`, `tight`, `available`, or `open`.
 
 | Method | Path | Auth | Body / Query | Returns |
 |--------|------|------|--------------|---------|
-| `POST` | `/api/v1/appointments` | Public (guest booking) | `{ business_id, service_id, starts_at, customer: { name, email?, phone? }, note? }` | `201 { appointment, customer_manage_url }` |
+| `POST` | `/api/v1/appointments` | Public (guest booking) | `{ business_id, service_id, starts_at, customer: { name, email?, phone? }, note?, accepted_terms: true }` | `201 { appointment, customer_manage_url }` |
 | `GET` | `/api/v1/appointments` | Business manager | `?from=ISO&to=ISO&status=scheduled,done,cancelled&customer_q&cursor&take=50` | `200 { appointments, next_cursor }` |
 | `GET` | `/api/v1/appointments/:id` | Business manager | - | `200 { appointment }` |
 | `PATCH` | `/api/v1/appointments/:id` | Business manager | `{ status?, paid?, notes? }` | `200 { appointment }` |
 | `POST` | `/api/v1/appointment-actions/:token/cancel` | Public action token | `{ reason }` | `200 { ok: true }` |
 | `POST` | `/api/v1/appointment-actions/:token/reschedule-request` | Public action token | `{ starts_at }` | `200 { ok: true }` |
+
+`accepted_terms` must be the literal `true`. The booking form shows the acceptance notice directly above the submit button rather than a checkbox, to keep the flow inside the 60-second budget, so the acceptance is recorded with `method: "submit"` and `context: "booking"`. Guests get a row with `user_id: null`; a signed-in customer booking under their own email is linked.
 
 Public guest booking responses use snake_case JSON keys:
 
