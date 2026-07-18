@@ -5,6 +5,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
 import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
+import { TermsAcceptancePrompt } from "@/components/legal/TermsAcceptancePrompt";
+import { needsTermsAcceptance } from "@/lib/legal/terms-acceptance";
 import { getManagedBusinessForUser } from "@/lib/business-access";
 import { getCurrentUser } from "@/lib/current-user";
 
@@ -58,6 +60,7 @@ export default async function DashboardLayout({
         </div>
       </header>
       <main className="mx-auto w-full max-w-screen-sm flex-1 px-4 py-6">
+        {needsTermsAcceptance(user) ? <TermsAcceptancePrompt /> : null}
         {!user.emailVerified ? <VerifyEmailBanner /> : null}
         {children}
       </main>

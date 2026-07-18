@@ -1,4 +1,41 @@
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { expect, test } from "@playwright/test";
+
+const execFileAsync = promisify(execFile);
+const ownerEmail = "dimos.is.dev+qa@gmail.com";
+const ownerPassword = "QaDemo2026!";
+
+async function runPsql(sql: string): Promise<string> {
+  const result = await execFileAsync("docker", [
+    "exec",
+    "-i",
+    "radevu-postgres",
+    "psql",
+    "-U",
+    "radevu",
+    "-d",
+    "radevu",
+    "-A",
+    "-t",
+    "-c",
+    sql
+  ]);
+
+  return result.stdout.trim();
+}
+
+/**
+ * Puts the seeded owner back to "never accepted", so the prompt is reachable
+ * no matter how many times this suite has run against the same database.
+ */
+async function clearOwnerAcceptance(): Promise<void> {
+  await runPsql(`
+    UPDATE users
+    SET terms_accepted_at = NULL, terms_version = NULL, privacy_version = NULL
+    WHERE email = '${ownerEmail}';
+  `);
+}
 
 /**
  * Covers the legal documents and the terms-acceptance gate on the two public
@@ -83,6 +120,37 @@ test("guest booking is blocked without an explicit acceptance", async ({
 
   const missing = await request.post("/api/v1/appointments", { data: body });
   expect(missing.status()).toBe(400);
+});
+
+test("an account that never accepted is prompted, and accepting clears it", async ({
+  page
+}) => {
+  await clearOwnerAcceptance();
+
+  await page.goto("/dashboard/login");
+  await page.getByLabel("Email").fill(ownerEmail);
+  await page.getByLabel("Κωδικός").fill(ownerPassword);
+  await page.getByRole("button", { name: "Σύνδεση" }).click();
+  await page.waitForURL("**/dashboard/today");
+
+  const prompt = page.getByRole("heading", { name: "Ενημερώσαμε τους όρους" });
+  const accept = page.getByRole("button", { name: "Αποδέχομαι" });
+
+  // The seeded owner predates terms capture, so the prompt must be there.
+  await expect(prompt).toBeVisible();
+
+  // The box is required: submitting without ticking must not record anything.
+  await accept.click();
+  await expect(prompt).toBeVisible();
+
+  await page.getByRole("checkbox", { name: /αποδέχομαι τους/i }).check();
+  await accept.click();
+
+  await expect(prompt).toBeHidden();
+
+  // And it stays gone on the next render, i.e. it was actually persisted.
+  await page.reload();
+  await expect(prompt).toBeHidden();
 });
 
 test("the registration checkbox starts unchecked and gates submission", async ({

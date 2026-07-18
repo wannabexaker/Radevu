@@ -1,6 +1,7 @@
 "use client";
 
 import { Send } from "lucide-react";
+import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -154,6 +155,14 @@ export function Contact(): JSX.Element {
               Δοκίμασε ξανά.
             </p>
           ) : null}
+
+          <p className="text-sm leading-5 text-slate-500">
+            Τα στοιχεία σου τα χρησιμοποιώ μόνο για να σου απαντήσω. Δες την{" "}
+            <Link className="underline" href="/legal/privacy">
+              Πολιτική Απορρήτου
+            </Link>
+            .
+          </p>
 
           <Button disabled={isSubmitting} type="submit">
             <Send aria-hidden="true" className="h-5 w-5" />

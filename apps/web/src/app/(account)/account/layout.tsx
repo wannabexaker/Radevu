@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { LogoutButton } from "@/components/LogoutButton";
 import { VerifyEmailBanner } from "@/components/account/VerifyEmailBanner";
+import { TermsAcceptancePrompt } from "@/components/legal/TermsAcceptancePrompt";
+import { needsTermsAcceptance } from "@/lib/legal/terms-acceptance";
 import { getManagedBusinessForUser } from "@/lib/business-access";
 import { getCurrentUser } from "@/lib/current-user";
 
@@ -71,6 +73,7 @@ export default async function AccountLayout({
         </nav>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-5">
+        {needsTermsAcceptance(user) ? <TermsAcceptancePrompt /> : null}
         {!user.emailVerified ? <VerifyEmailBanner /> : null}
         {children}
       </main>

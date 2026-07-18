@@ -5,38 +5,42 @@ import {
 } from "@radevu/shared";
 import { prisma } from "@/lib/db";
 
+/** Minimal shape shared by `Request.headers` and `next/headers`. */
+type HeaderReader = {
+  get: (name: string) => string | null;
+};
+
+export type ClientMeta = {
+  ip: string | null;
+  userAgent: string | null;
+};
+
 export type RecordTermsAcceptanceInput = {
   context: TermsAcceptanceContext;
   email: string | null;
+  meta: ClientMeta;
   method: TermsAcceptanceMethod;
-  request: Request;
   userId: string | null;
 };
 
 /**
- * Extracts the client IP from the proxy headers, capped to the column width.
+ * Reads the client IP and user agent from request headers.
  *
  * Mirrors the login-attempt audit so both trails agree on what "the client
- * address" means behind the Cloudflare tunnel.
+ * address" means behind the Cloudflare tunnel, and caps both to sane lengths.
  *
- * @param request - Incoming request.
- * @returns The first forwarded IP, or null when unavailable.
+ * @param headers - Headers of the incoming request.
+ * @returns The client metadata, with nulls where headers are absent.
  */
-function forwardedIp(request: Request): string | null {
-  const value = request.headers.get("x-forwarded-for");
-  const first = value?.split(",")[0]?.trim();
-  return first ? first.slice(0, 255) : null;
-}
+export function clientMetaFromHeaders(headers: HeaderReader): ClientMeta {
+  const forwardedFor = headers.get("x-forwarded-for");
+  const firstIp = forwardedFor?.split(",")[0]?.trim();
+  const userAgent = headers.get("user-agent")?.trim();
 
-/**
- * Extracts the user agent, capped to a sane length.
- *
- * @param request - Incoming request.
- * @returns The user agent string, or null when absent.
- */
-function requestUserAgent(request: Request): string | null {
-  const value = request.headers.get("user-agent")?.trim();
-  return value ? value.slice(0, 1024) : null;
+  return {
+    ip: firstIp ? firstIp.slice(0, 255) : null,
+    userAgent: userAgent ? userAgent.slice(0, 1024) : null
+  };
 }
 
 /**
@@ -46,7 +50,7 @@ function requestUserAgent(request: Request): string | null {
  * reconstructed later. Never throws: losing the evidence row must not fail a
  * registration or a booking, but it is logged loudly so we notice.
  *
- * @param input - Who accepted, in which flow, and by what means.
+ * @param input - Who accepted, in which flow, by what means, and from where.
  * @returns Nothing; failures are swallowed after logging.
  */
 export async function recordTermsAcceptance(
@@ -57,11 +61,11 @@ export async function recordTermsAcceptance(
       data: {
         context: input.context,
         email: input.email,
-        ip: forwardedIp(input.request),
+        ip: input.meta.ip,
         method: input.method,
         privacyVersion: LEGAL_VERSIONS.privacy,
         termsVersion: LEGAL_VERSIONS.terms,
-        userAgent: requestUserAgent(input.request),
+        userAgent: input.meta.userAgent,
         userId: input.userId
       }
     });
@@ -85,4 +89,23 @@ export async function recordTermsAcceptance(
       userId: input.userId
     });
   }
+}
+
+/**
+ * Decides whether a signed-in user still owes an acceptance.
+ *
+ * True for accounts created before terms acceptance was captured at all, and
+ * for accounts that accepted an older version of either document.
+ *
+ * @param user - The stored acceptance state for the current user.
+ * @returns Whether the user should be asked to accept the current documents.
+ */
+export function needsTermsAcceptance(user: {
+  privacyVersion: string | null;
+  termsVersion: string | null;
+}): boolean {
+  return (
+    user.termsVersion !== LEGAL_VERSIONS.terms ||
+    user.privacyVersion !== LEGAL_VERSIONS.privacy
+  );
 }

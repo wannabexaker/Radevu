@@ -42,8 +42,18 @@ export const LEGAL_VERSIONS = {
   terms: "2026-07-18"
 } as const;
 
-/** Where in the product an acceptance was captured. */
-export const TERMS_ACCEPTANCE_CONTEXTS = ["register", "booking"] as const;
+/**
+ * Where in the product an acceptance was captured.
+ *
+ * `reprompt` covers accounts that predate a document version — they are asked
+ * again in-app. Acceptances are never backfilled: a row must always correspond
+ * to a real action by a real person.
+ */
+export const TERMS_ACCEPTANCE_CONTEXTS = [
+  "register",
+  "booking",
+  "reprompt"
+] as const;
 
 export type TermsAcceptanceContext =
   (typeof TERMS_ACCEPTANCE_CONTEXTS)[number];

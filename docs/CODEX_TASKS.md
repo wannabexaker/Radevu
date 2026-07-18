@@ -157,7 +157,9 @@ Researched against GDPR arts. 13 (information), 7 (proof of consent), 28 (proces
 - [✓] **TASK-070:** Consent evidence — `terms_acceptances` table (who/when/how/which version/IP/user-agent) + denormalised `users.terms_accepted_at`. `recordTermsAcceptance` never fails the request it audits.
 - [✓] **TASK-071:** Acceptance gates — required unchecked-by-default checkbox on `/register`; notice above the submit button in the booking flow (keeps the 60s budget). Both send `accepted_terms: true`, enforced as a zod literal.
 
-Controller is the natural person Ιωάννης Δήμος (`dimos.is.dev@gmail.com`), set in `packages/shared/src/legal.ts`. Swap for the company name + VAT number if Radevu is ever incorporated.
+- [✓] **TASK-072:** Re-prompt for accounts predating a document version (`needsTermsAcceptance` → non-dismissible prompt in both the dashboard and account layouts, recorded as `context: "reprompt"`). Acceptances are **never backfilled** — a row must always correspond to a real action by a real person. Privacy notice + link added under the landing contact form.
+
+Controller is the natural person Ιωάννης Δήμος (`dimos.is.dev@gmail.com`), set in `packages/shared/src/legal.ts`. Swap for the company name + VAT number if Radevu is ever incorporated. Bumping `LEGAL_VERSIONS` automatically re-prompts every existing user.
 
 ---
 

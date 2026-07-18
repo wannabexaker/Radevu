@@ -9,6 +9,8 @@ export type CurrentUser = {
   marketingOptIn: boolean;
   name: string | null;
   phone: string | null;
+  privacyVersion: string | null;
+  termsVersion: string | null;
   userType: "business_owner" | "customer";
 };
 
@@ -34,6 +36,8 @@ export async function getCurrentUser(
       marketingOptIn: true,
       name: true,
       phone: true,
+      privacyVersion: true,
+      termsVersion: true,
       userType: true
     }
   });

@@ -7,7 +7,10 @@ import {
   sendVerificationEmail
 } from "@/lib/email-verification";
 import { prisma } from "@/lib/db";
-import { recordTermsAcceptance } from "@/lib/legal/terms-acceptance";
+import {
+  clientMetaFromHeaders,
+  recordTermsAcceptance
+} from "@/lib/legal/terms-acceptance";
 
 type ErrorCode =
   | "AUTH_ERROR"
@@ -227,8 +230,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     await recordTermsAcceptance({
       context: "register",
       email,
+      meta: clientMetaFromHeaders(request.headers),
       method: "checkbox",
-      request,
       userId: createdUserId
     });
 

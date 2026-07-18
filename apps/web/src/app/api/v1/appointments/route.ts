@@ -29,7 +29,10 @@ import { getOwnerBusiness } from "@/lib/dashboard-server";
 import { prisma } from "@/lib/db";
 import { getResendEmailConfig } from "@/lib/email-config";
 import { env } from "@/lib/env";
-import { recordTermsAcceptance } from "@/lib/legal/terms-acceptance";
+import {
+  clientMetaFromHeaders,
+  recordTermsAcceptance
+} from "@/lib/legal/terms-acceptance";
 import { enqueueReminder } from "@/lib/reminder-queue";
 
 export const dynamic = "force-dynamic";
@@ -717,8 +720,8 @@ export async function POST(
     await recordTermsAcceptance({
       context: "booking",
       email: input.customer.email?.toLowerCase() ?? null,
+      meta: clientMetaFromHeaders(request.headers),
       method: "submit",
-      request,
       userId: linkedCustomerUserId
     });
 

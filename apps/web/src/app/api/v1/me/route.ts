@@ -122,6 +122,8 @@ export async function PATCH(
       marketingOptIn: true,
       name: true,
       phone: true,
+      privacyVersion: true,
+      termsVersion: true,
       userType: true
     }
   });
