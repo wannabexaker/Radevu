@@ -15,6 +15,9 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/radevu-web
+  # build-push-action uploads a .dockerbuild record artifact per image from v6
+  # onward. Set here so a future major bump does not start filling storage.
+  DOCKER_BUILD_RECORD_UPLOAD: "false"
 
 jobs:
   build-and-push:
