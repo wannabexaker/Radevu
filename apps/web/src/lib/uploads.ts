@@ -1,7 +1,8 @@
 import { mkdir, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-export const UPLOAD_ROOT = "/srv/radevu/uploads";
+// Production (the Pi) uses /srv/radevu/uploads; local dev can point elsewhere via UPLOAD_ROOT in infra/.env
+export const UPLOAD_ROOT = process.env.UPLOAD_ROOT || "/srv/radevu/uploads";
 export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 export const ALLOWED_MIME_TYPES = [
   "image/png",
