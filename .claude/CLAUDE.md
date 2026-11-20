@@ -6,7 +6,7 @@
 3. Load skill `booking-saas-codex-context` when preparing a Codex handoff or reviewing Codex output.
 4. Check `docs/CODEX_TASKS.md` for the current task queue.
 
-Per `CLAUDE_START_PROMPT.md`: do not start coding · ask all missing questions · find risks and contradictions · wait for approval · never immediately build.
+Working style (see `AGENTS.md` for the full brief): do not start coding · ask all missing questions · find risks and contradictions · wait for approval · never immediately build.
 
 ## My role
 Claude Code = **orchestrator**. I plan, review, and coordinate.
