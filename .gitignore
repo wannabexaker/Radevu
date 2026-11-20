@@ -70,7 +70,8 @@ yarn-error.log*
 RADEVU-*.md
 RADEVU-*-HANDOFF.md
 RADEVU-*-AGENT-PROMPT.md
-/docs
+# readme-identity keeps a local analysis cache here; it is tooling state, not docs
+docs/notes.md
 
 # ─── Codex agent workspace artefacts ───────────────────────────
 .codex/
