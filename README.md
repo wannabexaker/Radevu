@@ -111,4 +111,4 @@ Radevu/
 - Timestamps are stored in UTC and rendered in each business timezone.
 - Pushes to `main` build a `linux/arm64` image and publish `latest` plus SHA tags to GHCR.
 - Deployment and operations references live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/API.md`](docs/API.md), [`docs/CLOUDFLARE.md`](docs/CLOUDFLARE.md), and [`infra/SETUP.md`](infra/SETUP.md).
-- No open-source license is currently granted.
+- © 2026 Ioannis Dimos. All rights reserved — this is original work and copying, modification, or redistribution is not permitted without written permission. See [`LICENSE`](LICENSE).
