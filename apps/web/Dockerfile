@@ -50,6 +50,12 @@ FROM node:22-alpine
 
 WORKDIR /app
 
+# Build provenance, surfaced by /healthz and /api/health. Passed by CI.
+ARG APP_VERSION=
+ARG GIT_COMMIT=
+ENV APP_VERSION=$APP_VERSION
+ENV GIT_COMMIT=$GIT_COMMIT
+
 # curl for healthchecks; openssl for Prisma on Alpine
 RUN apk add --no-cache curl openssl
 
