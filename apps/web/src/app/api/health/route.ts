@@ -1,38 +1,13 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { redis } from "@/lib/redis";
+import { checkHealth } from "@/lib/health";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Health endpoint kept for backward compatibility (the container HEALTHCHECK
+ * and the Pi update script poll this path). `/healthz` is the shared alias.
+ */
 export async function GET(): Promise<NextResponse> {
-  let dbOk = false;
-  let redisOk = false;
-
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    dbOk = true;
-  } catch (error) {
-    console.error("Health check failed for PostgreSQL", error);
-    dbOk = false;
-  }
-
-  try {
-    const pong = await redis.ping();
-    redisOk = pong === "PONG";
-  } catch (error) {
-    console.error("Health check failed for Redis", error);
-    redisOk = false;
-  }
-
-  const status = dbOk && redisOk ? "ok" : "error";
-  const httpStatus = dbOk && redisOk ? 200 : 503;
-
-  return NextResponse.json(
-    {
-      status,
-      db: dbOk ? "ok" : "error",
-      redis: redisOk ? "ok" : "error"
-    },
-    { status: httpStatus }
-  );
+  const { body, httpStatus } = await checkHealth();
+  return NextResponse.json(body, { status: httpStatus });
 }
